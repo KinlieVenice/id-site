@@ -5,8 +5,9 @@ sized ID/passport photo — and a tiled print sheet — without anything leaving
 device. Free and ad-supportable by design: **no backend, no database, no API
 keys** (Decision D1).
 
-## Phase 1 (this build) — the shippable core
+## Features (all four phases)
 
+**Phase 1 — core maker + print sheet**
 - **Upload** (FR1) — JPG/PNG via file picker or drag-and-drop.
 - **Size presets** (FR2) — grouped by country/use; output pixels derived from
   mm + DPI. Presets are plain data in `src/data/presets.js` (Decision D8 — verify
@@ -20,8 +21,22 @@ keys** (Decision D1).
   a grid sized to the paper at the export DPI and shows capacity (Decision D7).
 - **Privacy / mobile / a11y floor** (FR18–FR20).
 
-Phases 2–4 (name strip + signature, mask brush, attire overlay) are scoped in
-the plan and not yet built; the architecture leaves room for them.
+**Phase 2 — name strip + signature** (in the Extras step)
+- **Name strip** (FR12) — optional white strip below the photo.
+- **Typed name** (FR13) — font, alignment, strip height.
+- **Signature** (FR14) — drawn on a smoothed pad (`signature_pad`, Decision D5),
+  placed with move/scale/rotate handles (`react-konva` Transformer, Decision D6).
+
+**Phase 3 — manual mask brush** (in the Background step)
+- **Erase / restore brush** (FR15) — fix background-removal misses on hair,
+  glasses and edges at full resolution (Decision D3).
+
+**Phase 4 — attire overlay** (in the Extras step)
+- **Attire library** (FR16) — curated, transparent overlays grouped by type.
+  Ships with swappable SVG placeholders; drop real PNGs in `public/attire` and
+  point `src/data/attire.js` at them.
+- **Place attire** (FR17) — affine move/scale/rotate only; perspective warp is
+  explicitly out of scope and attire is labelled a fun add-on (Decision D4).
 
 ## Design
 
@@ -49,11 +64,18 @@ are bundled and lazy-loaded; to self-host them reliably, see the library's
 
 ```
 src/
-  App.jsx              flow state + active step
+  App.jsx              flow state + active step (Editor lazy-loaded)
   components/          UploadStep, SizeStep, CropStep, BackgroundStep,
+                       MaskBrush, Editor, AttirePicker, SignaturePad,
                        ExportStep, Stepper, CropMarks, Guide
   lib/image.js         pure canvas maths: mm↔px, crop, cutout, composite,
-                       border, tile, export  (unit-tested)
+                       border, tile, trim, export  (unit-tested)
+  lib/useImage.js      tiny image loader for react-konva sources
   data/presets.js      size presets (verify per D8)
   data/paper.js        paper sizes for the print sheet
+  data/attire.js       attire manifest (swap placeholders for real PNGs)
 ```
+
+Flow: Upload → Size → Crop → Background (+ mask brush) → Extras (attire / name
+strip / signature) → Export (single + print sheet). The Extras step is optional —
+Export works straight from the Background output.

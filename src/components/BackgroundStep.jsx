@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import CropMarks from './CropMarks.jsx';
+import MaskBrush from './MaskBrush.jsx';
 import {
   removeBackground,
   compositeOnColor,
@@ -25,6 +26,7 @@ export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
+  const [brushing, setBrushing] = useState(false);
 
   const finalRef = useRef(null);
 
@@ -82,6 +84,22 @@ export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }
       <h2>Background &amp; finish</h2>
       <p className="sub">Optional. Skip any of these and head straight to export.</p>
 
+      {brushing && cutout ? (
+        <div>
+          <p className="sub" style={{ marginBottom: 12 }}>
+            Erase leftover background, or restore parts the model cut away.
+          </p>
+          <MaskBrush
+            cutout={cutout}
+            original={croppedCanvas}
+            onApply={(canvas) => {
+              setCutout(canvas);
+              setBrushing(false);
+            }}
+            onCancel={() => setBrushing(false)}
+          />
+        </div>
+      ) : (
       <div className="row">
         <div className="col">
           <div className="preview-frame">
@@ -117,6 +135,15 @@ export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }
               </div>
             )}
             {error && <p className="error">{error}</p>}
+            {removeBg && cutout && !working && (
+              <button
+                className="btn"
+                style={{ marginTop: 10 }}
+                onClick={() => setBrushing(true)}
+              >
+                Refine edges (brush) →
+              </button>
+            )}
           </div>
 
           <div className="field" style={{ opacity: removeBg ? 1 : 0.45 }}>
@@ -162,6 +189,7 @@ export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }
           </div>
         </div>
       </div>
+      )}
 
       <div className="btn-row">
         <button className="btn" onClick={onBack}>
@@ -170,10 +198,10 @@ export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }
         <span className="spacer" />
         <button
           className="btn primary"
-          disabled={working || !finalRef.current}
+          disabled={working || brushing || !finalRef.current}
           onClick={() => onDone(finalRef.current)}
         >
-          Export →
+          {brushing ? 'Finish touch-up first' : 'Next →'}
         </button>
       </div>
     </section>

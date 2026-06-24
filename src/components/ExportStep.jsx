@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import CropMarks from './CropMarks.jsx';
 import { PAPERS } from '../data/paper.js';
 import { buildTileSheet, sheetCapacity, downloadCanvas } from '../lib/image.js';
-import { presetPixels } from '../data/presets.js';
 
 // FR7 single download + FR8–FR11 tile/print sheet.
 export default function ExportStep({ finalCanvas, preset, onBack }) {
@@ -11,7 +10,10 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
   const [copies, setCopies] = useState(4);
   const previewRef = useRef(null);
 
-  const { w, h } = presetPixels(preset);
+  // Report the actual exported pixels (a name strip makes it taller than the
+  // bare preset), but keep the preset's DPI for the print maths.
+  const w = finalCanvas.width;
+  const h = finalCanvas.height;
   const paper = PAPERS.find((p) => p.id === paperId);
 
   const { capacity, cols, rows } = useMemo(

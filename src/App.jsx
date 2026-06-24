@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import Stepper from './components/Stepper.jsx';
 import UploadStep from './components/UploadStep.jsx';
 import SizeStep from './components/SizeStep.jsx';
@@ -6,6 +6,10 @@ import CropStep from './components/CropStep.jsx';
 import BackgroundStep from './components/BackgroundStep.jsx';
 import ExportStep from './components/ExportStep.jsx';
 import Guide from './components/Guide.jsx';
+
+// The Konva-based editor (attire/name/signature) is the heaviest dependency and
+// an optional add-on — load it only when the user reaches the Extras step.
+const Editor = lazy(() => import('./components/Editor.jsx'));
 
 // App owns the whole flow state and renders the active step. No backend, no
 // router yet — a single linear pipeline (architecture note, Decision D1).
@@ -16,6 +20,7 @@ export default function App() {
   const [imageSrc, setImageSrc] = useState(null);
   const [preset, setPreset] = useState(null);
   const [croppedCanvas, setCroppedCanvas] = useState(null);
+  const [composedCanvas, setComposedCanvas] = useState(null);
   const [finalCanvas, setFinalCanvas] = useState(null);
 
   function goTo(i) {
@@ -71,14 +76,28 @@ export default function App() {
           preset={preset}
           onBack={() => goTo(2)}
           onDone={(canvas) => {
+            setComposedCanvas(canvas);
             setFinalCanvas(canvas);
             goTo(4);
           }}
         />
       )}
 
-      {step === 4 && finalCanvas && preset && (
-        <ExportStep finalCanvas={finalCanvas} preset={preset} onBack={() => goTo(3)} />
+      {step === 4 && composedCanvas && (
+        <Suspense fallback={<div className="panel mono">Loading editor…</div>}>
+          <Editor
+            baseCanvas={composedCanvas}
+            onBack={() => goTo(3)}
+            onDone={(canvas) => {
+              setFinalCanvas(canvas);
+              goTo(5);
+            }}
+          />
+        </Suspense>
+      )}
+
+      {step === 5 && finalCanvas && preset && (
+        <ExportStep finalCanvas={finalCanvas} preset={preset} onBack={() => goTo(4)} />
       )}
 
       <Guide />
