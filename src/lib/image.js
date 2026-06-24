@@ -180,6 +180,43 @@ export function sheetCapacity(photoCanvas, paper, dpi, opts = {}) {
   return { capacity: cols * rows, cols, rows };
 }
 
+// ---- transparency helpers --------------------------------------------------
+
+// Crop a canvas down to the bounding box of its non-transparent pixels. Used to
+// tidy a drawn signature (Phase 2) so its transform handles hug the ink.
+export function trimTransparent(sourceCanvas) {
+  const { width: w, height: h } = sourceCanvas;
+  const ctx = sourceCanvas.getContext('2d');
+  const { data } = ctx.getImageData(0, 0, w, h);
+  let top = h,
+    left = w,
+    right = 0,
+    bottom = 0,
+    found = false;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (data[(y * w + x) * 4 + 3] > 8) {
+        found = true;
+        if (x < left) left = x;
+        if (x > right) right = x;
+        if (y < top) top = y;
+        if (y > bottom) bottom = y;
+      }
+    }
+  }
+  if (!found) return sourceCanvas;
+  const pad = 4;
+  left = Math.max(0, left - pad);
+  top = Math.max(0, top - pad);
+  right = Math.min(w - 1, right + pad);
+  bottom = Math.min(h - 1, bottom + pad);
+  const out = document.createElement('canvas');
+  out.width = right - left + 1;
+  out.height = bottom - top + 1;
+  out.getContext('2d').drawImage(sourceCanvas, left, top, out.width, out.height, 0, 0, out.width, out.height);
+  return out;
+}
+
 // ---- export ----------------------------------------------------------------
 
 export function canvasToBlob(canvas, type = 'image/png', quality = 0.95) {

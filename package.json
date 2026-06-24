@@ -12,9 +12,12 @@
   },
   "dependencies": {
     "@imgly/background-removal": "^1.5.8",
+    "konva": "^10.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-easy-crop": "^5.1.0"
+    "react-easy-crop": "^5.1.0",
+    "react-konva": "^18.2.16",
+    "signature_pad": "^5.1.3"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",

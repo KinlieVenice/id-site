@@ -1,5 +1,5 @@
 // Progress through the flow: upload → size → crop → background → export.
-const STEPS = ['Upload', 'Size', 'Crop', 'Background', 'Export'];
+const STEPS = ['Upload', 'Size', 'Crop', 'Background', 'Extras', 'Export'];
 
 export default function Stepper({ current, maxReached, onGo }) {
   return (
