@@ -35,7 +35,7 @@ export default function CropStep({ imageSrc, preset, onCropped, onBack }) {
       <p className="sub">
         Position your face within the frame. Locked to{' '}
         <span className="mono">
-          {preset.wmm}×{preset.hmm} mm ({w}×{h} px)
+          {Math.round(preset.wmm)}×{Math.round(preset.hmm)} mm ({w}×{h} px)
         </span>
         .
       </p>
