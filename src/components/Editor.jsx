@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Stage, Layer, Image as KImage, Rect, Text, Line, Transformer } from 'react-konva';
+import { Stage, Layer, Image as KImage, Rect, Text, Transformer } from 'react-konva';
 import CropMarks from './CropMarks.jsx';
 import AttirePicker from './AttirePicker.jsx';
 import SignaturePad from './SignaturePad.jsx';
@@ -9,24 +9,28 @@ import { ATTIRE } from '../data/attire.js';
 const FONTS = ['Inter', 'Georgia', 'Times New Roman', 'Courier New'];
 
 // Phase 2 + 4 editor (FR12–FR14, FR16–FR17). A react-konva stage (Decision D6)
-// hosts the finished photo plus three optional, affine-placed extras:
-//   • attire overlay (move / scale / rotate)
-//   • a white name strip below the photo, with typed name
-//   • a smoothed signature (move / scale / rotate)
-// "Apply" flattens the stage to a full-resolution canvas for export. Perspective
-// warp is deliberately out of scope (Decision D4) — affine handles only.
+// hosts the finished photo plus optional, affine-placed extras, each with its
+// own move / scale / rotate handles:
+//   • attire overlay
+//   • a white name strip (placed INSIDE the photo by default, where IDs usually
+//     put it) that can be dragged, resized and rotated
+//   • the name text — multiline, independently resizable/rotatable
+//   • a smoothed signature
+// "Apply" flattens the stage to a full-resolution canvas. Perspective warp is
+// out of scope (Decision D4) — affine only.
 export default function Editor({ baseCanvas, onDone, onBack }) {
   const baseW = baseCanvas.width;
   const baseH = baseCanvas.height;
 
   const [tab, setTab] = useState('attire');
 
-  // name strip
+  // name strip + text
   const [strip, setStrip] = useState(false);
-  const [stripRatio, setStripRatio] = useState(0.16);
   const [nameText, setNameText] = useState('');
   const [font, setFont] = useState('Inter');
   const [align, setAlign] = useState('center');
+  const [stripT, setStripT] = useState(null);
+  const [textT, setTextT] = useState(null);
 
   // attire + signature
   const [attireId, setAttireId] = useState(null);
@@ -37,39 +41,28 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
   const attireImg = useImage(attireSrc);
   const sigImg = useImage(sigUrl);
 
-  // full-resolution output dimensions (photo + optional strip)
-  const stripPx = strip ? Math.round(baseH * stripRatio) : 0;
-  const fullW = baseW;
-  const fullH = baseH + stripPx;
-
-  // fit the stage into the panel; export upscales back by 1/scale
-  const scale = useMemo(() => Math.min(440 / fullW, 480 / fullH, 1), [fullW, fullH]);
-  const viewW = Math.round(fullW * scale);
-  const viewH = Math.round(fullH * scale);
-  const photoViewH = Math.round(baseH * scale);
+  // No canvas extension — the strip is an overlay inside the photo, so output
+  // dimensions equal the photo's.
+  const scale = useMemo(() => Math.min(440 / baseW, 480 / baseH, 1), [baseW, baseH]);
+  const viewW = Math.round(baseW * scale);
+  const viewH = Math.round(baseH * scale);
 
   const [selected, setSelected] = useState(null);
   const [attireT, setAttireT] = useState(null);
   const [sigT, setSigT] = useState(null);
-  const [nameT, setNameT] = useState(null);
 
   const stageRef = useRef(null);
   const trRef = useRef(null);
   const attireRef = useRef(null);
   const sigRef = useRef(null);
-  const nameRef = useRef(null);
+  const stripRef = useRef(null);
+  const textRef = useRef(null);
 
   // Place attire over the shoulders when first chosen.
   useEffect(() => {
     if (attireImg) {
       const s = viewW / attireImg.width;
-      setAttireT({
-        x: 0,
-        y: photoViewH - attireImg.height * s,
-        scaleX: s,
-        scaleY: s,
-        rotation: 0,
-      });
+      setAttireT({ x: 0, y: viewH - attireImg.height * s, scaleX: s, scaleY: s, rotation: 0 });
       setSelected('attire');
     } else {
       setAttireT(null);
@@ -77,13 +70,13 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attireImg]);
 
-  // Drop a freshly drawn signature near the strip (or bottom of the photo).
+  // Drop a freshly drawn signature near the bottom of the photo.
   useEffect(() => {
     if (sigImg) {
       const s = Math.min((viewW * 0.45) / sigImg.width, 1);
       setSigT({
         x: viewW * 0.5 - (sigImg.width * s) / 2,
-        y: (strip ? photoViewH + (viewH - photoViewH) * 0.2 : photoViewH * 0.8),
+        y: viewH * 0.78,
         scaleX: s,
         scaleY: s,
         rotation: 0,
@@ -95,25 +88,33 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sigImg]);
 
-  // Initialise the name node once the strip turns on.
+  // Initialise the strip + text the first time the strip is turned on, inside
+  // the photo near the bottom (the usual ID layout).
   useEffect(() => {
-    if (strip && !nameT) {
-      setNameT({ x: 0, y: photoViewH + stripPx * scale * 0.3, scaleX: 1, scaleY: 1, rotation: 0 });
+    if (strip && !stripT) {
+      const sw = viewW * 0.86;
+      const sh = viewH * 0.15;
+      const sx = (viewW - sw) / 2;
+      const sy = viewH * 0.8;
+      setStripT({ x: sx, y: sy, width: sw, height: sh, rotation: 0 });
+      setTextT({ x: sx, y: sy + sh * 0.26, width: sw, fontSize: sh * 0.4, rotation: 0 });
+      setSelected('strip');
+      setTab('name');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strip]);
 
   // Attach the transformer to whatever is selected.
   useEffect(() => {
-    const map = { attire: attireRef, signature: sigRef, name: nameRef };
+    const map = { attire: attireRef, signature: sigRef, strip: stripRef, name: textRef };
     const node = selected && map[selected]?.current;
     if (trRef.current) {
       trRef.current.nodes(node ? [node] : []);
       trRef.current.getLayer()?.batchDraw();
     }
-  }, [selected, attireT, sigT, nameT, nameText, strip]);
+  }, [selected, attireT, sigT, stripT, textT, nameText, strip, align, font]);
 
-  function commit(setter, node) {
+  function commitAffine(setter, node) {
     setter((t) => ({
       ...t,
       x: node.x(),
@@ -124,6 +125,29 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
     }));
   }
 
+  // Strip resizes freely; bake scale into width/height so the rect stays crisp.
+  function commitStrip(node) {
+    const w = Math.max(10, node.width() * node.scaleX());
+    const h = Math.max(8, node.height() * node.scaleY());
+    node.scaleX(1);
+    node.scaleY(1);
+    node.width(w);
+    node.height(h);
+    setStripT((t) => ({ ...t, x: node.x(), y: node.y(), width: w, height: h, rotation: node.rotation() }));
+  }
+
+  // Text resizes uniformly; bake scale into font size + width so it stays sharp.
+  function commitText(node) {
+    const s = node.scaleX();
+    const fs = Math.max(6, node.fontSize() * s);
+    const w = Math.max(20, node.width() * s);
+    node.scaleX(1);
+    node.scaleY(1);
+    node.fontSize(fs);
+    node.width(w);
+    setTextT((t) => ({ ...t, x: node.x(), y: node.y(), width: w, fontSize: fs, rotation: node.rotation() }));
+  }
+
   function apply() {
     setSelected(null);
     requestAnimationFrame(() => {
@@ -132,7 +156,13 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
     });
   }
 
-  const nameFontPx = stripPx * scale * 0.42;
+  const stripAnchors = [
+    'top-left', 'top-center', 'top-right',
+    'middle-left', 'middle-right',
+    'bottom-left', 'bottom-center', 'bottom-right',
+  ];
+  const cornerAnchors = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+  const uniform = selected !== 'strip';
 
   return (
     <section className="panel">
@@ -140,7 +170,8 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
       <h2>Add attire, name &amp; signature</h2>
       <p className="sub">
         All optional (Decision D4 — attire is a fun add-on, not a guarantee of
-        realism). Drag the handles to position each piece, then apply.
+        realism). Tap a piece, then drag to move, corners to scale, the top
+        handle to rotate.
       </p>
 
       <div className="row">
@@ -159,14 +190,7 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
               }}
             >
               <Layer>
-                <KImage image={baseCanvas} x={0} y={0} width={viewW} height={photoViewH} />
-
-                {strip && (
-                  <>
-                    <Rect x={0} y={photoViewH} width={viewW} height={viewH - photoViewH} fill="#ffffff" />
-                    <Line points={[0, photoViewH, viewW, photoViewH]} stroke="#d8d4c8" strokeWidth={1} />
-                  </>
-                )}
+                <KImage image={baseCanvas} x={0} y={0} width={viewW} height={viewH} />
 
                 {attireImg && attireT && (
                   <KImage
@@ -176,26 +200,44 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
                     draggable
                     onClick={() => setSelected('attire')}
                     onTap={() => setSelected('attire')}
-                    onDragEnd={(e) => commit(setAttireT, e.target)}
-                    onTransformEnd={(e) => commit(setAttireT, e.target)}
+                    onDragEnd={(e) => commitAffine(setAttireT, e.target)}
+                    onTransformEnd={(e) => commitAffine(setAttireT, e.target)}
                   />
                 )}
 
-                {strip && nameT && (
+                {strip && stripT && (
+                  <Rect
+                    ref={stripRef}
+                    {...stripT}
+                    fill="#ffffff"
+                    stroke="#e3dfd3"
+                    strokeWidth={1}
+                    draggable
+                    onClick={() => setSelected('strip')}
+                    onTap={() => setSelected('strip')}
+                    onDragEnd={(e) => commitStrip(e.target)}
+                    onTransformEnd={(e) => commitStrip(e.target)}
+                  />
+                )}
+
+                {strip && textT && (
                   <Text
-                    ref={nameRef}
+                    ref={textRef}
                     text={nameText || 'Your Name'}
-                    {...nameT}
-                    width={viewW}
+                    x={textT.x}
+                    y={textT.y}
+                    width={textT.width}
+                    rotation={textT.rotation}
+                    fontSize={textT.fontSize}
                     align={align}
                     fontFamily={font}
-                    fontSize={nameFontPx}
+                    lineHeight={1.15}
                     fill={nameText ? '#10131a' : '#b8b4a8'}
                     draggable
                     onClick={() => setSelected('name')}
                     onTap={() => setSelected('name')}
-                    onDragEnd={(e) => commit(setNameT, e.target)}
-                    onTransformEnd={(e) => commit(setNameT, e.target)}
+                    onDragEnd={(e) => commitText(e.target)}
+                    onTransformEnd={(e) => commitText(e.target)}
                   />
                 )}
 
@@ -207,31 +249,30 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
                     draggable
                     onClick={() => setSelected('signature')}
                     onTap={() => setSelected('signature')}
-                    onDragEnd={(e) => commit(setSigT, e.target)}
-                    onTransformEnd={(e) => commit(setSigT, e.target)}
+                    onDragEnd={(e) => commitAffine(setSigT, e.target)}
+                    onTransformEnd={(e) => commitAffine(setSigT, e.target)}
                   />
                 )}
 
                 <Transformer
                   ref={trRef}
                   rotateEnabled
-                  keepRatio
-                  enabledAnchors={[
-                    'top-left',
-                    'top-right',
-                    'bottom-left',
-                    'bottom-right',
-                  ]}
+                  keepRatio={uniform}
+                  enabledAnchors={selected === 'strip' ? stripAnchors : cornerAnchors}
                   anchorStroke="#ff5a1f"
                   anchorFill="#fff"
                   borderStroke="#ff5a1f"
+                  boundBoxFunc={(oldBox, newBox) =>
+                    newBox.width < 8 || newBox.height < 8 ? oldBox : newBox
+                  }
                 />
               </Layer>
             </Stage>
           </div>
           {selected && (
             <p className="hint" style={{ marginTop: 8 }}>
-              Editing: <b>{selected}</b> · drag to move, corners to scale, top handle to rotate.
+              Editing: <b>{selected === 'name' ? 'name text' : selected}</b> · drag to move,
+              corners to scale, top handle to rotate.
             </p>
           )}
         </div>
@@ -249,26 +290,25 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
             ))}
           </div>
 
-          {tab === 'attire' && (
-            <AttirePicker selectedId={attireId} onSelect={setAttireId} />
-          )}
+          {tab === 'attire' && <AttirePicker selectedId={attireId} onSelect={setAttireId} />}
 
           {tab === 'name' && (
             <div>
               <label className="toggle" style={{ marginBottom: 14 }}>
                 <input type="checkbox" checked={strip} onChange={(e) => setStrip(e.target.checked)} />
-                Add a white name strip below the photo
+                Add a white name strip (inside the photo)
               </label>
               {strip && (
                 <>
                   <div className="field">
-                    <span className="lbl">Name</span>
-                    <input
-                      type="text"
+                    <span className="lbl">Name (press Enter for a new line)</span>
+                    <textarea
                       value={nameText}
                       placeholder="Type a name"
+                      rows={2}
                       onChange={(e) => setNameText(e.target.value)}
-                      style={{ fontFamily: 'var(--sans)' }}
+                      onFocus={() => setSelected('name')}
+                      className="name-input"
                     />
                   </div>
                   <div className="field">
@@ -295,21 +335,24 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
                       ))}
                     </div>
                   </div>
-                  <div className="control-row">
-                    <label htmlFor="striph">Height</label>
-                    <input
-                      id="striph"
-                      type="range"
-                      min={0.1}
-                      max={0.32}
-                      step={0.01}
-                      value={stripRatio}
-                      onChange={(e) => setStripRatio(Number(e.target.value))}
-                    />
-                    <span className="mono" style={{ minWidth: 40 }}>
-                      {Math.round(stripRatio * 100)}%
-                    </span>
+                  <div className="seg" style={{ marginTop: 4 }}>
+                    <button
+                      className={`seg-btn ${selected === 'strip' ? 'on' : ''}`}
+                      onClick={() => setSelected('strip')}
+                    >
+                      Edit strip
+                    </button>
+                    <button
+                      className={`seg-btn ${selected === 'name' ? 'on' : ''}`}
+                      onClick={() => setSelected('name')}
+                    >
+                      Edit text
+                    </button>
                   </div>
+                  <p className="hint" style={{ marginTop: 10 }}>
+                    Drag the strip and text on the photo to position them; use the
+                    corner handles to resize and the top handle to rotate.
+                  </p>
                 </>
               )}
             </div>

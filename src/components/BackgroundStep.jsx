@@ -191,6 +191,7 @@ export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }
       </div>
       )}
 
+      {!brushing && (
       <div className="btn-row">
         <button className="btn" onClick={onBack}>
           ← Back
@@ -198,12 +199,13 @@ export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }
         <span className="spacer" />
         <button
           className="btn primary"
-          disabled={working || brushing || !finalRef.current}
+          disabled={working || !finalRef.current}
           onClick={() => onDone(finalRef.current)}
         >
-          {brushing ? 'Finish touch-up first' : 'Next →'}
+          Next →
         </button>
       </div>
+      )}
     </section>
   );
 }

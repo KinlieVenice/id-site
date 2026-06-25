@@ -10,8 +10,10 @@ export default function MaskBrush({ cutout, original, onApply, onCancel }) {
   const viewRef = useRef(null);
   const workRef = useRef(null); // full-res working copy of the cutout
   const drawing = useRef(false);
+  const history = useRef([]); // snapshots for undo (one per stroke)
   const [mode, setMode] = useState('erase');
   const [size, setSize] = useState(28);
+  const [canUndo, setCanUndo] = useState(false);
 
   const scale = Math.min(1, 360 / cutout.width);
   const viewW = Math.round(cutout.width * scale);
@@ -24,9 +26,47 @@ export default function MaskBrush({ cutout, original, onApply, onCancel }) {
     work.height = cutout.height;
     work.getContext('2d').drawImage(cutout, 0, 0);
     workRef.current = work;
+    history.current = [];
+    setCanUndo(false);
     repaint();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cutout]);
+
+  // Snapshot before a stroke so it can be undone (cap the stack so memory on
+  // large photos stays bounded).
+  function pushHistory() {
+    const src = workRef.current;
+    const snap = document.createElement('canvas');
+    snap.width = src.width;
+    snap.height = src.height;
+    snap.getContext('2d').drawImage(src, 0, 0);
+    history.current.push(snap);
+    if (history.current.length > 20) history.current.shift();
+    setCanUndo(true);
+  }
+
+  function undo() {
+    const snap = history.current.pop();
+    if (!snap) return;
+    const ctx = workRef.current.getContext('2d');
+    ctx.clearRect(0, 0, workRef.current.width, workRef.current.height);
+    ctx.drawImage(snap, 0, 0);
+    setCanUndo(history.current.length > 0);
+    repaint();
+  }
+
+  // Ctrl/Cmd+Z to undo the last stroke.
+  useEffect(() => {
+    function onKey(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        undo();
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function repaint() {
     const view = viewRef.current;
@@ -68,6 +108,7 @@ export default function MaskBrush({ cutout, original, onApply, onCancel }) {
   function onDown(e) {
     e.preventDefault();
     drawing.current = true;
+    pushHistory();
     const p = pointAt(e);
     stroke(p.x, p.y);
   }
@@ -109,6 +150,9 @@ export default function MaskBrush({ cutout, original, onApply, onCancel }) {
         <span className="mono" style={{ minWidth: 40 }}>
           {size}px
         </span>
+        <button className="btn" disabled={!canUndo} onClick={undo} title="Undo (Ctrl+Z)">
+          ↶ Undo
+        </button>
       </div>
 
       <div className="preview-frame" style={{ minHeight: 0, padding: 10 }}>
