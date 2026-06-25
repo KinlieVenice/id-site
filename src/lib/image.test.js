@@ -10,14 +10,19 @@ describe('mmToPx', () => {
 });
 
 describe('presetPixels', () => {
-  it('derives exact output pixels for the US 2x2 preset', () => {
-    const us = PRESETS.find((p) => p.id === 'us-2x2');
-    expect(presetPixels(us)).toEqual({ w: 602, h: 602 });
+  it('derives exactly 600×600 px for the US 2×2 in passport preset', () => {
+    const us = PRESETS.find((p) => p.id === 'us-passport');
+    expect(presetPixels(us)).toEqual({ w: 600, h: 600 });
   });
 
-  it('derives portrait pixels for Schengen 35x45', () => {
-    const s = PRESETS.find((p) => p.id === 'schengen-35x45');
+  it('derives portrait pixels for the ICAO 35×45 mm standard', () => {
+    const s = PRESETS.find((p) => p.id === 'eu-schengen');
     expect(presetPixels(s)).toEqual({ w: 413, h: 531 });
+  });
+
+  it('derives 300×300 px for the generic 1×1 in size', () => {
+    const one = PRESETS.find((p) => p.id === 'id-1x1');
+    expect(presetPixels(one)).toEqual({ w: 300, h: 300 });
   });
 });
 

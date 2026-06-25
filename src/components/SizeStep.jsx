@@ -28,7 +28,7 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
                 >
                   <span className="label">{p.label}</span>
                   <span className="dims mono">
-                    {p.wmm}×{p.hmm} mm · {p.dpi} dpi
+                    {Math.round(p.wmm)}×{Math.round(p.hmm)} mm · {p.dpi} dpi
                   </span>
                   <span className="dims mono">
                     {w}×{h} px
