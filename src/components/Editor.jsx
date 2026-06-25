@@ -8,24 +8,28 @@ import { ATTIRE } from '../data/attire.js';
 
 const FONTS = ['Inter', 'Georgia', 'Times New Roman', 'Courier New'];
 
-// Phase 2 + 4 editor (FR12–FR14, FR16–FR17). A react-konva stage (Decision D6)
-// hosts the finished photo plus optional, affine-placed extras, each with its
-// own move / scale / rotate handles:
-//   • attire overlay
-//   • a white name strip (placed INSIDE the photo by default, where IDs usually
-//     put it) that can be dragged, resized and rotated
-//   • the name text — multiline, independently resizable/rotatable
-//   • a smoothed signature
-// "Apply" flattens the stage to a full-resolution canvas. Perspective warp is
-// out of scope (Decision D4) — affine only.
+const SUB_STEPS = [
+  {
+    title: 'Clothing overlay',
+    sub: 'Add a suit, blazer, or other attire over your photo.',
+  },
+  {
+    title: 'Name',
+    sub: 'Type your name to add it to the photo.',
+  },
+  {
+    title: 'Signature',
+    sub: 'Draw your signature to place on the photo.',
+  },
+];
+
 export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
   const baseW = baseCanvas.width;
   const baseH = baseCanvas.height;
 
-  // Restore prior work (if the user navigated away and came back).
   const saved = persisted?.current || {};
 
-  const [tab, setTab] = useState(saved.tab ?? 'attire');
+  const [subStep, setSubStep] = useState(saved.subStep ?? 0);
 
   // name strip + text
   const [strip, setStrip] = useState(saved.strip ?? false);
@@ -44,9 +48,23 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
   const attireImg = useImage(attireSrc);
   const sigImg = useImage(sigUrl);
 
-  // No canvas extension — the strip is an overlay inside the photo, so output
-  // dimensions equal the photo's.
-  const scale = useMemo(() => Math.min(440 / baseW, 480 / baseH, 1), [baseW, baseH]);
+  // Responsive canvas: measure the container and fit the Stage to it.
+  const canvasColRef = useRef(null);
+  const [canvasColW, setCanvasColW] = useState(440);
+
+  useEffect(() => {
+    const el = canvasColRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setCanvasColW(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // 32px = 16px padding × 2 sides in .preview-frame
+  const scale = useMemo(
+    () => Math.min((canvasColW - 32) / baseW, 480 / baseH, 1),
+    [canvasColW, baseW, baseH],
+  );
   const viewW = Math.round(baseW * scale);
   const viewH = Math.round(baseH * scale);
 
@@ -61,9 +79,6 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
   const stripRef = useRef(null);
   const textRef = useRef(null);
 
-  // Place attire over the shoulders when first chosen. Only auto-place when
-  // there's no transform yet (a fresh pick clears it) — so a restored or
-  // user-moved position is preserved.
   useEffect(() => {
     if (attireImg && !attireT) {
       const s = viewW / attireImg.width;
@@ -73,8 +88,6 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attireImg]);
 
-  // Drop a freshly drawn signature near the bottom of the photo (only when it
-  // has no transform yet, so a restored placement survives).
   useEffect(() => {
     if (sigImg && !sigT) {
       const s = Math.min((viewW * 0.45) / sigImg.width, 1);
@@ -90,8 +103,6 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sigImg]);
 
-  // Choosing attire / drawing a signature clears its transform so it re-places
-  // to a sensible default for the new image.
   function chooseAttire(id) {
     setAttireId(id);
     setAttireT(null);
@@ -101,18 +112,16 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
     setSigT(null);
   }
 
-  // Persist the full editor state so it survives unmount (navigating back).
   useEffect(() => {
     if (persisted) {
       persisted.current = {
-        tab, strip, nameText, font, align, stripT, textT,
+        subStep, strip, nameText, font, align, stripT, textT,
         attireId, sigUrl, attireT, sigT, selected,
       };
     }
-  }, [persisted, tab, strip, nameText, font, align, stripT, textT, attireId, sigUrl, attireT, sigT, selected]);
+  }, [persisted, subStep, strip, nameText, font, align, stripT, textT, attireId, sigUrl, attireT, sigT, selected]);
 
-  // Initialise the strip + text the first time the strip is turned on, inside
-  // the photo near the bottom (the usual ID layout).
+  // Auto-place strip + text the first time strip is turned on.
   useEffect(() => {
     if (strip && !stripT) {
       const sw = viewW * 0.86;
@@ -122,12 +131,17 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
       setStripT({ x: sx, y: sy, width: sw, height: sh, rotation: 0 });
       setTextT({ x: sx, y: sy + sh * 0.26, width: sw, fontSize: sh * 0.4, rotation: 0 });
       setSelected('strip');
-      setTab('name');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strip]);
 
-  // Attach the transformer to whatever is selected.
+  // Auto-enable the strip when the user types a name.
+  function handleNameChange(e) {
+    const val = e.target.value;
+    setNameText(val);
+    if (val && !strip) setStrip(true);
+  }
+
   useEffect(() => {
     const map = { attire: attireRef, signature: sigRef, strip: stripRef, name: textRef };
     const node = selected && map[selected]?.current;
@@ -148,7 +162,6 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
     }));
   }
 
-  // Strip resizes freely; bake scale into width/height so the rect stays crisp.
   function commitStrip(node) {
     const w = Math.max(10, node.width() * node.scaleX());
     const h = Math.max(8, node.height() * node.scaleY());
@@ -159,7 +172,6 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
     setStripT((t) => ({ ...t, x: node.x(), y: node.y(), width: w, height: h, rotation: node.rotation() }));
   }
 
-  // Text resizes uniformly; bake scale into font size + width so it stays sharp.
   function commitText(node) {
     const s = node.scaleX();
     const fs = Math.max(6, node.fontSize() * s);
@@ -187,24 +199,25 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
   const cornerAnchors = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
   const uniform = selected !== 'strip';
 
+  const stepInfo = SUB_STEPS[subStep];
+  const canGoBack = subStep > 0;
+  const canGoNext = subStep < 2;
+
   return (
     <section className="panel">
       <CropMarks />
       <h2>Add attire, name &amp; signature</h2>
-      <p className="sub">
-        All optional (Decision D4 — attire is a fun add-on, not a guarantee of
-        realism). Tap a piece, then drag to move, corners to scale, the top
-        handle to rotate.
-      </p>
+      <p className="sub">All optional — skip any section you don&apos;t need.</p>
 
-      <div className="row">
-        <div className="col">
-          <div className="preview-frame" style={{ minHeight: 0 }}>
+      <div className="editor-row row">
+        {/* Canvas column */}
+        <div className="col editor-canvas-col" ref={canvasColRef}>
+          <div className="preview-frame" style={{ minHeight: 0, padding: 16 }}>
             <Stage
               ref={stageRef}
               width={viewW}
               height={viewH}
-              style={{ background: '#fff', maxWidth: '100%' }}
+              style={{ background: '#fff', display: 'block' }}
               onMouseDown={(e) => {
                 if (e.target === e.target.getStage()) setSelected(null);
               }}
@@ -294,46 +307,51 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
           </div>
           {selected && (
             <p className="hint" style={{ marginTop: 8 }}>
-              Editing: <b>{selected === 'name' ? 'name text' : selected}</b> · drag to move,
-              corners to scale, top handle to rotate.
+              Tap to select · drag to move · corners to scale · top handle to rotate
             </p>
           )}
         </div>
 
-        <div className="col">
-          <div className="seg" style={{ marginBottom: 16 }}>
-            {['attire', 'name', 'signature'].map((t) => (
-              <button
-                key={t}
-                className={`seg-btn ${tab === t ? 'on' : ''}`}
-                onClick={() => setTab(t)}
-              >
-                {t[0].toUpperCase() + t.slice(1)}
-              </button>
-            ))}
+        {/* Guided controls column */}
+        <div className="col editor-controls-col">
+          {/* Step indicator */}
+          <div className="guided-header">
+            <div className="guided-step-label">
+              <span className="step-dots">
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    className={`step-dot ${i === subStep ? 'active' : i < subStep ? 'done' : ''}`}
+                  />
+                ))}
+              </span>
+              Step {subStep + 1} of 3
+            </div>
+            <p className="guided-title">{stepInfo.title}</p>
+            <p className="guided-sub">{stepInfo.sub}</p>
           </div>
 
-          {tab === 'attire' && <AttirePicker selectedId={attireId} onSelect={chooseAttire} />}
+          {/* Step 1 — Attire */}
+          {subStep === 0 && (
+            <AttirePicker selectedId={attireId} onSelect={chooseAttire} />
+          )}
 
-          {tab === 'name' && (
+          {/* Step 2 — Name */}
+          {subStep === 1 && (
             <div>
-              <label className="toggle" style={{ marginBottom: 14 }}>
-                <input type="checkbox" checked={strip} onChange={(e) => setStrip(e.target.checked)} />
-                Add a white name strip (inside the photo)
-              </label>
-              {strip && (
+              <div className="field">
+                <span className="lbl">Name (Enter for a new line)</span>
+                <textarea
+                  value={nameText}
+                  placeholder="Type a name…"
+                  rows={2}
+                  onChange={handleNameChange}
+                  onFocus={() => nameText && setSelected('name')}
+                  className="name-input"
+                />
+              </div>
+              {nameText && strip && (
                 <>
-                  <div className="field">
-                    <span className="lbl">Name (press Enter for a new line)</span>
-                    <textarea
-                      value={nameText}
-                      placeholder="Type a name"
-                      rows={2}
-                      onChange={(e) => setNameText(e.target.value)}
-                      onFocus={() => setSelected('name')}
-                      className="name-input"
-                    />
-                  </div>
                   <div className="field">
                     <span className="lbl">Font</span>
                     <select value={font} onChange={(e) => setFont(e.target.value)}>
@@ -363,25 +381,25 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
                       className={`seg-btn ${selected === 'strip' ? 'on' : ''}`}
                       onClick={() => setSelected('strip')}
                     >
-                      Edit strip
+                      Move strip
                     </button>
                     <button
                       className={`seg-btn ${selected === 'name' ? 'on' : ''}`}
                       onClick={() => setSelected('name')}
                     >
-                      Edit text
+                      Move text
                     </button>
                   </div>
                   <p className="hint" style={{ marginTop: 10 }}>
-                    Drag the strip and text on the photo to position them; use the
-                    corner handles to resize and the top handle to rotate.
+                    Drag the strip and text on the photo to position them.
                   </p>
                 </>
               )}
             </div>
           )}
 
-          {tab === 'signature' && (
+          {/* Step 3 — Signature */}
+          {subStep === 2 && (
             <div>
               {signing ? (
                 <SignaturePad
@@ -392,29 +410,41 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
                   onCancel={() => setSigning(false)}
                 />
               ) : (
-                <>
-                  <p className="sub">
-                    {sigUrl
-                      ? 'Signature placed. Drag the handles on the canvas to position it.'
-                      : 'Draw a signature to place on the strip or over the photo.'}
-                  </p>
-                  <div className="btn-row" style={{ marginTop: 0 }}>
-                    <button className="btn primary" onClick={() => setSigning(true)}>
-                      {sigUrl ? 'Redraw signature' : 'Draw signature'}
+                <div className="btn-row" style={{ marginTop: 0 }}>
+                  <button className="btn primary" onClick={() => setSigning(true)}>
+                    {sigUrl ? 'Redraw signature' : 'Draw signature'}
+                  </button>
+                  {sigUrl && (
+                    <button
+                      className="btn"
+                      onClick={() => {
+                        setSigUrl(null);
+                        setSigT(null);
+                      }}
+                    >
+                      Remove
                     </button>
-                    {sigUrl && (
-                      <button
-                        className="btn"
-                        onClick={() => {
-                          setSigUrl(null);
-                          setSigT(null);
-                        }}
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Sub-step navigation */}
+          {!signing && (
+            <div className="guided-nav">
+              {canGoBack && (
+                <button className="btn" onClick={() => setSubStep((s) => s - 1)}>
+                  ← Back
+                </button>
+              )}
+              <span className="spacer" />
+              {canGoNext && (
+                <button className="btn" onClick={() => setSubStep((s) => s + 1)}>
+                  {subStep === 0
+                    ? attireId ? 'Next →' : 'Skip →'
+                    : nameText ? 'Next →' : 'Skip →'}
+                </button>
               )}
             </div>
           )}
@@ -427,7 +457,7 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
         </button>
         <span className="spacer" />
         <button className="btn primary" onClick={apply}>
-          Export →
+          Apply &amp; Export →
         </button>
       </div>
     </section>

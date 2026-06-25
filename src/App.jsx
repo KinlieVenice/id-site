@@ -7,12 +7,8 @@ import BackgroundStep from './components/BackgroundStep.jsx';
 import ExportStep from './components/ExportStep.jsx';
 import Guide from './components/Guide.jsx';
 
-// The Konva-based editor (attire/name/signature) is the heaviest dependency and
-// an optional add-on — load it only when the user reaches the Extras step.
 const Editor = lazy(() => import('./components/Editor.jsx'));
 
-// App owns the whole flow state and renders the active step. No backend, no
-// router yet — a single linear pipeline (architecture note, Decision D1).
 export default function App() {
   const [step, setStep] = useState(0);
   const [maxReached, setMaxReached] = useState(0);
@@ -23,14 +19,9 @@ export default function App() {
   const [composedCanvas, setComposedCanvas] = useState(null);
   const [finalCanvas, setFinalCanvas] = useState(null);
 
-  // Per-step UI state survives navigating away and back, so revisiting an
-  // earlier step (and continuing forward) doesn't wipe the user's work.
   const cropState = useRef(null);
   const bgState = useRef(null);
   const editorState = useRef(null);
-  // Signature of the crop that produced the current croppedCanvas — lets us skip
-  // regenerating (and invalidating everything downstream) when the crop is
-  // unchanged and the user merely passes back through this step.
   const cropSig = useRef(null);
 
   function goTo(i) {
@@ -40,12 +31,26 @@ export default function App() {
 
   function handleCropped(canvas, sig) {
     if (sig && sig === cropSig.current && croppedCanvas) {
-      goTo(3); // crop unchanged — keep the existing canvas (and the work below it)
+      goTo(3);
       return;
     }
     cropSig.current = sig;
     setCroppedCanvas(canvas);
     goTo(3);
+  }
+
+  function handleNewPhoto() {
+    setStep(0);
+    setMaxReached(0);
+    setImageSrc(null);
+    setPreset(null);
+    setCroppedCanvas(null);
+    setComposedCanvas(null);
+    setFinalCanvas(null);
+    cropState.current = null;
+    bgState.current = null;
+    editorState.current = null;
+    cropSig.current = null;
   }
 
   return (
@@ -55,7 +60,14 @@ export default function App() {
           <h1>ID &amp; Passport Photo Maker</h1>
           <p>Crop, clean up, and tile print-ready ID photos — start to finish.</p>
         </div>
-        <span className="privacy-badge">On-device · nothing uploaded</span>
+        <div className="masthead-actions">
+          {step > 0 && (
+            <button className="btn new-photo-btn" onClick={handleNewPhoto}>
+              + New photo
+            </button>
+          )}
+          <span className="privacy-badge">On-device · nothing uploaded</span>
+        </div>
       </header>
 
       <Stepper current={step} maxReached={maxReached} onGo={goTo} />
