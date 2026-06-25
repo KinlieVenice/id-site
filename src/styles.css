@@ -374,6 +374,55 @@ button {
   color: var(--ink-3);
 }
 
+/* ---- custom size ---------------------------------------------------------- */
+
+.custom-size {
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.custom-size.selected {
+  border-color: var(--orange);
+  box-shadow: inset 0 0 0 1px var(--orange);
+}
+.custom-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+.custom-fields .times {
+  padding-bottom: 10px;
+  color: var(--ink-3);
+}
+.cf {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cf .lbl {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+.cf input,
+.cf select {
+  width: 92px;
+}
+.custom-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.custom-foot .dims {
+  color: var(--orange);
+}
+
 /* ---- crop ----------------------------------------------------------------- */
 
 .crop-stage {
@@ -553,6 +602,19 @@ input[type='number'] {
   width: 100%;
 }
 
+.name-input {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  padding: 9px 10px;
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--ink);
+  width: 100%;
+  resize: vertical;
+  line-height: 1.3;
+}
+
 .capacity {
   font-family: var(--mono);
   font-size: 0.78rem;
@@ -698,6 +760,49 @@ input[type='number'] {
     grid-template-columns: 1fr;
   }
 }
+.ref-table-wrap {
+  overflow-x: auto;
+  margin: 14px 0 8px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+}
+table.ref-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.8rem;
+}
+table.ref-table th,
+table.ref-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+table.ref-table thead th {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  background: var(--paper-2);
+}
+table.ref-table tbody tr:last-child td {
+  border-bottom: none;
+}
+table.ref-table .grouprow td {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--orange);
+  background: var(--paper-2);
+}
+table.ref-table td.num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+
 .site-footer {
   margin-top: 40px;
   padding-top: 18px;

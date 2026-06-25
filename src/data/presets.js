@@ -65,6 +65,7 @@ export const PRESETS = [
   icao('za', '🇿🇦 South Africa', WHITE, 'White or off-white background.'),
   icao('sa', '🇸🇦 Saudi Arabia', WHITE, 'White background.'),
   icao('qa', '🇶🇦 Qatar', WHITE, 'White background.'),
+  icao('ph', '🇵🇭 Philippines', WHITE, 'White background. (Philippine IDs and many local applications use 2×2 in — see Square & inch formats.)'),
   icao('ae-visa', '🇦🇪 UAE visa', WHITE, 'White background. (UAE passports use 40×60 mm — see below.)'),
 
   // Square & inch formats
