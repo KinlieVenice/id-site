@@ -1,15 +1,17 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Cropper from 'react-easy-crop';
 import CropMarks from './CropMarks.jsx';
 import { cropToCanvas } from '../lib/image.js';
 import { presetPixels } from '../data/presets.js';
 
 // FR3 — crop locked to the preset aspect ratio (zoom + pan), rendered to the
-// preset's exact output pixels.
-export default function CropStep({ imageSrc, preset, onCropped, onBack }) {
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [areaPixels, setAreaPixels] = useState(null);
+// preset's exact output pixels. Crop/zoom persist across navigation so coming
+// back to this step keeps your framing.
+export default function CropStep({ imageSrc, preset, persisted, onCropped, onBack }) {
+  const saved = persisted?.current || {};
+  const [crop, setCrop] = useState(saved.crop ?? { x: 0, y: 0 });
+  const [zoom, setZoom] = useState(saved.zoom ?? 1);
+  const [areaPixels, setAreaPixels] = useState(saved.areaPixels ?? null);
   const [busy, setBusy] = useState(false);
 
   const aspect = preset.wmm / preset.hmm;
@@ -17,12 +19,19 @@ export default function CropStep({ imageSrc, preset, onCropped, onBack }) {
 
   const onComplete = useCallback((_, pixels) => setAreaPixels(pixels), []);
 
+  // Remember framing so a return visit restores it.
+  useEffect(() => {
+    if (persisted) persisted.current = { crop, zoom, areaPixels };
+  }, [persisted, crop, zoom, areaPixels]);
+
   async function applyCrop() {
     if (!areaPixels) return;
     setBusy(true);
     try {
       const canvas = await cropToCanvas(imageSrc, areaPixels, w, h);
-      onCropped(canvas);
+      // Signature so the parent can skip regenerating when nothing changed.
+      const sig = JSON.stringify(areaPixels);
+      onCropped(canvas, sig);
     } finally {
       setBusy(false);
     }
