@@ -15,16 +15,26 @@ const SWATCHES = [
 // FR4–FR5 — optional background removal and background colour. (The cutting
 // border, FR6, moved to the Export step so it sits on top of the name strip and
 // attire instead of being hidden behind them.)
-export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }) {
-  const [removeBg, setRemoveBg] = useState(false);
-  const [cutout, setCutout] = useState(null);
-  const [bgColor, setBgColor] = useState(preset.defaultBg || '#ffffff');
+export default function BackgroundStep({ croppedCanvas, preset, persisted, onDone, onBack }) {
+  // Restore prior choices, but only the cutout if it was made from THIS crop —
+  // a re-crop produces a new source canvas and must invalidate the old cutout.
+  const saved = persisted?.current || {};
+  const sameSource = saved.forCanvas === croppedCanvas;
+
+  const [removeBg, setRemoveBg] = useState(sameSource ? !!saved.removeBg : false);
+  const [cutout, setCutout] = useState(sameSource ? saved.cutout ?? null : null);
+  const [bgColor, setBgColor] = useState(saved.bgColor ?? preset.defaultBg ?? '#ffffff');
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
   const [brushing, setBrushing] = useState(false);
 
   const finalRef = useRef(null);
+
+  // Persist choices (tagged with the source canvas) across navigation.
+  useEffect(() => {
+    if (persisted) persisted.current = { removeBg, cutout, bgColor, forCanvas: croppedCanvas };
+  }, [persisted, removeBg, cutout, bgColor, croppedCanvas]);
 
   // Run the in-browser model only when removal is switched on, and cache the
   // transparent cutout so colour/border tweaks don't re-run it (Decision D3).

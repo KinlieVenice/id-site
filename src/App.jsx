@@ -23,13 +23,29 @@ export default function App() {
   const [composedCanvas, setComposedCanvas] = useState(null);
   const [finalCanvas, setFinalCanvas] = useState(null);
 
-  // Editor (attire / name / signature) state survives navigating away and back,
-  // so the user doesn't lose their placement when they revisit Export → Extras.
+  // Per-step UI state survives navigating away and back, so revisiting an
+  // earlier step (and continuing forward) doesn't wipe the user's work.
+  const cropState = useRef(null);
+  const bgState = useRef(null);
   const editorState = useRef(null);
+  // Signature of the crop that produced the current croppedCanvas — lets us skip
+  // regenerating (and invalidating everything downstream) when the crop is
+  // unchanged and the user merely passes back through this step.
+  const cropSig = useRef(null);
 
   function goTo(i) {
     setStep(i);
     setMaxReached((m) => Math.max(m, i));
+  }
+
+  function handleCropped(canvas, sig) {
+    if (sig && sig === cropSig.current && croppedCanvas) {
+      goTo(3); // crop unchanged — keep the existing canvas (and the work below it)
+      return;
+    }
+    cropSig.current = sig;
+    setCroppedCanvas(canvas);
+    goTo(3);
   }
 
   return (
@@ -66,11 +82,9 @@ export default function App() {
         <CropStep
           imageSrc={imageSrc}
           preset={preset}
+          persisted={cropState}
           onBack={() => goTo(1)}
-          onCropped={(canvas) => {
-            setCroppedCanvas(canvas);
-            goTo(3);
-          }}
+          onCropped={handleCropped}
         />
       )}
 
@@ -78,6 +92,7 @@ export default function App() {
         <BackgroundStep
           croppedCanvas={croppedCanvas}
           preset={preset}
+          persisted={bgState}
           onBack={() => goTo(2)}
           onDone={(canvas) => {
             setComposedCanvas(canvas);
