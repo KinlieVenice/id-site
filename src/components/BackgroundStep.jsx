@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import CropMarks from './CropMarks.jsx';
 import MaskBrush from './MaskBrush.jsx';
-import {
-  removeBackground,
-  compositeOnColor,
-  addBorder,
-  canvasToBlob,
-} from '../lib/image.js';
+import { removeBackground, compositeOnColor, canvasToBlob } from '../lib/image.js';
 
 // Quick background colours common to ID photos (FR5), plus a custom picker.
 const SWATCHES = [
@@ -17,12 +12,13 @@ const SWATCHES = [
   { color: '#e8c9c9', label: 'Light red' },
 ];
 
-// FR4–FR6 — optional background removal, background colour, cutting border.
+// FR4–FR5 — optional background removal and background colour. (The cutting
+// border, FR6, moved to the Export step so it sits on top of the name strip and
+// attire instead of being hidden behind them.)
 export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }) {
   const [removeBg, setRemoveBg] = useState(false);
   const [cutout, setCutout] = useState(null);
   const [bgColor, setBgColor] = useState(preset.defaultBg || '#ffffff');
-  const [border, setBorder] = useState(false);
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
@@ -63,7 +59,6 @@ export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }
   useEffect(() => {
     let base = croppedCanvas;
     if (removeBg && cutout) base = compositeOnColor(cutout, bgColor);
-    if (border) base = addBorder(base);
     finalRef.current = base;
 
     let url;
@@ -74,7 +69,7 @@ export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }
     return () => {
       if (url) URL.revokeObjectURL(url);
     };
-  }, [croppedCanvas, removeBg, cutout, bgColor, border]);
+  }, [croppedCanvas, removeBg, cutout, bgColor]);
 
   const working = progress !== null;
 
@@ -176,17 +171,10 @@ export default function BackgroundStep({ croppedCanvas, preset, onDone, onBack }
             )}
           </div>
 
-          <div className="field">
-            <span className="lbl">Cutting guide</span>
-            <label className="toggle">
-              <input
-                type="checkbox"
-                checked={border}
-                onChange={(e) => setBorder(e.target.checked)}
-              />
-              Add a thin border to cut along
-            </label>
-          </div>
+          <p className="hint">
+            The cutting-guide border is added at the Export step, so it sits on
+            top of any name strip or attire.
+          </p>
         </div>
       </div>
       )}

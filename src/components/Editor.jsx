@@ -18,23 +18,26 @@ const FONTS = ['Inter', 'Georgia', 'Times New Roman', 'Courier New'];
 //   • a smoothed signature
 // "Apply" flattens the stage to a full-resolution canvas. Perspective warp is
 // out of scope (Decision D4) — affine only.
-export default function Editor({ baseCanvas, onDone, onBack }) {
+export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
   const baseW = baseCanvas.width;
   const baseH = baseCanvas.height;
 
-  const [tab, setTab] = useState('attire');
+  // Restore prior work (if the user navigated away and came back).
+  const saved = persisted?.current || {};
+
+  const [tab, setTab] = useState(saved.tab ?? 'attire');
 
   // name strip + text
-  const [strip, setStrip] = useState(false);
-  const [nameText, setNameText] = useState('');
-  const [font, setFont] = useState('Inter');
-  const [align, setAlign] = useState('center');
-  const [stripT, setStripT] = useState(null);
-  const [textT, setTextT] = useState(null);
+  const [strip, setStrip] = useState(saved.strip ?? false);
+  const [nameText, setNameText] = useState(saved.nameText ?? '');
+  const [font, setFont] = useState(saved.font ?? 'Inter');
+  const [align, setAlign] = useState(saved.align ?? 'center');
+  const [stripT, setStripT] = useState(saved.stripT ?? null);
+  const [textT, setTextT] = useState(saved.textT ?? null);
 
   // attire + signature
-  const [attireId, setAttireId] = useState(null);
-  const [sigUrl, setSigUrl] = useState(null);
+  const [attireId, setAttireId] = useState(saved.attireId ?? null);
+  const [sigUrl, setSigUrl] = useState(saved.sigUrl ?? null);
   const [signing, setSigning] = useState(false);
 
   const attireSrc = attireId ? ATTIRE.find((a) => a.id === attireId)?.src : null;
@@ -47,9 +50,9 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
   const viewW = Math.round(baseW * scale);
   const viewH = Math.round(baseH * scale);
 
-  const [selected, setSelected] = useState(null);
-  const [attireT, setAttireT] = useState(null);
-  const [sigT, setSigT] = useState(null);
+  const [selected, setSelected] = useState(saved.selected ?? null);
+  const [attireT, setAttireT] = useState(saved.attireT ?? null);
+  const [sigT, setSigT] = useState(saved.sigT ?? null);
 
   const stageRef = useRef(null);
   const trRef = useRef(null);
@@ -58,21 +61,22 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
   const stripRef = useRef(null);
   const textRef = useRef(null);
 
-  // Place attire over the shoulders when first chosen.
+  // Place attire over the shoulders when first chosen. Only auto-place when
+  // there's no transform yet (a fresh pick clears it) — so a restored or
+  // user-moved position is preserved.
   useEffect(() => {
-    if (attireImg) {
+    if (attireImg && !attireT) {
       const s = viewW / attireImg.width;
       setAttireT({ x: 0, y: viewH - attireImg.height * s, scaleX: s, scaleY: s, rotation: 0 });
       setSelected('attire');
-    } else {
-      setAttireT(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attireImg]);
 
-  // Drop a freshly drawn signature near the bottom of the photo.
+  // Drop a freshly drawn signature near the bottom of the photo (only when it
+  // has no transform yet, so a restored placement survives).
   useEffect(() => {
-    if (sigImg) {
+    if (sigImg && !sigT) {
       const s = Math.min((viewW * 0.45) / sigImg.width, 1);
       setSigT({
         x: viewW * 0.5 - (sigImg.width * s) / 2,
@@ -82,11 +86,30 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
         rotation: 0,
       });
       setSelected('signature');
-    } else {
-      setSigT(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sigImg]);
+
+  // Choosing attire / drawing a signature clears its transform so it re-places
+  // to a sensible default for the new image.
+  function chooseAttire(id) {
+    setAttireId(id);
+    setAttireT(null);
+  }
+  function setSignature(url) {
+    setSigUrl(url);
+    setSigT(null);
+  }
+
+  // Persist the full editor state so it survives unmount (navigating back).
+  useEffect(() => {
+    if (persisted) {
+      persisted.current = {
+        tab, strip, nameText, font, align, stripT, textT,
+        attireId, sigUrl, attireT, sigT, selected,
+      };
+    }
+  }, [persisted, tab, strip, nameText, font, align, stripT, textT, attireId, sigUrl, attireT, sigT, selected]);
 
   // Initialise the strip + text the first time the strip is turned on, inside
   // the photo near the bottom (the usual ID layout).
@@ -290,7 +313,7 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
             ))}
           </div>
 
-          {tab === 'attire' && <AttirePicker selectedId={attireId} onSelect={setAttireId} />}
+          {tab === 'attire' && <AttirePicker selectedId={attireId} onSelect={chooseAttire} />}
 
           {tab === 'name' && (
             <div>
@@ -363,7 +386,7 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
               {signing ? (
                 <SignaturePad
                   onDone={(url) => {
-                    setSigUrl(url);
+                    setSignature(url);
                     setSigning(false);
                   }}
                   onCancel={() => setSigning(false)}
@@ -380,7 +403,13 @@ export default function Editor({ baseCanvas, onDone, onBack }) {
                       {sigUrl ? 'Redraw signature' : 'Draw signature'}
                     </button>
                     {sigUrl && (
-                      <button className="btn" onClick={() => setSigUrl(null)}>
+                      <button
+                        className="btn"
+                        onClick={() => {
+                          setSigUrl(null);
+                          setSigT(null);
+                        }}
+                      >
                         Remove
                       </button>
                     )}

@@ -15,7 +15,8 @@ keys** (Decision D1).
 - **Crop** (FR3) — aspect-locked to the preset, rendered to exact output pixels.
 - **Background removal** (FR4) — in-browser model via `@imgly/background-removal`
   (Decision D3); lazy-loaded only when toggled on.
-- **Background colour** (FR5) and **cutting border** (FR6).
+- **Background colour** (FR5). The **cutting border** (FR6) is applied at the
+  Export step so it sits on top of any name strip / attire, not behind them.
 - **Download single** (FR7) — PNG or JPG at the preset's exact pixels.
 - **Tile / print sheet** (FR8–FR11) — pick paper size and copies; the app packs
   a grid sized to the paper at the export DPI and shows capacity (Decision D7).
@@ -77,5 +78,9 @@ src/
 ```
 
 Flow: Upload → Size → Crop → Background (+ mask brush) → Extras (attire / name
-strip / signature) → Export (single + print sheet). The Extras step is optional —
-Export works straight from the Background output.
+strip / signature) → Export (cutting border + single + print sheet). The Extras
+step is optional — Export works straight from the Background output, and Extras
+work is preserved if you navigate back to it.
+
+A senior-usability check (text size, tap targets, contrast, focus, zoom) lives in
+the `/run-id-site` skill — see `.claude/skills/run-id-site/`.

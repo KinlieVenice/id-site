@@ -1,24 +1,34 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import CropMarks from './CropMarks.jsx';
 import { PAPERS } from '../data/paper.js';
-import { buildTileSheet, sheetCapacity, downloadCanvas } from '../lib/image.js';
+import { buildTileSheet, sheetCapacity, addBorder, downloadCanvas } from '../lib/image.js';
 
-// FR7 single download + FR8–FR11 tile/print sheet.
+// FR7 single download + FR8–FR11 tile/print sheet. FR6 cutting border lives here
+// (not in the Background step) so it's drawn last — on top of the name strip and
+// attire — right before printing, where a cut guide belongs.
 export default function ExportStep({ finalCanvas, preset, onBack }) {
   const [format, setFormat] = useState('image/png');
+  const [border, setBorder] = useState(false);
   const [paperId, setPaperId] = useState(PAPERS[0].id);
   const [copies, setCopies] = useState(4);
   const previewRef = useRef(null);
 
-  // Report the actual exported pixels (a name strip makes it taller than the
-  // bare preset), but keep the preset's DPI for the print maths.
-  const w = finalCanvas.width;
-  const h = finalCanvas.height;
+  // The canvas we actually export: the finished photo, with the cutting border
+  // applied last if requested.
+  const outCanvas = useMemo(
+    () => (border ? addBorder(finalCanvas) : finalCanvas),
+    [border, finalCanvas],
+  );
+
+  // Report the actual exported pixels (a name strip can change the size), but
+  // keep the preset's DPI for the print maths.
+  const w = outCanvas.width;
+  const h = outCanvas.height;
   const paper = PAPERS.find((p) => p.id === paperId);
 
   const { capacity, cols, rows } = useMemo(
-    () => sheetCapacity(finalCanvas, paper, preset.dpi),
-    [finalCanvas, paper, preset.dpi],
+    () => sheetCapacity(outCanvas, paper, preset.dpi),
+    [outCanvas, paper, preset.dpi],
   );
 
   // Clamp the copy count to what physically fits (FR10).
@@ -27,7 +37,7 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
   // Render a scaled-down preview of the print sheet into the small canvas.
   useEffect(() => {
     if (!previewRef.current || capacity === 0) return;
-    const { canvas } = buildTileSheet(finalCanvas, paper, preset.dpi, effectiveCopies);
+    const { canvas } = buildTileSheet(outCanvas, paper, preset.dpi, effectiveCopies);
     const view = previewRef.current;
     const maxW = 280;
     const scale = Math.min(1, maxW / canvas.width);
@@ -38,16 +48,16 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
     ctx.fillRect(0, 0, view.width, view.height);
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(canvas, 0, 0, view.width, view.height);
-  }, [finalCanvas, paper, preset.dpi, effectiveCopies, capacity]);
+  }, [outCanvas, paper, preset.dpi, effectiveCopies, capacity]);
 
   const ext = format === 'image/png' ? 'png' : 'jpg';
 
   function downloadSingle() {
-    downloadCanvas(finalCanvas, `id-photo_${preset.id}.${ext}`, format);
+    downloadCanvas(outCanvas, `id-photo_${preset.id}.${ext}`, format);
   }
 
   function downloadSheet() {
-    const { canvas } = buildTileSheet(finalCanvas, paper, preset.dpi, effectiveCopies);
+    const { canvas } = buildTileSheet(outCanvas, paper, preset.dpi, effectiveCopies);
     downloadCanvas(canvas, `id-sheet_${preset.id}_${paper.id}.${ext}`, format);
   }
 
@@ -63,19 +73,28 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
         . Save a single copy, or tile copies onto a print sheet.
       </p>
 
-      <div className="field" style={{ maxWidth: 220 }}>
-        <span className="lbl">File format</span>
-        <select value={format} onChange={(e) => setFormat(e.target.value)}>
-          <option value="image/png">PNG (lossless)</option>
-          <option value="image/jpeg">JPG (smaller)</option>
-        </select>
+      <div className="row" style={{ alignItems: 'flex-end' }}>
+        <div className="field" style={{ maxWidth: 220, minWidth: 180 }}>
+          <span className="lbl">File format</span>
+          <select value={format} onChange={(e) => setFormat(e.target.value)}>
+            <option value="image/png">PNG (lossless)</option>
+            <option value="image/jpeg">JPG (smaller)</option>
+          </select>
+        </div>
+        <div className="field">
+          <span className="lbl">Cutting guide</span>
+          <label className="toggle">
+            <input type="checkbox" checked={border} onChange={(e) => setBorder(e.target.checked)} />
+            Add a thin border to cut along
+          </label>
+        </div>
       </div>
 
       <div className="export-grid">
         <div className="subpanel">
           <h3>Single photo</h3>
           <div className="preview-frame" style={{ minHeight: 200 }}>
-            <SingleThumb canvas={finalCanvas} />
+            <SingleThumb canvas={outCanvas} />
           </div>
           <div className="btn-row">
             <button className="btn primary" onClick={downloadSingle}>
