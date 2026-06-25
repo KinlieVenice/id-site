@@ -1,47 +1,156 @@
 import { useMemo, useState } from 'react';
 import CropMarks from './CropMarks.jsx';
-import { PRESETS, PRESET_GROUPS, presetPixels } from '../data/presets.js';
+import { PRESETS, presetPixels } from '../data/presets.js';
 
-// FR2 — pick a size preset, grouped by country/use. Output pixels are derived
-// from mm + DPI and shown to the user (true to the monospace/measurement motif).
+// Group presets by physical dimensions — same size = one merged card.
+function buildSizeGroups() {
+  const map = new Map();
+  PRESETS.forEach((p) => {
+    const key = `${p.wmm}x${p.hmm}`;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(p);
+  });
+  return [...map.values()].map((members) => ({
+    key: `${members[0].wmm}x${members[0].hmm}`,
+    members,
+    canonical: members[0],
+  }));
+}
+
+const SIZE_GROUPS = buildSizeGroups();
+
+// Extract leading flag emoji (4 chars = two surrogate pairs for regional indicator flags).
+function getFlag(label) {
+  return label.charCodeAt(0) === 0xd83c ? label.slice(0, 4) : '';
+}
+
+function getCountryName(label) {
+  const flag = getFlag(label);
+  return label.slice(flag.length).split('·')[0].trim();
+}
+
+function renderCountrySummary(members) {
+  if (members.length === 1) {
+    const flag = getFlag(members[0].label);
+    return flag ? `${flag} ${getCountryName(members[0].label)}` : members[0].label;
+  }
+  if (members.length <= 3) {
+    return members
+      .map((m) => {
+        const flag = getFlag(m.label);
+        return flag ? `${flag} ${getCountryName(m.label)}` : getCountryName(m.label);
+      })
+      .join(' · ');
+  }
+  const flags = members
+    .slice(0, 8)
+    .map((m) => getFlag(m.label))
+    .filter(Boolean)
+    .join('');
+  const extra = members.length > 8 ? ` +${members.length - 8} more` : '';
+  return flags + extra;
+}
+
+const UNIT_TO_MM = { mm: 1, cm: 10, in: 25.4 };
+
 export default function SizeStep({ selected, onSelect, onNext, onBack }) {
+  const [query, setQuery] = useState('');
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return SIZE_GROUPS;
+    return SIZE_GROUPS.filter((g) =>
+      g.members.some(
+        (p) =>
+          p.label.toLowerCase().includes(q) ||
+          p.notes.toLowerCase().includes(q) ||
+          `${Math.round(p.wmm)}x${Math.round(p.hmm)}`.includes(q) ||
+          `${Math.round(p.wmm)}×${Math.round(p.hmm)}`.includes(q),
+      ),
+    );
+  }, [query]);
+
+  const selectedGroup = selected
+    ? SIZE_GROUPS.find((g) => g.members.some((m) => m.id === selected.id))
+    : null;
+
   return (
     <section className="panel">
       <CropMarks />
       <h2>Choose a size</h2>
       <p className="sub">
-        Pick the document you need, or enter a custom size. Exact output pixels
-        are derived from the size and resolution.
+        Select your ID or passport format. Same-size countries are grouped together.
       </p>
 
-      {PRESET_GROUPS.map((group) => (
-        <div key={group}>
-          <div className="group-label">{group}</div>
-          <div className="preset-grid">
-            {PRESETS.filter((p) => p.group === group).map((p) => {
-              const { w, h } = presetPixels(p);
-              return (
-                <button
-                  key={p.id}
-                  className={`preset-card ${selected?.id === p.id ? 'selected' : ''}`}
-                  onClick={() => onSelect(p)}
-                  aria-pressed={selected?.id === p.id}
-                >
-                  <span className="label">{p.label}</span>
-                  <span className="dims mono">
-                    {Math.round(p.wmm)}×{Math.round(p.hmm)} mm · {p.dpi} dpi
-                  </span>
-                  <span className="dims mono">
-                    {w}×{h} px
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+      <div className="search-row">
+        <svg className="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.6" />
+          <path d="M13 13l4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+        <input
+          type="search"
+          className="size-search"
+          placeholder="Search country or size… e.g. Philippines, 35×45"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
+
+      {filtered.length === 0 && (
+        <p className="hint" style={{ margin: '16px 0' }}>
+          No matching format found. Try a different search or use Custom size below.
+        </p>
+      )}
+
+      <div className="preset-grid" style={{ marginTop: 14 }}>
+        {filtered.map((g) => {
+          const { w, h } = presetPixels(g.canonical);
+          const isSelected = selected && g.members.some((m) => m.id === selected.id);
+          const summary = renderCountrySummary(g.members);
+
+          return (
+            <button
+              key={g.key}
+              className={`preset-card ${isSelected ? 'selected' : ''}`}
+              onClick={() => {
+                const keep = selected && g.members.find((m) => m.id === selected.id);
+                onSelect(keep || g.canonical);
+              }}
+              aria-pressed={isSelected}
+            >
+              <span className="card-size mono">
+                {Math.round(g.canonical.wmm)}×{Math.round(g.canonical.hmm)}{' '}
+                <span className="card-unit">mm</span>
+              </span>
+              <span className="card-countries">{summary}</span>
+              <span className="dims mono">
+                {w}×{h} px · {g.canonical.dpi} dpi
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
       <CustomSize selected={selected} onSelect={onSelect} />
+
+      {selectedGroup && selectedGroup.members.length > 1 && (
+        <div className="variant-row">
+          <span className="lbl">Country / format requirements</span>
+          <select
+            value={selected?.id || ''}
+            onChange={(e) => {
+              const p = selectedGroup.members.find((m) => m.id === e.target.value);
+              if (p) onSelect(p);
+            }}
+          >
+            {selectedGroup.members.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {selected && (
         <div className="notes">
@@ -63,10 +172,6 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
   );
 }
 
-const UNIT_TO_MM = { mm: 1, cm: 10, in: 25.4 };
-
-// Custom size: enter width/height in mm, cm or inches at a chosen DPI. Built into
-// a preset-shaped object so the rest of the pipeline treats it like any preset.
 function CustomSize({ selected, onSelect }) {
   const [w, setW] = useState('35');
   const [h, setH] = useState('45');
@@ -106,7 +211,7 @@ function CustomSize({ selected, onSelect }) {
   }
 
   return (
-    <div>
+    <div style={{ marginTop: 20 }}>
       <div className="group-label">Custom size</div>
       <div className={`custom-size ${isActive ? 'selected' : ''}`}>
         <div className="custom-fields">
