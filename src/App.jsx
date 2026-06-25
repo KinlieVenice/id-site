@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useRef, useState } from 'react';
 import Stepper from './components/Stepper.jsx';
 import UploadStep from './components/UploadStep.jsx';
 import SizeStep from './components/SizeStep.jsx';
@@ -22,6 +22,10 @@ export default function App() {
   const [croppedCanvas, setCroppedCanvas] = useState(null);
   const [composedCanvas, setComposedCanvas] = useState(null);
   const [finalCanvas, setFinalCanvas] = useState(null);
+
+  // Editor (attire / name / signature) state survives navigating away and back,
+  // so the user doesn't lose their placement when they revisit Export → Extras.
+  const editorState = useRef(null);
 
   function goTo(i) {
     setStep(i);
@@ -87,6 +91,7 @@ export default function App() {
         <Suspense fallback={<div className="panel mono">Loading editor…</div>}>
           <Editor
             baseCanvas={composedCanvas}
+            persisted={editorState}
             onBack={() => goTo(3)}
             onDone={(canvas) => {
               setFinalCanvas(canvas);

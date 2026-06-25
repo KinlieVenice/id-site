@@ -11,7 +11,9 @@
   --paper-2: #efece3;
   --ink: #1a1a1a;
   --ink-2: #4a4a46;
-  --ink-3: #8a877e;
+  /* --ink-3 darkened to clear WCAG AA 4.5:1 on the paper/white backgrounds
+     (was #8a877e ≈ 3.3:1) so muted hints stay readable for older eyes. */
+  --ink-3: #66635b;
   --line: #d8d4c8;
   --line-2: #c4bfb0;
   --orange: #ff5a1f;
@@ -119,9 +121,10 @@ button {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 44px;
   font-family: var(--mono);
-  font-size: 0.78rem;
-  color: var(--ink-3);
+  font-size: 1rem;
+  color: var(--ink-2);
   padding: 8px 14px 8px 10px;
   background: none;
   border: none;
@@ -730,6 +733,19 @@ input[type='number'] {
 
 .maskbrush .seg {
   margin-right: 4px;
+}
+.brush-wrap {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+.brush-ring {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid var(--orange);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
 }
 
 /* ---- footer guide --------------------------------------------------------- */

@@ -14,6 +14,7 @@ export default function MaskBrush({ cutout, original, onApply, onCancel }) {
   const [mode, setMode] = useState('erase');
   const [size, setSize] = useState(28);
   const [canUndo, setCanUndo] = useState(false);
+  const [ring, setRing] = useState(null); // brush-size cursor preview
 
   const scale = Math.min(1, 360 / cutout.width);
   const viewW = Math.round(cutout.width * scale);
@@ -105,20 +106,35 @@ export default function MaskBrush({ cutout, original, onApply, onCancel }) {
     repaint();
   }
 
+  // Position + size of the cursor ring that previews the brush. The displayed
+  // brush diameter equals `size` in canvas coords; scale it to however the
+  // canvas is actually rendered (it may be shrunk by max-width on small screens).
+  function updateRing(e) {
+    const rect = viewRef.current.getBoundingClientRect();
+    const dispScale = rect.width / viewW;
+    setRing({ left: e.clientX - rect.left, top: e.clientY - rect.top, d: size * dispScale });
+  }
+
   function onDown(e) {
     e.preventDefault();
     drawing.current = true;
+    updateRing(e);
     pushHistory();
     const p = pointAt(e);
     stroke(p.x, p.y);
   }
   function onMove(e) {
+    updateRing(e);
     if (!drawing.current) return;
     const p = pointAt(e);
     stroke(p.x, p.y);
   }
   function onUp() {
     drawing.current = false;
+  }
+  function onLeave() {
+    drawing.current = false;
+    setRing(null);
   }
 
   return (
@@ -156,17 +172,30 @@ export default function MaskBrush({ cutout, original, onApply, onCancel }) {
       </div>
 
       <div className="preview-frame" style={{ minHeight: 0, padding: 10 }}>
-        <canvas
-          ref={viewRef}
-          width={viewW}
-          height={viewH}
-          style={{ touchAction: 'none', cursor: 'crosshair', maxWidth: '100%' }}
-          onPointerDown={onDown}
-          onPointerMove={onMove}
-          onPointerUp={onUp}
-          onPointerLeave={onUp}
-        />
+        <div className="brush-wrap">
+          <canvas
+            ref={viewRef}
+            width={viewW}
+            height={viewH}
+            style={{ touchAction: 'none', cursor: 'crosshair', maxWidth: '100%', display: 'block' }}
+            onPointerDown={onDown}
+            onPointerMove={onMove}
+            onPointerUp={onUp}
+            onPointerEnter={updateRing}
+            onPointerLeave={onLeave}
+          />
+          {ring && (
+            <span
+              className="brush-ring"
+              style={{ left: ring.left, top: ring.top, width: ring.d, height: ring.d }}
+            />
+          )}
+        </div>
       </div>
+      <p className="hint" style={{ marginTop: 8 }}>
+        The orange circle shows your brush size — adjust the slider and hover the
+        photo to check it before you paint.
+      </p>
 
       <div className="btn-row">
         <button className="btn" onClick={onCancel}>
