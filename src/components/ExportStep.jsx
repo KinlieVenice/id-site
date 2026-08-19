@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import CropMarks from './CropMarks.jsx';
 import { PAPERS } from '../data/paper.js';
 import { buildTileSheet, sheetCapacity, addBorder, downloadCanvas } from '../lib/image.js';
 
@@ -63,7 +62,6 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
 
   return (
     <section className="panel">
-      <CropMarks />
       <h2>Download</h2>
       <p className="sub">
         Your photo is{' '}

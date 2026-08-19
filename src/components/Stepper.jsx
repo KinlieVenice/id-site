@@ -15,8 +15,8 @@ export default function Stepper({ current, maxReached, onGo }) {
             aria-current={i === current ? 'step' : undefined}
             onClick={() => reachable && onGo(i)}
           >
-            <span className="idx mono">{i + 1}</span>
-            {label}
+            <span className="idx">{i + 1}</span>
+            <span className="label">{label}</span>
           </button>
         );
       })}

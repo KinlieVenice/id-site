@@ -193,7 +193,7 @@ export default function MaskBrush({ cutout, original, onApply, onCancel }) {
         </div>
       </div>
       <p className="hint" style={{ marginTop: 8 }}>
-        The orange circle shows your brush size — adjust the slider and hover the
+        The blue circle shows your brush size — adjust the slider and hover the
         photo to check it before you paint.
       </p>
 

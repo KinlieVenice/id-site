@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Stage, Layer, Image as KImage, Rect, Text, Transformer } from 'react-konva';
-import CropMarks from './CropMarks.jsx';
 import AttirePicker from './AttirePicker.jsx';
 import SignaturePad from './SignaturePad.jsx';
 import useImage from '../lib/useImage.js';
@@ -205,7 +204,6 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
 
   return (
     <section className="panel">
-      <CropMarks />
       <h2>Add attire, name &amp; signature</h2>
       <p className="sub">All optional — skip any section you don&apos;t need.</p>
 
@@ -246,7 +244,7 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
                     ref={stripRef}
                     {...stripT}
                     fill="#ffffff"
-                    stroke="#e3dfd3"
+                    stroke="#c3c6d6"
                     strokeWidth={1}
                     draggable
                     onClick={() => setSelected('strip')}
@@ -268,7 +266,7 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
                     align={align}
                     fontFamily={font}
                     lineHeight={1.15}
-                    fill={nameText ? '#10131a' : '#b8b4a8'}
+                    fill={nameText ? '#10131a' : '#9aa0ad'}
                     draggable
                     onClick={() => setSelected('name')}
                     onTap={() => setSelected('name')}
@@ -295,9 +293,9 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
                   rotateEnabled
                   keepRatio={uniform}
                   enabledAnchors={selected === 'strip' ? stripAnchors : cornerAnchors}
-                  anchorStroke="#ff5a1f"
+                  anchorStroke="#003d9b"
                   anchorFill="#fff"
-                  borderStroke="#ff5a1f"
+                  borderStroke="#003d9b"
                   boundBoxFunc={(oldBox, newBox) =>
                     newBox.width < 8 || newBox.height < 8 ? oldBox : newBox
                   }
@@ -313,7 +311,7 @@ export default function Editor({ baseCanvas, persisted, onDone, onBack }) {
         </div>
 
         {/* Guided controls column */}
-        <div className="col editor-controls-col">
+        <div className="col editor-controls-col tools-col">
           {/* Step indicator */}
           <div className="guided-header">
             <div className="guided-step-label">

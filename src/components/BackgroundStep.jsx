@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import CropMarks from './CropMarks.jsx';
 import MaskBrush from './MaskBrush.jsx';
 import { removeBackground, compositeOnColor, canvasToBlob } from '../lib/image.js';
 
@@ -76,7 +75,6 @@ export default function BackgroundStep({ croppedCanvas, preset, persisted, onDon
 
   return (
     <section className="panel">
-      <CropMarks />
       <h2>Background &amp; finish</h2>
       <p className="sub">Optional. Skip any of these and head straight to export.</p>
 
@@ -107,7 +105,7 @@ export default function BackgroundStep({ croppedCanvas, preset, persisted, onDon
             </div>
           </div>
 
-          <div className="col">
+          <div className="col tools-col">
             <div className="field">
               <span className="lbl">Background removal</span>
               <label className="toggle">

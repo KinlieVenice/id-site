@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import CropMarks from './CropMarks.jsx';
 import { fileToDataURL } from '../lib/image.js';
 
 // FR1 — upload via file input or drag-and-drop. Nothing leaves the device.
@@ -20,7 +19,6 @@ export default function UploadStep({ onImage }) {
 
   return (
     <section className="panel">
-      <CropMarks />
       <h2>Upload your photo</h2>
       <p className="sub">A clear, front-facing photo works best. JPG or PNG.</p>
 
@@ -46,6 +44,22 @@ export default function UploadStep({ onImage }) {
           }
         }}
       >
+        <svg className="upload-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M7 18a4.5 4.5 0 0 1-.4-8.98A5.5 5.5 0 0 1 17.4 8.02 4 4 0 0 1 17 16"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M12 21v-7.5M9 16l3-3 3 3"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
         <p className="big">Drop an image here, or click to choose</p>
         <p className="hint">JPG · PNG · processed on your device</p>
         <input

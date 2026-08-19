@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import CropMarks from './CropMarks.jsx';
 import { PRESETS, presetPixels } from '../data/presets.js';
 
 // Group presets by physical dimensions — same size = one merged card.
@@ -76,7 +75,6 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
 
   return (
     <section className="panel">
-      <CropMarks />
       <h2>Choose a size</h2>
       <p className="sub">
         Select your ID or passport format. Same-size countries are grouped together.
@@ -118,6 +116,18 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
               }}
               aria-pressed={isSelected}
             >
+              {isSelected && (
+                <svg className="card-check" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <circle cx="10" cy="10" r="8.5" fill="currentColor" />
+                  <path
+                    d="M6.5 10.2l2.3 2.3 4.7-4.9"
+                    stroke="#fff"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
               <span className="card-size mono">
                 {Math.round(g.canonical.wmm)}×{Math.round(g.canonical.hmm)}{' '}
                 <span className="card-unit">mm</span>

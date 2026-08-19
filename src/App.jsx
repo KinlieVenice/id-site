@@ -54,7 +54,7 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className="shell">
       <header className="masthead">
         <div>
           <h1>ID &amp; Passport Photo Maker</h1>
@@ -70,6 +70,7 @@ export default function App() {
         </div>
       </header>
 
+      <div className="app">
       <Stepper current={step} maxReached={maxReached} onGo={goTo} />
 
       {step === 0 && (
@@ -138,6 +139,7 @@ export default function App() {
         <span>Runs entirely in your browser · no accounts · no storage</span>
         <span className="mono">mm · px · dpi</span>
       </footer>
+      </div>
     </div>
   );
 }

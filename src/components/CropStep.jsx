@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import Cropper from 'react-easy-crop';
-import CropMarks from './CropMarks.jsx';
 import { cropToCanvas } from '../lib/image.js';
 import { presetPixels } from '../data/presets.js';
 
@@ -39,7 +38,6 @@ export default function CropStep({ imageSrc, preset, persisted, onCropped, onBac
 
   return (
     <section className="panel">
-      <CropMarks />
       <h2>Crop to size</h2>
       <p className="sub">
         Position your face within the frame. Locked to{' '}
