@@ -102,6 +102,23 @@ export function compositeOnColor(sourceCanvas, color) {
   return canvas;
 }
 
+// ---- touch-up ----------------------------------------------------------------
+
+// Brightness/contrast/smoothing pass, applied last (after background compositing)
+// so it affects the whole frame evenly. Uses the canvas filter pipeline — no
+// per-pixel loop needed. `smooth` (0–3) is a soft blur standing in for skin
+// smoothing; kept small so it doesn't blur the ID photo's edges/details away.
+export function applyAdjustments(sourceCanvas, { brightness = 1, contrast = 1, smooth = 0 } = {}) {
+  if (brightness === 1 && contrast === 1 && smooth === 0) return sourceCanvas;
+  const canvas = document.createElement('canvas');
+  canvas.width = sourceCanvas.width;
+  canvas.height = sourceCanvas.height;
+  const ctx = canvas.getContext('2d');
+  ctx.filter = `brightness(${brightness}) contrast(${contrast})${smooth > 0 ? ` blur(${smooth}px)` : ''}`;
+  ctx.drawImage(sourceCanvas, 0, 0);
+  return canvas;
+}
+
 // ---- cutting border --------------------------------------------------------
 
 // Thin guide line just inside the photo edge (FR6). Drawn on a copy.
@@ -120,26 +137,54 @@ export function addBorder(sourceCanvas, color = '#1a1a1a', widthPx = 2) {
 
 // ---- tile / print sheet ----------------------------------------------------
 
-// Pack copies of the final photo onto a paper sheet (FR8–FR11, Decision D7).
-// All geometry is computed from millimetres at the export DPI.
-export function buildTileSheet(photoCanvas, paper, dpi, copies, opts = {}) {
-  const gapMm = opts.gapMm ?? 3;
-  const marginMm = opts.marginMm ?? 5;
+// Capacity-only helper for the UI to show "N fit per sheet" before exporting.
+export function sheetCapacity(photoCanvas, paper, dpi, opts = {}) {
+  const gapMm = opts.gapMm ?? 0.5;
+  const marginMm = opts.marginMm ?? 2.5;
+  const sheetW = mmToPx(paper.wmm, dpi);
+  const sheetH = mmToPx(paper.hmm, dpi);
+  const gap = mmToPx(gapMm, dpi);
+  const margin = mmToPx(marginMm, dpi);
+  const cols = Math.max(0, Math.floor((sheetW - 2 * margin + gap) / (photoCanvas.width + gap)));
+  const rows = Math.max(0, Math.floor((sheetH - 2 * margin + gap) / (photoCanvas.height + gap)));
+  return { capacity: cols * rows, cols, rows };
+}
+
+// Resize a canvas to exact target pixels (no crop — caller ensures matching
+// aspect ratio, e.g. combo-printing the same square photo at 1×1in and 2×2in).
+export function scaleCanvasTo(sourceCanvas, w, h) {
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(sourceCanvas, 0, 0, w, h);
+  return canvas;
+}
+
+// Pack copies of MULTIPLE sizes onto one sheet (combo printing, e.g. some
+// 1×1in + some 2×2in copies together). Shelf packer with column-stacking:
+// each shelf's height is set by its tallest tile, but smaller tiles placed
+// after it stack vertically to fill that same height before starting a new
+// column — e.g. four 1×1in tiles stack 2×2 into the same footprint as one
+// 2×2in tile, instead of wasting the space below a single 1×1in.
+export function buildMixedTileSheet(items, paper, dpi, opts = {}) {
+  const gapMm = opts.gapMm ?? 0;
+  const marginMm = opts.marginMm ?? 2.5;
   const background = opts.background ?? '#ffffff';
 
   const sheetW = mmToPx(paper.wmm, dpi);
   const sheetH = mmToPx(paper.hmm, dpi);
   const gap = mmToPx(gapMm, dpi);
   const margin = mmToPx(marginMm, dpi);
-  const photoW = photoCanvas.width;
-  const photoH = photoCanvas.height;
 
-  const usableW = sheetW - 2 * margin + gap;
-  const usableH = sheetH - 2 * margin + gap;
-  const cols = Math.max(0, Math.floor(usableW / (photoW + gap)));
-  const rows = Math.max(0, Math.floor(usableH / (photoH + gap)));
-  const capacity = cols * rows;
-  const count = Math.min(Math.max(0, copies), capacity);
+  const tiles = [];
+  items.forEach(({ canvas, count }) => {
+    for (let i = 0; i < count; i++) tiles.push(canvas);
+  });
+  // Tallest first so each shelf's height is fixed by the first (tallest
+  // remaining) tile, and every tile placed after it is guaranteed to fit.
+  tiles.sort((a, b) => b.height - a.height);
 
   const canvas = document.createElement('canvas');
   canvas.width = sheetW;
@@ -148,36 +193,38 @@ export function buildTileSheet(photoCanvas, paper, dpi, copies, opts = {}) {
   ctx.fillStyle = background;
   ctx.fillRect(0, 0, sheetW, sheetH);
 
-  // Centre the grid block within the usable area for a tidy sheet.
-  const gridW = cols * photoW + (cols - 1) * gap;
-  const gridH = rows * photoH + (rows - 1) * gap;
-  const startX = Math.round((sheetW - gridW) / 2);
-  const startY = Math.round((sheetH - gridH) / 2);
-
   let placed = 0;
-  for (let r = 0; r < rows && placed < count; r++) {
-    for (let c = 0; c < cols && placed < count; c++) {
-      const x = startX + c * (photoW + gap);
-      const y = startY + r * (photoH + gap);
-      ctx.drawImage(photoCanvas, x, y);
-      placed++;
+  let i = 0;
+  let shelfY = margin;
+
+  while (i < tiles.length && shelfY < sheetH - margin) {
+    // A tile too wide for even one full-width column can never be placed —
+    // drop it so it doesn't stall the loop forever.
+    if (margin + tiles[i].width > sheetW - margin) {
+      i++;
+      continue;
     }
+
+    const shelfH = tiles[i].height;
+    if (shelfY + shelfH > sheetH - margin) break;
+
+    let x = margin;
+    while (i < tiles.length && x + tiles[i].width <= sheetW - margin) {
+      const colW = tiles[i].width;
+      let y = shelfY;
+      while (i < tiles.length && tiles[i].width <= colW && y + tiles[i].height <= shelfY + shelfH) {
+        ctx.drawImage(tiles[i], x, y);
+        y += tiles[i].height + gap;
+        placed++;
+        i++;
+      }
+      x += colW + gap;
+    }
+
+    shelfY += shelfH + gap;
   }
 
-  return { canvas, capacity, cols, rows, placed };
-}
-
-// Capacity-only helper for the UI to show "N fit per sheet" before exporting.
-export function sheetCapacity(photoCanvas, paper, dpi, opts = {}) {
-  const gapMm = opts.gapMm ?? 3;
-  const marginMm = opts.marginMm ?? 5;
-  const sheetW = mmToPx(paper.wmm, dpi);
-  const sheetH = mmToPx(paper.hmm, dpi);
-  const gap = mmToPx(gapMm, dpi);
-  const margin = mmToPx(marginMm, dpi);
-  const cols = Math.max(0, Math.floor((sheetW - 2 * margin + gap) / (photoCanvas.width + gap)));
-  const rows = Math.max(0, Math.floor((sheetH - 2 * margin + gap) / (photoCanvas.height + gap)));
-  return { capacity: cols * rows, cols, rows };
+  return { canvas, placed, requested: tiles.length };
 }
 
 // ---- transparency helpers --------------------------------------------------

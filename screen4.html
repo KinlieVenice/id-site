@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ID Studio Pro - Print Layout</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed-dim": "#b2c5ff",
+                      "surface-container-high": "#e1e8ff",
+                      "on-surface": "#051a3e",
+                      "on-background": "#051a3e",
+                      "surface-bright": "#faf9ff",
+                      "on-secondary-fixed-variant": "#3b475b",
+                      "on-surface-variant": "#434654",
+                      "surface-tint": "#0c56d0",
+                      "inverse-primary": "#b2c5ff",
+                      "primary-fixed": "#dae2ff",
+                      "on-secondary-fixed": "#101c2d",
+                      "on-secondary": "#ffffff",
+                      "primary-container": "#0052cc",
+                      "primary": "#003d9b",
+                      "background": "#faf9ff",
+                      "secondary-fixed-dim": "#bbc7de",
+                      "error": "#ba1a1a",
+                      "on-tertiary-container": "#ffc6b2",
+                      "on-primary": "#ffffff",
+                      "on-secondary-container": "#576377",
+                      "inverse-surface": "#1d3054",
+                      "tertiary-fixed": "#ffdbcf",
+                      "on-tertiary-fixed-variant": "#812800",
+                      "tertiary-fixed-dim": "#ffb59b",
+                      "secondary-container": "#d4e0f8",
+                      "surface-variant": "#d8e2ff",
+                      "surface-dim": "#ccdaff",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed-variant": "#0040a2",
+                      "on-primary-container": "#c4d2ff",
+                      "inverse-on-surface": "#edf0ff",
+                      "secondary-fixed": "#d7e3fb",
+                      "on-tertiary-fixed": "#380d00",
+                      "on-error-container": "#93000a",
+                      "surface": "#faf9ff",
+                      "outline-variant": "#c3c6d6",
+                      "on-primary-fixed": "#001848",
+                      "surface-container-low": "#f1f3ff",
+                      "on-tertiary": "#ffffff",
+                      "tertiary": "#7b2600",
+                      "error-container": "#ffdad6",
+                      "surface-container-highest": "#d8e2ff",
+                      "tertiary-container": "#a33500",
+                      "surface-container": "#e9edff",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#737685",
+                      "secondary": "#535f73"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-md": "16px",
+                      "sidebar-width": "320px",
+                      "stack-sm": "8px",
+                      "toolbar-height": "56px",
+                      "gutter": "16px",
+                      "stack-lg": "24px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "mono-label": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "label-bold": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "mono-label": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-bold": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>.print-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 24px
+    }
+.print-item {
+    aspect-ratio: 35/45;
+    background-color: #f1f3ff;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuD74omU8n1U75-mzIrsn5kBNtcihaHdwjXko6Gka5BtRRagKj-s6Ht-61V8W7ES7ohDnomzTD2_2XvccX2O-yFEoAL7oawyzDcaELd7ShPN4xw-3j7AVy15zz8RMlWGCvqa_Hvzea0TwN2I3vRWkLdfncXzrwXPhK0_MXYpfbCH8kaTrN04vkhU7Z7C9Qn1mYoudMRMyP-KQ1MXDeDj3Uz2aqu48OlPhis64XHXVtmvG94ObKCqtx3g);
+    background-size: cover;
+    background-position: center
+    }
+.cutting-guides .print-item {
+    border: 1px dashed #737685;
+    position: relative
+    }
+.cutting-guides .print-item::before, .cutting-guides .print-item::after {
+    content: "";
+    position: absolute;
+    background: #737685
+    }</style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-hidden flex flex-col">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-toolbar-height px-gutter w-full z-50 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline docked full-width top-0">
+<div class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim">
+            ID Studio Pro
+        </div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors px-4 py-2 rounded-md font-label-bold text-label-bold">
+                Save Draft
+            </button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-md font-label-bold text-label-bold hover:bg-primary-container transition-colors shadow-sm">
+                Export
+            </button>
+<div class="flex items-center gap-2 border-l border-outline-variant pl-4 ml-2">
+<button class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+<button class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 flex overflow-hidden">
+<!-- Canvas Area -->
+<div class="flex-1 bg-surface-container-low overflow-auto relative flex items-center justify-center p-[40px]">
+<!-- Paper Preview (A4/Letter) -->
+<div class="bg-surface-container-lowest shadow-[0px_4px_24px_rgba(0,0,0,0.08)] w-[210mm] h-[297mm] max-w-full max-h-full shrink-0 flex flex-col mx-auto my-auto scale-75 md:scale-90 lg:scale-100 transform origin-center transition-all duration-300" id="paper-preview">
+<div class="print-grid cutting-guides w-full h-full content-start" id="print-grid-container">
+<!-- Javascript will populate this -->
+</div>
+</div>
+</div>
+<!-- SideNavBar -->
+<aside class="fixed right-0 top-toolbar-height h-[calc(100vh-theme(spacing.toolbar-height))] flex flex-col p-stack-lg z-40 bg-surface dark:bg-surface-dim border-l border-outline-variant dark:border-outline docked w-sidebar-width shrink-0 overflow-y-auto">
+<div class="mb-stack-lg">
+<h2 class="font-headline-md text-headline-md text-primary">Edit Tools</h2>
+<div class="flex items-center gap-2 mt-2">
+<span class="bg-surface-container-highest text-on-surface px-2 py-1 rounded-full font-mono-label text-mono-label flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                        AI Compliance: Ready
+                    </span>
+</div>
+</div>
+<nav class="flex flex-col gap-2 mb-stack-lg flex-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-bold text-label-bold text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">aspect_ratio</span>
+                    Size Selection
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-bold text-label-bold text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">face</span>
+                    Photo Studio
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-bold text-label-bold text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">edit</span>
+                    Signature
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-bold text-label-bold bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+                    Print Layout
+                </a>
+</nav>
+<!-- Print Controls -->
+<div class="flex flex-col gap-stack-lg mt-auto border-t border-outline-variant pt-stack-lg">
+<div class="flex flex-col gap-stack-sm">
+<label class="font-label-bold text-label-bold text-on-surface">Paper Size</label>
+<select class="form-select w-full bg-surface-container-lowest border-outline-variant text-on-surface rounded-md font-body-md text-body-md focus:ring-primary focus:border-primary">
+<option value="a4">A4 (210 x 297 mm)</option>
+<option value="letter">Letter (8.5 x 11 in)</option>
+<option value="4x6">4x6 Photo (102 x 152 mm)</option>
+</select>
+</div>
+<div class="flex flex-col gap-stack-sm">
+<label class="font-label-bold text-label-bold text-on-surface">Print Quantity</label>
+<div class="flex items-center border border-outline-variant rounded-md overflow-hidden bg-surface-container-lowest">
+<button class="px-3 py-2 text-on-surface-variant hover:bg-surface-container-low border-r border-outline-variant" onclick="updateQuantity(-1)">-</button>
+<input class="w-full text-center border-none focus:ring-0 font-body-md text-body-md p-2 bg-transparent text-on-surface" id="qty-input" max="24" min="1" onchange="renderGrid()" type="number" value="8"/>
+<button class="px-3 py-2 text-on-surface-variant hover:bg-surface-container-low border-l border-outline-variant" onclick="updateQuantity(1)">+</button>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<label class="font-label-bold text-label-bold text-on-surface cursor-pointer select-none" for="guides-toggle">Show Cutting Guides</label>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" id="guides-toggle" onchange="toggleGuides()" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<button class="w-full bg-primary text-on-primary py-3 rounded-lg font-label-bold text-label-bold hover:bg-primary-container transition-colors shadow-sm flex items-center justify-center gap-2 mt-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">print</span>
+                    Export PDF / Print
+                </button>
+</div>
+</aside>
+</main>
+<script>
+        // Sample image prompt for data-alt
+        const imagePrompt = "A professional, starkly lit studio portrait of a young professional for an ID photo. The subject faces directly forward with a neutral expression against a pristine, seamless white background. Soft, even lighting illuminates the face without harsh shadows, emphasizing clarity and compliance with passport or ID photo standards. The aesthetic is clean, clinical, and precise, matching a modern light-mode application.";
+
+        function updateQuantity(change) {
+            const input = document.getElementById('qty-input');
+            let val = parseInt(input.value) + change;
+            if (val >= 1 && val <= 24) {
+                input.value = val;
+                renderGrid();
+            }
+        }
+
+        function toggleGuides() {
+            const container = document.getElementById('print-grid-container');
+            if (document.getElementById('guides-toggle').checked) {
+                container.classList.add('cutting-guides');
+            } else {
+                container.classList.remove('cutting-guides');
+            }
+        }
+
+        function renderGrid() {
+            const qty = parseInt(document.getElementById('qty-input').value);
+            const container = document.getElementById('print-grid-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < qty; i++) {
+                const item = document.createElement('div');
+                item.className = 'print-item';
+                item.setAttribute('style', "background-image: url('placeholder')");
+                item.setAttribute('data-alt', imagePrompt);
+                container.appendChild(item);
+            }
+        }
+
+        // Initial render
+        renderGrid();
+    </script>
+</body></html>

@@ -6,6 +6,7 @@ import CropStep from './components/CropStep.jsx';
 import BackgroundStep from './components/BackgroundStep.jsx';
 import ExportStep from './components/ExportStep.jsx';
 import Guide from './components/Guide.jsx';
+import Icon from './components/Icon.jsx';
 
 const Editor = lazy(() => import('./components/Editor.jsx'));
 
@@ -61,12 +62,14 @@ export default function App() {
           <p>Crop, clean up, and tile print-ready ID photos — start to finish.</p>
         </div>
         <div className="masthead-actions">
+          <span className="privacy-badge">
+            <Icon name="lock" /> On-device · nothing uploaded
+          </span>
           {step > 0 && (
             <button className="btn new-photo-btn" onClick={handleNewPhoto}>
-              + New photo
+              <Icon name="add_a_photo" /> New photo
             </button>
           )}
-          <span className="privacy-badge">On-device · nothing uploaded</span>
         </div>
       </header>
 
@@ -118,6 +121,8 @@ export default function App() {
         <Suspense fallback={<div className="panel mono">Loading editor…</div>}>
           <Editor
             baseCanvas={composedCanvas}
+            preset={preset}
+            bgColor={bgState.current?.removeBg ? bgState.current?.bgColor : null}
             persisted={editorState}
             onBack={() => goTo(3)}
             onDone={(canvas) => {

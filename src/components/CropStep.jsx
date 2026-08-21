@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Cropper from 'react-easy-crop';
 import CropMarks from './CropMarks.jsx';
+import Icon from './Icon.jsx';
 import { cropToCanvas } from '../lib/image.js';
 import { presetPixels } from '../data/presets.js';
 
@@ -64,7 +65,9 @@ export default function CropStep({ imageSrc, preset, persisted, onCropped, onBac
       </div>
 
       <div className="control-row">
-        <label htmlFor="zoom">Zoom</label>
+        <label htmlFor="zoom">
+          <Icon name="zoom_in" /> Zoom
+        </label>
         <input
           id="zoom"
           type="range"
@@ -81,11 +84,11 @@ export default function CropStep({ imageSrc, preset, persisted, onCropped, onBac
 
       <div className="btn-row">
         <button className="btn" onClick={onBack}>
-          ← Back
+          <Icon name="arrow_back" /> Back
         </button>
         <span className="spacer" />
         <button className="btn primary" disabled={!areaPixels || busy} onClick={applyCrop}>
-          {busy ? 'Working…' : 'Background →'}
+          {busy ? 'Working…' : <>Background <Icon name="arrow_forward" /></>}
         </button>
       </div>
     </section>

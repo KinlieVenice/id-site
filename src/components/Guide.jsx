@@ -1,7 +1,12 @@
+import Icon from './Icon.jsx';
+
 export default function Guide() {
   return (
-    <section className="guide">
-      <h2>About ID &amp; passport photos</h2>
+    <details className="guide">
+      <summary>
+        <Icon name="help" /> About ID &amp; passport photos
+        <Icon name="expand_more" className="guide-chevron" />
+      </summary>
       <p>
         Most ID, passport, and visa photos share the same handful of rules: a fixed size in
         millimetres or inches, a plain background, your face centred and looking straight at the
@@ -50,6 +55,6 @@ export default function Guide() {
         for your document before submitting. The size notes here are a starting point, not legal
         guidance.
       </p>
-    </section>
+    </details>
   );
 }

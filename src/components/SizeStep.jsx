@@ -1,156 +1,113 @@
 import { useMemo, useState } from 'react';
 import CropMarks from './CropMarks.jsx';
+import Icon from './Icon.jsx';
+import Combobox from './Combobox.jsx';
 import { PRESETS, presetPixels } from '../data/presets.js';
 
-// Group presets by physical dimensions — same size = one merged card.
-function buildSizeGroups() {
-  const map = new Map();
-  PRESETS.forEach((p) => {
-    const key = `${p.wmm}x${p.hmm}`;
-    if (!map.has(key)) map.set(key, []);
-    map.get(key).push(p);
-  });
-  return [...map.values()].map((members) => ({
-    key: `${members[0].wmm}x${members[0].hmm}`,
-    members,
-    canonical: members[0],
-  }));
-}
-
-const SIZE_GROUPS = buildSizeGroups();
+// Generic inch-defined ID formats get their own small cards, in inches — every
+// other preset (all real national/ICAO passport specs, whatever unit they're
+// legally defined in) lives behind the single "Passport" country combobox.
+const ID_FORMAT_IDS = new Set(['id-1x1', 'id-2x2']);
+const ID_FORMATS = PRESETS.filter((p) => ID_FORMAT_IDS.has(p.id));
+const ID_ICONS = { 'id-1x1': 'crop_square', 'id-2x2': 'aspect_ratio' };
 
 // Extract leading flag emoji (4 chars = two surrogate pairs for regional indicator flags).
 function getFlag(label) {
   return label.charCodeAt(0) === 0xd83c ? label.slice(0, 4) : '';
 }
-
 function getCountryName(label) {
   const flag = getFlag(label);
   return label.slice(flag.length).split('·')[0].trim();
 }
 
-function renderCountrySummary(members) {
-  if (members.length === 1) {
-    const flag = getFlag(members[0].label);
-    return flag ? `${flag} ${getCountryName(members[0].label)}` : members[0].label;
-  }
-  if (members.length <= 3) {
-    return members
-      .map((m) => {
-        const flag = getFlag(m.label);
-        return flag ? `${flag} ${getCountryName(m.label)}` : getCountryName(m.label);
-      })
-      .join(' · ');
-  }
-  const flags = members
-    .slice(0, 8)
-    .map((m) => getFlag(m.label))
-    .filter(Boolean)
-    .join('');
-  const extra = members.length > 8 ? ` +${members.length - 8} more` : '';
-  return flags + extra;
-}
+const DEFAULT_PASSPORT_ID = 'ph';
+const PASSPORT_PRESETS = PRESETS.filter((p) => !ID_FORMAT_IDS.has(p.id)).sort((a, b) =>
+  getCountryName(a.label).localeCompare(getCountryName(b.label)),
+);
 
 const UNIT_TO_MM = { mm: 1, cm: 10, in: 25.4 };
 
 export default function SizeStep({ selected, onSelect, onNext, onBack }) {
-  const [query, setQuery] = useState('');
+  const isPassport = selected && PASSPORT_PRESETS.some((p) => p.id === selected.id);
+  const passportId = isPassport ? selected.id : DEFAULT_PASSPORT_ID;
+  const passportPreset = PASSPORT_PRESETS.find((p) => p.id === passportId);
+  const { w: pw, h: ph } = presetPixels(passportPreset);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return SIZE_GROUPS;
-    return SIZE_GROUPS.filter((g) =>
-      g.members.some(
-        (p) =>
-          p.label.toLowerCase().includes(q) ||
-          p.notes.toLowerCase().includes(q) ||
-          `${Math.round(p.wmm)}x${Math.round(p.hmm)}`.includes(q) ||
-          `${Math.round(p.wmm)}×${Math.round(p.hmm)}`.includes(q),
-      ),
-    );
-  }, [query]);
-
-  const selectedGroup = selected
-    ? SIZE_GROUPS.find((g) => g.members.some((m) => m.id === selected.id))
-    : null;
+  const countryOptions = useMemo(
+    () => PASSPORT_PRESETS.map((p) => ({ id: p.id, label: getCountryName(p.label), preset: p })),
+    [],
+  );
 
   return (
     <section className="panel">
       <CropMarks />
       <h2>Choose a size</h2>
-      <p className="sub">
-        Select your ID or passport format. Same-size countries are grouped together.
-      </p>
+      <p className="sub">Pick a passport (by country) or a common ID size.</p>
 
-      <div className="search-row">
-        <svg className="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M13 13l4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-        <input
-          type="search"
-          className="size-search"
-          placeholder="Search country or size… e.g. Philippines, 35×45"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-      </div>
+      <div className="size-grid">
+        <div
+          className={`size-card passport-card ${isPassport ? 'selected' : ''}`}
+          onClick={() => {
+            if (!isPassport) onSelect(passportPreset);
+          }}
+        >
+          {isPassport && <Icon name="check_circle" fill className="size-card-check" />}
+          <div className="size-card-head">
+            <Icon name="flag" />
+            <h2>Passport</h2>
+          </div>
+          <label className="group-label" htmlFor="passport-country">
+            Country / region
+          </label>
+          <Combobox
+            id="passport-country"
+            options={countryOptions}
+            value={passportId}
+            onChange={(opt) => onSelect(opt.preset)}
+            placeholder="Type a country…"
+          />
+          <p className="passport-card-hint">
+            <Icon name="info" />
+            {Math.round(passportPreset.wmm)}×{Math.round(passportPreset.hmm)} mm · {pw}×{ph} px ·{' '}
+            {passportPreset.dpi} dpi
+          </p>
+        </div>
 
-      {filtered.length === 0 && (
-        <p className="hint" style={{ margin: '16px 0' }}>
-          No matching format found. Try a different search or use Custom size below.
-        </p>
-      )}
-
-      <div className="preset-grid" style={{ marginTop: 14 }}>
-        {filtered.map((g) => {
-          const { w, h } = presetPixels(g.canonical);
-          const isSelected = selected && g.members.some((m) => m.id === selected.id);
-          const summary = renderCountrySummary(g.members);
-
+        {ID_FORMATS.map((p) => {
+          const { w, h } = presetPixels(p);
+          const isSelected = selected?.id === p.id;
+          const inches = Math.round(p.wmm / 25.4);
           return (
             <button
-              key={g.key}
-              className={`preset-card ${isSelected ? 'selected' : ''}`}
-              onClick={() => {
-                const keep = selected && g.members.find((m) => m.id === selected.id);
-                onSelect(keep || g.canonical);
-              }}
+              key={p.id}
+              className={`size-card ${isSelected ? 'selected' : ''}`}
+              onClick={() => onSelect(p)}
               aria-pressed={isSelected}
             >
-              <span className="card-size mono">
-                {Math.round(g.canonical.wmm)}×{Math.round(g.canonical.hmm)}{' '}
-                <span className="card-unit">mm</span>
-              </span>
-              <span className="card-countries">{summary}</span>
-              <span className="dims mono">
-                {w}×{h} px · {g.canonical.dpi} dpi
-              </span>
+              {isSelected && <Icon name="check_circle" fill className="size-card-check" />}
+              <div className="size-card-head">
+                <Icon name={ID_ICONS[p.id]} />
+                <h2>
+                  {inches}×{inches} in
+                </h2>
+              </div>
+              <p className="size-card-desc">
+                {p.id === 'id-1x1'
+                  ? 'Common for local IDs and specific visa applications.'
+                  : 'Common for local IDs and many visa applications worldwide.'}
+              </p>
+              <div className="size-card-tags">
+                <span>
+                  {inches}.0 × {inches}.0 in
+                </span>
+                <span>{p.dpi} dpi</span>
+              </div>
             </button>
           );
         })}
+
+        <CustomSize selected={selected} onSelect={onSelect} />
       </div>
-
-      <CustomSize selected={selected} onSelect={onSelect} />
-
-      {selectedGroup && selectedGroup.members.length > 1 && (
-        <div className="variant-row">
-          <span className="lbl">Country / format requirements</span>
-          <select
-            value={selected?.id || ''}
-            onChange={(e) => {
-              const p = selectedGroup.members.find((m) => m.id === e.target.value);
-              if (p) onSelect(p);
-            }}
-          >
-            {selectedGroup.members.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
 
       {selected && (
         <div className="notes">
@@ -161,11 +118,11 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
 
       <div className="btn-row">
         <button className="btn" onClick={onBack}>
-          ← Back
+          <Icon name="arrow_back" /> Back
         </button>
         <span className="spacer" />
         <button className="btn primary" disabled={!selected} onClick={onNext}>
-          Crop →
+          Crop <Icon name="arrow_forward" />
         </button>
       </div>
     </section>
@@ -173,6 +130,7 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
 }
 
 function CustomSize({ selected, onSelect }) {
+  const [open, setOpen] = useState(false);
   const [w, setW] = useState('35');
   const [h, setH] = useState('45');
   const [unit, setUnit] = useState('mm');
@@ -210,41 +168,55 @@ function CustomSize({ selected, onSelect }) {
     });
   }
 
+  if (!open && !isActive) {
+    return (
+      <button className="size-card custom" onClick={() => setOpen(true)}>
+        <Icon name="straighten" />
+        <h2 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '10px 0 4px' }}>Custom size</h2>
+        <p className="size-card-desc" style={{ flex: 'none' }}>
+          Define specific width, height, and resolution.
+        </p>
+      </button>
+    );
+  }
+
   return (
-    <div style={{ marginTop: 20 }}>
-      <div className="group-label">Custom size</div>
-      <div className={`custom-size ${isActive ? 'selected' : ''}`}>
-        <div className="custom-fields">
-          <label className="cf">
-            <span className="lbl">Width</span>
-            <input type="number" min="0" step="any" value={w} onChange={(e) => setW(e.target.value)} />
-          </label>
-          <span className="times mono">×</span>
-          <label className="cf">
-            <span className="lbl">Height</span>
-            <input type="number" min="0" step="any" value={h} onChange={(e) => setH(e.target.value)} />
-          </label>
-          <label className="cf">
-            <span className="lbl">Unit</span>
-            <select value={unit} onChange={(e) => setUnit(e.target.value)}>
-              <option value="mm">mm</option>
-              <option value="cm">cm</option>
-              <option value="in">inch</option>
-            </select>
-          </label>
-          <label className="cf">
-            <span className="lbl">DPI</span>
-            <input type="number" min="0" step="1" value={dpi} onChange={(e) => setDpi(e.target.value)} />
-          </label>
-        </div>
-        <div className="custom-foot">
-          <span className="dims mono">
-            {derived ? `${derived.px.w}×${derived.px.h} px` : 'enter a valid size'}
-          </span>
-          <button className={`btn ${isActive ? 'primary' : ''}`} disabled={!derived} onClick={use}>
-            {isActive ? 'Custom size selected' : 'Use this size'}
-          </button>
-        </div>
+    <div className={`size-card custom-size-open ${isActive ? 'selected' : ''}`}>
+      {isActive && <Icon name="check_circle" fill className="size-card-check" />}
+      <div className="size-card-head">
+        <Icon name="straighten" />
+        <h2>Custom size</h2>
+      </div>
+      <div className="custom-fields">
+        <label className="cf">
+          <span className="lbl">Width</span>
+          <input type="number" min="0" step="any" value={w} onChange={(e) => setW(e.target.value)} />
+        </label>
+        <span className="times mono">×</span>
+        <label className="cf">
+          <span className="lbl">Height</span>
+          <input type="number" min="0" step="any" value={h} onChange={(e) => setH(e.target.value)} />
+        </label>
+        <label className="cf">
+          <span className="lbl">Unit</span>
+          <select value={unit} onChange={(e) => setUnit(e.target.value)}>
+            <option value="mm">mm</option>
+            <option value="cm">cm</option>
+            <option value="in">inch</option>
+          </select>
+        </label>
+        <label className="cf">
+          <span className="lbl">DPI</span>
+          <input type="number" min="0" step="1" value={dpi} onChange={(e) => setDpi(e.target.value)} />
+        </label>
+      </div>
+      <div className="custom-foot">
+        <span className="dims mono">
+          {derived ? `${derived.px.w}×${derived.px.h} px` : 'enter a valid size'}
+        </span>
+        <button className={`btn ${isActive ? 'primary' : ''}`} disabled={!derived} onClick={use}>
+          {isActive ? 'Custom size selected' : 'Use this size'}
+        </button>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 //   restore — paint original pixels back in (sampled from the pre-removal crop)
 // Works on a full-resolution working copy of the cutout; the on-screen canvas is
 // just a scaled view, so edits stay sharp at export size.
-export default function MaskBrush({ cutout, original, onApply, onCancel }) {
+export default function MaskBrush({ cutout, original, eraseColor, guide, onApply, onCancel }) {
   const viewRef = useRef(null);
   const workRef = useRef(null); // full-res working copy of the cutout
   const drawing = useRef(false);
@@ -76,6 +76,14 @@ export default function MaskBrush({ cutout, original, onApply, onCancel }) {
     ctx.clearRect(0, 0, viewW, viewH);
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(workRef.current, 0, 0, viewW, viewH);
+    if (guide) {
+      // Faint reference only — never part of what gets saved (workRef), so
+      // it can't leak into the exported photo even though it's visible here.
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      ctx.drawImage(guide, 0, 0, viewW, viewH);
+      ctx.restore();
+    }
   }
 
   function pointAt(e) {
@@ -90,7 +98,15 @@ export default function MaskBrush({ cutout, original, onApply, onCancel }) {
     const r = size / scale / 2; // brush radius in full-res pixels
     ctx.save();
     if (mode === 'erase') {
-      ctx.globalCompositeOperation = 'destination-out';
+      if (eraseColor) {
+        // The photo is already flattened onto a background colour (no
+        // transparency to reveal), so "erasing" paints that colour back in
+        // instead of punching a transparent hole.
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = eraseColor;
+      } else {
+        ctx.globalCompositeOperation = 'destination-out';
+      }
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
@@ -193,7 +209,7 @@ export default function MaskBrush({ cutout, original, onApply, onCancel }) {
         </div>
       </div>
       <p className="hint" style={{ marginTop: 8 }}>
-        The orange circle shows your brush size — adjust the slider and hover the
+        The blue circle shows your brush size — adjust the slider and hover the
         photo to check it before you paint.
       </p>
 
