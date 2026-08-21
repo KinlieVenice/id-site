@@ -16,7 +16,7 @@ export default function MaskBrush({ cutout, original, eraseColor, guide, onApply
   const [canUndo, setCanUndo] = useState(false);
   const [ring, setRing] = useState(null); // brush-size cursor preview
 
-  const scale = Math.min(1, 360 / cutout.width);
+  const scale = Math.min(1, 640 / cutout.width);
   const viewW = Math.round(cutout.width * scale);
   const viewH = Math.round(cutout.height * scale);
 
@@ -77,12 +77,9 @@ export default function MaskBrush({ cutout, original, eraseColor, guide, onApply
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(workRef.current, 0, 0, viewW, viewH);
     if (guide) {
-      // Faint reference only — never part of what gets saved (workRef), so
-      // it can't leak into the exported photo even though it's visible here.
-      ctx.save();
-      ctx.globalAlpha = 0.35;
+      // Full-opacity reference — never part of what gets saved (workRef), so
+      // it can't leak into the exported photo even though it's shown at 100%.
       ctx.drawImage(guide, 0, 0, viewW, viewH);
-      ctx.restore();
     }
   }
 

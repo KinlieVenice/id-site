@@ -175,9 +175,11 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
     return () => ro.disconnect();
   }, []);
 
-  // 32px = 16px padding × 2 sides in .preview-frame
+  // 32px = 16px padding × 2 sides in .preview-frame. Capped tall so there's
+  // still room for handles/toolbars, but big enough to actually line up a
+  // suit overlay precisely.
   const scale = useMemo(
-    () => Math.min((canvasColW - 32) / baseW, 480 / baseH, 1),
+    () => Math.min((canvasColW - 32) / baseW, 720 / baseH, 1),
     [canvasColW, baseW, baseH],
   );
   const viewW = Math.round(baseW * scale);
@@ -357,7 +359,7 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
       <h2>Add attire, name &amp; signature</h2>
       <p className="sub">All optional — skip any section you don&apos;t need.</p>
 
-      <div className="editor-row row workspace">
+      <div className={`editor-row row ${editingPhoto ? '' : 'workspace'}`}>
         {/* Canvas column */}
         <div className="col editor-canvas-col" ref={canvasColRef}>
           {photoCropping ? (
@@ -502,9 +504,9 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
                     rotateEnabled
                     keepRatio={uniform}
                     enabledAnchors={freeStretch ? stripAnchors : cornerAnchors}
-                    anchorStroke="#2563eb"
+                    anchorStroke="#003d9b"
                     anchorFill="#fff"
-                    borderStroke="#2563eb"
+                    borderStroke="#003d9b"
                     boundBoxFunc={(oldBox, newBox) =>
                       newBox.width < 8 || newBox.height < 8 ? oldBox : newBox
                     }
@@ -543,18 +545,11 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
           )}
         </div>
 
-        {/* Guided controls column */}
+        {/* Guided controls column — hidden while cropping/refining so the
+            photo gets the whole panel width, same as the standalone Crop step. */}
+        {!editingPhoto && (
         <div className="col editor-controls-col">
-          {editingPhoto ? (
-            <p className="hint">
-              {photoCropping
-                ? "Drag to reposition, use the zoom slider to size the crop, then Apply."
-                : brushGuide
-                  ? 'Erase leftover background, or restore parts that were removed. The faint suit is just a position guide — it stays untouched.'
-                  : 'Erase leftover background, or restore parts that were removed.'}
-            </p>
-          ) : (
-            <>
+          <>
               {/* Step indicator */}
               <div className="guided-header">
                 <div className="guided-step-label">
@@ -719,8 +714,8 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
                 </div>
               )}
             </>
-          )}
         </div>
+        )}
       </div>
 
       {!editingPhoto && (
