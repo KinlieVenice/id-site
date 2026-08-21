@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ID Studio Pro - Photo Studio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom range slider styling for utilitarian look */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: theme('colors.primary');
+            cursor: pointer;
+            margin-top: -6px;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: theme('colors.surface-variant');
+            border-radius: 2px;
+        }
+        
+        /* Toggle Switch Styling */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: theme('colors.primary');
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: theme('colors.primary');
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#b2c5ff",
+                        "surface-container-high": "#e1e8ff",
+                        "on-surface": "#051a3e",
+                        "on-background": "#051a3e",
+                        "surface-bright": "#faf9ff",
+                        "on-secondary-fixed-variant": "#3b475b",
+                        "on-surface-variant": "#434654",
+                        "surface-tint": "#0c56d0",
+                        "inverse-primary": "#b2c5ff",
+                        "primary-fixed": "#dae2ff",
+                        "on-secondary-fixed": "#101c2d",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#0052cc",
+                        "primary": "#003d9b",
+                        "background": "#faf9ff",
+                        "secondary-fixed-dim": "#bbc7de",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#ffc6b2",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#576377",
+                        "inverse-surface": "#1d3054",
+                        "tertiary-fixed": "#ffdbcf",
+                        "on-tertiary-fixed-variant": "#812800",
+                        "tertiary-fixed-dim": "#ffb59b",
+                        "secondary-container": "#d4e0f8",
+                        "surface-variant": "#d8e2ff",
+                        "surface-dim": "#ccdaff",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#0040a2",
+                        "on-primary-container": "#c4d2ff",
+                        "inverse-on-surface": "#edf0ff",
+                        "secondary-fixed": "#d7e3fb",
+                        "on-tertiary-fixed": "#380d00",
+                        "on-error-container": "#93000a",
+                        "surface": "#faf9ff",
+                        "outline-variant": "#c3c6d6",
+                        "on-primary-fixed": "#001848",
+                        "surface-container-low": "#f1f3ff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#7b2600",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#d8e2ff",
+                        "tertiary-container": "#a33500",
+                        "surface-container": "#e9edff",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#737685",
+                        "secondary": "#535f73"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "sidebar-width": "320px",
+                        "stack-sm": "8px",
+                        "toolbar-height": "56px",
+                        "gutter": "16px",
+                        "stack-lg": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "mono-label": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "label-bold": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "mono-label": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["18px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background h-screen overflow-hidden flex flex-col font-body-md">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-toolbar-height px-gutter w-full z-50 bg-surface text-primary border-b border-outline-variant flat no shadows font-headline-md text-headline-md shrink-0">
+<div class="flex items-center gap-4">
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary">ID Studio Pro</h1>
+</div>
+<div class="flex items-center gap-stack-md">
+<button class="font-label-bold text-label-bold text-on-surface-variant hover:bg-surface-container-low px-4 py-2 rounded transition-colors">
+                Save Draft
+            </button>
+<button class="bg-primary text-on-primary font-label-bold text-label-bold px-4 py-2 rounded hover:opacity-80 transition-opacity flex items-center gap-2">
+                Export <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<div class="h-6 w-px bg-outline-variant mx-2"></div>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Workspace -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Canvas Area (Fluid Canvas with safe area) -->
+<main class="flex-1 bg-surface-container-low p-[40px] relative flex flex-col items-center justify-center overflow-hidden">
+<!-- Canvas Backdrop -->
+<div class="absolute inset-0 bg-[radial-gradient(theme(colors.surface-variant)_1px,transparent_1px)] [background-size:16px_16px] opacity-50 z-0"></div>
+<!-- Safe Area Indicator / Frame -->
+<div class="relative z-10 w-full max-w-2xl h-full max-h-[800px] border border-dashed border-outline-variant rounded-xl flex items-center justify-center p-4 bg-surface shadow-sm">
+<!-- The Portrait -->
+<div class="relative w-full h-full rounded overflow-hidden bg-surface-container-highest flex items-center justify-center group">
+<!-- Placeholder for unedited portrait -->
+<img alt="Uploaded Portrait" class="object-contain w-full h-full transition-transform duration-300" data-alt="A high-resolution, raw, unedited portrait photograph of a young professional woman facing forward against a neutral grey studio background. She has a neutral expression, suitable for a passport or ID photo. The lighting is soft, even, and flat studio lighting. The aesthetic is clean, clinical, and precise, highlighting details clearly for professional photo editing in a modern light-mode studio interface. The subject occupies the center of the frame." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1cNDiamjfoGqsSIY4uNVktUDGgf5WH8TJ9YWJ2nWtl42UETtmsk5M57x6cxaYQCwC-kOMhU3NIG8IRrzhKanOhqivi59lwPouIrE5duLWrg_hTeojpwui_yEEe1TvgHD_7OTrSzfiEgztrBcvIU_5OJ7IHaxiUozevCSxOZiSMwNxCTPx9B_eJavFxfentASyP_KmHDThKxj8qfppfhx9rIVV1bxmflp2DVm-FQvYmfFVDFhSs6ri"/>
+<!-- Overlay Grid for precise alignment (visible on hover) -->
+<div class="absolute inset-0 grid grid-cols-3 grid-rows-3 border border-primary/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+<div class="border-r border-b border-primary/20"></div>
+<div class="border-r border-b border-primary/20 flex justify-center items-end pb-2"><span class="font-mono-label text-mono-label text-primary/60">TOP</span></div>
+<div class="border-b border-primary/20"></div>
+<div class="border-r border-b border-primary/20 flex justify-end items-center pr-2"><span class="font-mono-label text-mono-label text-primary/60">L</span></div>
+<div class="border-r border-b border-primary/20 flex items-center justify-center">
+<!-- Center crosshair -->
+<span class="material-symbols-outlined text-primary/40 text-4xl">add</span>
+</div>
+<div class="border-b border-primary/20 flex items-center pl-2"><span class="font-mono-label text-mono-label text-primary/60">R</span></div>
+<div class="border-r border-primary/20"></div>
+<div class="border-r border-primary/20"></div>
+<div></div>
+</div>
+</div>
+</div>
+</main>
+<!-- SideNavBar (Fixed Sidebar) -->
+<aside class="w-sidebar-width bg-surface border-l border-outline-variant flat no shadows h-full flex flex-col z-40 shrink-0">
+<!-- Navigation Tabs (Horizontal Scrollable list within sidebar to save vertical space, adhering to active state logic) -->
+<nav class="flex overflow-x-auto border-b border-outline-variant p-2 gap-2 hide-scrollbar shrink-0">
+<!-- Size Selection (Inactive) -->
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-lg whitespace-nowrap text-on-surface-variant hover:bg-surface-container-low transition-all font-label-bold text-label-bold">
+<span class="material-symbols-outlined text-[16px]">aspect_ratio</span>
+                    Size Selection
+                </button>
+<!-- Photo Studio (ACTIVE) -->
+<button class="flex items-center gap-2 px-3 py-1.5 whitespace-nowrap transition-all font-label-bold text-label-bold bg-secondary-container text-on-secondary-container rounded-xl scale-[0.98]">
+<span class="material-symbols-outlined text-[16px] fill-current" style="font-variation-settings: 'FILL' 1;">face</span>
+                    Photo Studio
+                </button>
+<!-- Signature (Inactive) -->
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-lg whitespace-nowrap text-on-surface-variant hover:bg-surface-container-low transition-all font-label-bold text-label-bold">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+                    Signature
+                </button>
+<!-- Print Layout (Inactive) -->
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-lg whitespace-nowrap text-on-surface-variant hover:bg-surface-container-low transition-all font-label-bold text-label-bold">
+<span class="material-symbols-outlined text-[16px]">grid_view</span>
+                    Print Layout
+                </button>
+</nav>
+<!-- Tools Area (Scrollable) -->
+<div class="flex-1 overflow-y-auto p-stack-lg flex flex-col gap-stack-lg">
+<!-- Header & Status -->
+<div class="flex flex-col gap-stack-sm">
+<h2 class="font-headline-md text-headline-md text-primary">Edit Tools</h2>
+<div class="inline-flex items-center gap-2 bg-surface-container-high px-2 py-1 rounded-full w-fit border border-outline-variant/50">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-mono-label text-mono-label text-on-surface">AI Compliance: Ready</span>
+</div>
+</div>
+<hr class="border-outline-variant/50"/>
+<!-- Remove Background Toggle -->
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-bold text-label-bold text-on-surface">Remove Background</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Isolate subject automatically</span>
+</div>
+<!-- Custom Toggle Switch -->
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-outline appearance-none cursor-pointer z-10 transition-all duration-300" id="bg-toggle" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-primary cursor-pointer transition-colors duration-300" for="bg-toggle"></label>
+</div>
+</div>
+<!-- BG Color Picker -->
+<div class="flex flex-col gap-stack-sm">
+<span class="font-label-bold text-label-bold text-on-surface">Background Fill</span>
+<div class="flex gap-3">
+<button aria-label="White Background" class="w-8 h-8 rounded-full bg-white border border-outline-variant ring-2 ring-offset-2 ring-primary focus:outline-none"></button>
+<button aria-label="Blue Background" class="w-8 h-8 rounded-full bg-[#0052cc] border border-transparent hover:scale-110 transition-transform focus:outline-none"></button>
+<button aria-label="Red Background" class="w-8 h-8 rounded-full bg-[#ba1a1a] border border-transparent hover:scale-110 transition-transform focus:outline-none"></button>
+<button aria-label="Custom Color" class="w-8 h-8 rounded-full bg-surface-variant border border-outline-variant hover:scale-110 transition-transform focus:outline-none flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">add</span>
+</button>
+</div>
+</div>
+<hr class="border-outline-variant/50"/>
+<!-- Corpo Attire Overlay Gallery -->
+<div class="flex flex-col gap-stack-sm">
+<div class="flex justify-between items-center">
+<span class="font-label-bold text-label-bold text-on-surface">Corpo Attire Overlay</span>
+<span class="font-mono-label text-mono-label text-primary cursor-pointer hover:underline">View All</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<!-- Attire Item 1 (Selected) -->
+<div class="border-2 border-primary rounded-lg overflow-hidden bg-surface-container-low aspect-square p-2 cursor-pointer relative group">
+<img alt="Navy Suit" class="w-full h-full object-contain" data-alt="A high-quality, cut-out PNG style image of a formal navy blue corporate blazer with a crisp white shirt and a subtle blue tie, isolated against a pure white background. The lighting is flat, even studio lighting designed to be seamlessly composited onto a portrait photo. Modern professional studio aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDswQYIW53n3ZEMIqJxR2MCzsccDJM-wo7r8jQkAJaKkZCy0QZro_FuXWtV4RX8GOIz-WQwj2qdX4ltXFU1iOyN5ZK56W4U_eQ1Likv0PQFsBad0dWxr5GIi_4fcmVHHlCaAWyAH-zaNI0xDH4OoWULGvSigzfGve2RVuk2VjbszIJ7ZcKZnL62LD8kqi0DnT0pDZMgFeMYeb2sBC9mu2aUt0Uot-660_LD6rSHOQmvAky-yf1T6TeA"/>
+<div class="absolute top-1 right-1 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+<!-- Attire Item 2 -->
+<div class="border border-outline-variant rounded-lg overflow-hidden bg-surface-container-lowest aspect-square p-2 cursor-pointer hover:border-primary transition-colors">
+<img alt="Grey Blazer" class="w-full h-full object-contain" data-alt="A high-quality, cut-out PNG style image of a charcoal grey corporate blazer over a plain light blue blouse, isolated against a pure white background. Flat, even lighting for professional compositing. Clean, modern ID studio aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAOrbOGm8eWUsEDVxtx9ONGQOhnA2GN3ZZuWgAORSAO2lb9gflBmFyHTDE-7n5oG_GTfL7vv9KA3uhk6mP9WHq1noVXecf8jdzFBiDOVkpGdGSDbXHY6_prm_AFXbcXpkfJwKc7Q5rSawpfkAZeVX17vTZxCUHGoH3sv335RXMdw20CAQmYeBDTOi1_aUWSaLcbT40Z1P7qk70Hi3hRczTUP_6SRVOL5aSpZ709lttu_c8SuXIbBrz"/>
+</div>
+<!-- Attire Item 3 -->
+<div class="border border-outline-variant rounded-lg overflow-hidden bg-surface-container-lowest aspect-square p-2 cursor-pointer hover:border-primary transition-colors">
+<img alt="Black Suit" class="w-full h-full object-contain" data-alt="A high-quality, cut-out PNG style image of a black formal suit jacket with a white collared shirt and red tie, isolated on a white background. Perfect studio lighting, crisp edges, ready for overlay in a digital photo editing interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAExkap9Z_DI_IPuy8Ag4mXFajLQ7TTf7zKlutobctBwUH2jvPm5U6Uc3pDZTwyYoM4gB2WCMPmL0XRzBv7aGwrMk_E6ifLK8xoH5pUkx-TufcVFJlRvb3MYRnRinNZbo0AobN2zjG9_zIvSgs5VoPoURTqkgoOS5YuUz_ZYTLUb35PjtVZhddxwwBk2KvtdUEXF86mJI6TMbbgHSzR4DwHayFWg1o5DzW-e1WX5gRcPFPWRE3DETpE"/>
+</div>
+<!-- Attire Item 4 -->
+<div class="border border-dashed border-outline-variant rounded-lg overflow-hidden bg-surface-container-lowest aspect-square p-2 cursor-pointer flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors gap-1">
+<span class="material-symbols-outlined">upload</span>
+<span class="font-mono-label text-mono-label text-center">Upload Custom</span>
+</div>
+</div>
+</div>
+<!-- Warp and Scale Controls -->
+<div class="flex flex-col gap-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg p-3">
+<span class="font-label-bold text-label-bold text-on-surface border-b border-outline-variant/50 pb-2">Attire Adjustments</span>
+<!-- Scale Slider -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center">
+<label class="font-body-sm text-body-sm text-on-surface-variant">Scale</label>
+<span class="font-mono-label text-mono-label text-on-surface">100%</span>
+</div>
+<input class="w-full" max="120" min="80" type="range" value="100"/>
+</div>
+<!-- Warp/Position X -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center">
+<label class="font-body-sm text-body-sm text-on-surface-variant">Horizontal Offset</label>
+<span class="font-mono-label text-mono-label text-on-surface">0px</span>
+</div>
+<input class="w-full" max="50" min="-50" type="range" value="0"/>
+</div>
+<!-- Warp/Position Y -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center">
+<label class="font-body-sm text-body-sm text-on-surface-variant">Vertical Offset</label>
+<span class="font-mono-label text-mono-label text-on-surface">12px</span>
+</div>
+<input class="w-full" max="50" min="-50" type="range" value="12"/>
+</div>
+</div>
+</div>
+<!-- Footer CTA -->
+<div class="p-stack-md border-t border-outline-variant bg-surface mt-auto">
+<button class="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">magic_button</span>
+                    Process Photo
+                </button>
+</div>
+</aside>
+</div>
+</body></html>

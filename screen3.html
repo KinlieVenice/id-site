@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ID Studio Pro - Signature Suite</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed-dim": "#b2c5ff",
+                      "surface-container-high": "#e1e8ff",
+                      "on-surface": "#051a3e",
+                      "on-background": "#051a3e",
+                      "surface-bright": "#faf9ff",
+                      "on-secondary-fixed-variant": "#3b475b",
+                      "on-surface-variant": "#434654",
+                      "surface-tint": "#0c56d0",
+                      "inverse-primary": "#b2c5ff",
+                      "primary-fixed": "#dae2ff",
+                      "on-secondary-fixed": "#101c2d",
+                      "on-secondary": "#ffffff",
+                      "primary-container": "#0052cc",
+                      "primary": "#003d9b",
+                      "background": "#faf9ff",
+                      "secondary-fixed-dim": "#bbc7de",
+                      "error": "#ba1a1a",
+                      "on-tertiary-container": "#ffc6b2",
+                      "on-primary": "#ffffff",
+                      "on-secondary-container": "#576377",
+                      "inverse-surface": "#1d3054",
+                      "tertiary-fixed": "#ffdbcf",
+                      "on-tertiary-fixed-variant": "#812800",
+                      "tertiary-fixed-dim": "#ffb59b",
+                      "secondary-container": "#d4e0f8",
+                      "surface-variant": "#d8e2ff",
+                      "surface-dim": "#ccdaff",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed-variant": "#0040a2",
+                      "on-primary-container": "#c4d2ff",
+                      "inverse-on-surface": "#edf0ff",
+                      "secondary-fixed": "#d7e3fb",
+                      "on-tertiary-fixed": "#380d00",
+                      "on-error-container": "#93000a",
+                      "surface": "#faf9ff",
+                      "outline-variant": "#c3c6d6",
+                      "on-primary-fixed": "#001848",
+                      "surface-container-low": "#f1f3ff",
+                      "on-tertiary": "#ffffff",
+                      "tertiary": "#7b2600",
+                      "error-container": "#ffdad6",
+                      "surface-container-highest": "#d8e2ff",
+                      "tertiary-container": "#a33500",
+                      "surface-container": "#e9edff",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#737685",
+                      "secondary": "#535f73"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-md": "16px",
+                      "sidebar-width": "320px",
+                      "stack-sm": "8px",
+                      "toolbar-height": "56px",
+                      "gutter": "16px",
+                      "stack-lg": "24px"
+              },
+              "fontFamily": {
+                      "body-md": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "mono-label": ["JetBrains Mono"],
+                      "headline-lg": ["Inter"],
+                      "label-bold": ["Inter"],
+                      "headline-md": ["Inter"]
+              },
+              "fontSize": {
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                      "mono-label": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                      "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-md": ["18px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col overflow-hidden">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline fixed full-width top-0 flex justify-between items-center h-toolbar-height px-gutter w-full z-50">
+<div class="flex items-center gap-gutter">
+<span class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim">ID Studio Pro</span>
+</div>
+<div class="flex items-center gap-stack-md">
+<!-- Trailing Actions -->
+<button class="font-label-bold text-label-bold text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors px-4 py-2 rounded-lg border border-outline-variant">
+                Save Draft
+            </button>
+<button class="font-label-bold text-label-bold bg-primary text-on-primary hover:opacity-80 transition-opacity px-4 py-2 rounded-lg">
+                Export
+            </button>
+<!-- Icon Actions -->
+<div class="flex items-center gap-stack-sm border-l border-outline-variant pl-stack-md ml-stack-sm">
+<button class="text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Layout Container -->
+<div class="flex flex-1 pt-toolbar-height h-screen">
+<!-- Fluid Canvas Area -->
+<main class="flex-1 bg-surface-container-low relative flex flex-col items-center justify-center p-[40px] overflow-y-auto">
+<div class="w-full max-w-4xl flex flex-col gap-stack-lg">
+<!-- Canvas Header & Controls -->
+<div class="flex items-center justify-between w-full">
+<div>
+<h1 class="font-headline-md text-headline-md text-on-surface mb-1">Signature Capture</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Draw clearly within the bounds. High contrast black ink required.</p>
+</div>
+<!-- Segmented Control for Mode Switch -->
+<div class="bg-surface-container p-1 rounded-lg flex items-center shadow-inner">
+<button class="font-label-bold text-label-bold bg-surface-container-lowest text-primary shadow-sm rounded-md px-4 py-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="draw">draw</span>
+                            Draw
+                        </button>
+<button class="font-label-bold text-label-bold text-on-surface-variant hover:bg-surface-variant transition-colors rounded-md px-4 py-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="upload_file">upload_file</span>
+                            Upload Image
+                        </button>
+</div>
+</div>
+<!-- Drawing Pad Component -->
+<div class="relative bg-surface rounded-xl shadow-sm border border-outline-variant flex flex-col overflow-hidden">
+<!-- Toolbar -->
+<div class="bg-surface-bright border-b border-outline-variant p-stack-sm flex items-center justify-between">
+<div class="flex items-center gap-stack-sm">
+<button class="text-on-surface-variant hover:text-primary hover:bg-surface-container px-3 py-1.5 rounded-md flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="undo">undo</span>
+<span class="font-label-bold text-label-bold">Undo</span>
+</button>
+<button class="text-on-surface-variant hover:text-error hover:bg-error-container px-3 py-1.5 rounded-md flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
+<span class="font-label-bold text-label-bold">Clear</span>
+</button>
+</div>
+<div class="flex items-center gap-2 pr-2">
+<span class="font-mono-label text-mono-label text-outline">Ink:</span>
+<div class="w-4 h-4 rounded-full bg-black border border-outline-variant"></div>
+<div class="w-4 h-4 rounded-full bg-[#1A1A1A] border border-outline-variant cursor-pointer opacity-50 hover:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<!-- Canvas Area -->
+<div class="h-[400px] w-full relative bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdHRlcm4gaWQ9InNtYWxsR3JpZCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNMTAgMEwwIDBMMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZWRmMGZmIiBzdHJva2Utd2lkdGg9IjAuNSIvPjwvcGF0dGVybj48cmVjdCB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9InVybCgjc21hbGxHcmlkKSIvPjxwYXRoIGQ9Ik00MCAwTDAgMEwwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiNjM2M2ZDYiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')]">
+<!-- Simulated active inner border -->
+<div class="absolute inset-0 border-2 border-primary pointer-events-none opacity-20"></div>
+<!-- Safe Area Box -->
+<div class="absolute inset-10 border-2 border-dashed border-outline-variant pointer-events-none flex items-center justify-center">
+<span class="font-body-sm text-body-sm text-outline bg-surface px-2">Sign within bounds</span>
+</div>
+<!-- The drawing surface would go here, leaving blank for pure UI -->
+</div>
+</div>
+<!-- Hidden Upload State (For illustration of the "Upload" tab functionality) -->
+<!-- <div class="h-[400px] w-full border-2 border-dashed border-outline-variant bg-surface rounded-xl flex flex-col items-center justify-center gap-stack-md hover:bg-surface-container-low transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-[48px] text-primary" data-icon="cloud_upload">cloud_upload</span>
+                    <p class="font-headline-md text-headline-md text-on-surface">Drag & drop signature image</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Supports transparent PNG up to 5MB</p>
+                    <button class="mt-2 font-label-bold text-label-bold bg-surface-container-highest text-on-surface hover:bg-surface-variant px-4 py-2 rounded-lg transition-colors">Browse Files</button>
+                </div> -->
+</div>
+</main>
+<!-- SideNavBar -->
+<aside class="bg-surface dark:bg-surface-dim border-l border-outline-variant dark:border-outline fixed right-0 top-toolbar-height h-[calc(100vh-theme(spacing.toolbar-height))] flex flex-col p-stack-lg z-40 w-sidebar-width shrink-0">
+<!-- Header -->
+<div class="mb-stack-lg">
+<h2 class="font-headline-md text-headline-md text-primary mb-1">Edit Tools</h2>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-[#10B981]"></div>
+<span class="font-label-bold text-label-bold text-on-surface-variant">AI Compliance: Ready</span>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex flex-col gap-2 mb-stack-lg border-b border-outline-variant pb-stack-lg">
+<a class="font-label-bold text-label-bold text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-variant transition-all flex items-center gap-3 px-3 py-2.5 rounded-xl" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="aspect_ratio">aspect_ratio</span>
+                    Size Selection
+                </a>
+<a class="font-label-bold text-label-bold text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-variant transition-all flex items-center gap-3 px-3 py-2.5 rounded-xl" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="face">face</span>
+                    Photo Studio
+                </a>
+<!-- Active Tab -->
+<a class="font-label-bold text-label-bold bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-xl flex items-center gap-3 px-3 py-2.5 transform scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit" data-weight="fill">edit</span>
+                    Signature
+                </a>
+<a class="font-label-bold text-label-bold text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-variant transition-all flex items-center gap-3 px-3 py-2.5 rounded-xl" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="grid_view">grid_view</span>
+                    Print Layout
+                </a>
+</nav>
+<!-- Contextual Sidebar Content (Scrollable if needed) -->
+<div class="flex-1 overflow-y-auto pr-2 flex flex-col gap-stack-lg">
+<!-- Signature Preview -->
+<div class="flex flex-col gap-stack-sm">
+<h3 class="font-label-bold text-label-bold text-on-surface uppercase tracking-wider">Document Preview</h3>
+<div class="relative bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex items-center justify-center p-4">
+<div class="w-[120px] h-[160px] bg-white border border-outline shadow-sm relative overflow-hidden flex flex-col">
+<div class="flex-1 w-full bg-surface-container-low relative">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="A clean, professional headshot photo of a person on a white background, framed perfectly for an ID or passport. The lighting is studio quality, high-key, and neutral, conforming to strict identification document standards. Modern corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyetD_myJ8cEMdbDDdqsRxum66LA0mUBIfpUCZDcr6cj5KJUonkBVYLtzguC5RUUeyerAvzwYhj-hH9UVPUAVzmewK_CC87CVAxr4UekncTU2m4CGCfI6cbqHbIMSGx-QXFB69BSd0GTNOQ2sxW_VCPsnZ3rhsGVDrxmVnxotNECDcvTVusw6WAuwJlmpesegVLocZLPLvtoacrWuJu3NXxyCc_tji8NzeBkeNLRpLO7NY3E9GnP7k"/>
+</div>
+<div class="h-[40px] w-full border-t border-outline-variant bg-white flex items-center justify-center p-1">
+<!-- Simulated signature preview overlay -->
+<svg class="w-full h-full opacity-80" preserveaspectratio="xMidYMid meet" viewbox="0 0 100 30">
+<path d="M10,20 Q20,5 30,20 T50,20 T70,10 T90,25" fill="none" stroke="black" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</div>
+</div>
+<!-- Compliance Status -->
+<div class="flex flex-col gap-stack-sm">
+<h3 class="font-label-bold text-label-bold text-on-surface uppercase tracking-wider">Compliance Checks</h3>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-3 flex flex-col gap-3">
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface">Contrast Ratio</span>
+<span class="bg-surface-container text-on-surface font-mono-label text-mono-label px-2 py-0.5 rounded border border-outline-variant">Awaiting Input</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface">Bounding Box</span>
+<span class="bg-surface-container text-on-surface font-mono-label text-mono-label px-2 py-0.5 rounded border border-outline-variant">Awaiting Input</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface">Line Thickness</span>
+<span class="bg-surface-container text-on-surface font-mono-label text-mono-label px-2 py-0.5 rounded border border-outline-variant">Awaiting Input</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Fixed Bottom CTA -->
+<div class="mt-auto pt-stack-md border-t border-outline-variant">
+<button class="w-full font-label-bold text-label-bold bg-primary text-on-primary hover:opacity-80 transition-opacity py-3 rounded-lg flex items-center justify-center gap-2">
+                    Process Photo
+                    <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</aside>
+</div>
+</body></html>

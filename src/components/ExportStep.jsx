@@ -1,7 +1,29 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import CropMarks from './CropMarks.jsx';
+import Icon from './Icon.jsx';
 import { PAPERS } from '../data/paper.js';
-import { buildTileSheet, sheetCapacity, addBorder, downloadCanvas } from '../lib/image.js';
+import { PRESETS } from '../data/presets.js';
+import {
+  buildMixedTileSheet,
+  scaleCanvasTo,
+  addBorder,
+  downloadCanvas,
+} from '../lib/image.js';
+
+// Human label for a size, preferring whole inches when the mm value is an
+// exact inch conversion (e.g. 50.8mm -> "2×2 in"), else plain mm.
+function sizeLabel(p) {
+  const win = p.wmm / 25.4;
+  const hin = p.hmm / 25.4;
+  if (Math.abs(win - Math.round(win)) < 0.02 && Math.abs(hin - Math.round(hin)) < 0.02) {
+    return `${Math.round(win)}×${Math.round(hin)} in`;
+  }
+  return `${Math.round(p.wmm)}×${Math.round(p.hmm)} mm`;
+}
+
+function sizeKey(p) {
+  return `${Math.round(p.wmm * 10)}x${Math.round(p.hmm * 10)}`;
+}
 
 // FR7 single download + FR8–FR11 tile/print sheet. FR6 cutting border lives here
 // (not in the Background step) so it's drawn last — on top of the name strip and
@@ -10,7 +32,6 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
   const [format, setFormat] = useState('image/png');
   const [border, setBorder] = useState(false);
   const [paperId, setPaperId] = useState(PAPERS[0].id);
-  const [copies, setCopies] = useState(4);
   const previewRef = useRef(null);
 
   // The canvas we actually export: the finished photo, with the cutting border
@@ -20,35 +41,79 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
     [border, finalCanvas],
   );
 
-  // Report the actual exported pixels (a name strip can change the size), but
-  // keep the preset's DPI for the print maths.
   const w = outCanvas.width;
   const h = outCanvas.height;
   const paper = PAPERS.find((p) => p.id === paperId);
 
-  const { capacity, cols, rows } = useMemo(
-    () => sheetCapacity(outCanvas, paper, preset.dpi),
-    [outCanvas, paper, preset.dpi],
+  // Combo printing — every OTHER preset with the same aspect ratio as the one
+  // this photo was cropped to, so it can be re-rendered at that size too
+  // without re-cropping (e.g. cropped to 2×2in square -> also offer 1×1in).
+  const compatibleSizes = useMemo(() => {
+    const aspect = preset.wmm / preset.hmm;
+    const seen = new Map();
+    PRESETS.forEach((p) => {
+      if (Math.abs(p.wmm / p.hmm - aspect) > 0.02) return;
+      const key = sizeKey(p);
+      if (!seen.has(key)) seen.set(key, p);
+    });
+    return [...seen.values()].sort((a, b) => a.wmm - b.wmm);
+  }, [preset]);
+
+  // The sizes to print, each with its own copy count. Starts with just the
+  // size this photo was actually cropped to.
+  const [mix, setMix] = useState(() => [
+    { key: sizeKey(preset), wmm: preset.wmm, hmm: preset.hmm, dpi: preset.dpi, copies: 4 },
+  ]);
+  const [addKey, setAddKey] = useState('');
+
+  const availableToAdd = compatibleSizes.filter((p) => !mix.some((m) => m.key === sizeKey(p)));
+
+  function addSize() {
+    const p = compatibleSizes.find((s) => sizeKey(s) === addKey);
+    if (!p) return;
+    setMix((m) => [...m, { key: sizeKey(p), wmm: p.wmm, hmm: p.hmm, dpi: p.dpi, copies: 4 }]);
+    setAddKey('');
+  }
+  function removeSize(key) {
+    setMix((m) => m.filter((row) => row.key !== key));
+  }
+  function setCopies(key, n) {
+    setMix((m) => m.map((row) => (row.key === key ? { ...row, copies: Math.max(0, n) } : row)));
+  }
+
+  // Scale the finished photo to each requested size — same aspect ratio, so
+  // this is a pure resize, no cropping.
+  const items = useMemo(
+    () =>
+      mix
+        .filter((row) => row.copies > 0)
+        .map((row) => {
+          const pw = Math.round((row.wmm / 25.4) * row.dpi);
+          const ph = Math.round((row.hmm / 25.4) * row.dpi);
+          return { canvas: scaleCanvasTo(outCanvas, pw, ph), count: row.copies };
+        }),
+    [mix, outCanvas],
   );
 
-  // Clamp the copy count to what physically fits (FR10).
-  const effectiveCopies = Math.min(copies, capacity);
+  const { canvas: sheetCanvas, placed, requested } = useMemo(
+    () => buildMixedTileSheet(items, paper, preset.dpi),
+    [items, paper, preset.dpi],
+  );
 
   // Render a scaled-down preview of the print sheet into the small canvas.
   useEffect(() => {
-    if (!previewRef.current || capacity === 0) return;
-    const { canvas } = buildTileSheet(outCanvas, paper, preset.dpi, effectiveCopies);
+    if (!previewRef.current || placed === 0) return;
     const view = previewRef.current;
     const maxW = 280;
-    const scale = Math.min(1, maxW / canvas.width);
-    view.width = Math.round(canvas.width * scale);
-    view.height = Math.round(canvas.height * scale);
+    const scale = Math.min(1, maxW / sheetCanvas.width);
+    view.width = Math.round(sheetCanvas.width * scale);
+    view.height = Math.round(sheetCanvas.height * scale);
     const ctx = view.getContext('2d');
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, view.width, view.height);
     ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(canvas, 0, 0, view.width, view.height);
-  }, [outCanvas, paper, preset.dpi, effectiveCopies, capacity]);
+    ctx.drawImage(sheetCanvas, 0, 0, view.width, view.height);
+  }, [sheetCanvas, placed]);
 
   const ext = format === 'image/png' ? 'png' : 'jpg';
 
@@ -57,8 +122,7 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
   }
 
   function downloadSheet() {
-    const { canvas } = buildTileSheet(outCanvas, paper, preset.dpi, effectiveCopies);
-    downloadCanvas(canvas, `id-sheet_${preset.id}_${paper.id}.${ext}`, format);
+    downloadCanvas(sheetCanvas, `id-sheet_${preset.id}_${paper.id}.${ext}`, format);
   }
 
   return (
@@ -82,10 +146,18 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
           </select>
         </div>
         <div className="field">
-          <span className="lbl">Cutting guide</span>
-          <label className="toggle">
-            <input type="checkbox" checked={border} onChange={(e) => setBorder(e.target.checked)} />
-            Add a thin border to cut along
+          <label className="pill-toggle">
+            <span className="pt-copy">
+              <span className="pt-title">Cutting guide</span>
+              <span className="pt-sub">Adds a thin border to cut along</span>
+            </span>
+            <input
+              type="checkbox"
+              checked={border}
+              onChange={(e) => setBorder(e.target.checked)}
+              style={{ display: 'none' }}
+            />
+            <span className={`pill-switch ${border ? 'on' : ''}`} role="presentation" aria-hidden="true" />
           </label>
         </div>
       </div>
@@ -98,7 +170,7 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
           </div>
           <div className="btn-row">
             <button className="btn primary" onClick={downloadSingle}>
-              Download photo
+              <Icon name="download" /> Download photo
             </button>
           </div>
         </div>
@@ -115,33 +187,68 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
               ))}
             </select>
           </div>
+
           <div className="field">
-            <span className="lbl">Copies</span>
-            <input
-              type="number"
-              min={1}
-              max={Math.max(1, capacity)}
-              value={effectiveCopies}
-              onChange={(e) => setCopies(Math.max(1, Number(e.target.value) || 1))}
-            />
+            <span className="lbl">Sizes &amp; copies</span>
+            {mix.map((row) => (
+              <div className="mix-row" key={row.key}>
+                <span className="mix-label">{sizeLabel(row)}</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={row.copies}
+                  onChange={(e) => setCopies(row.key, Number(e.target.value) || 0)}
+                />
+                {mix.length > 1 && (
+                  <button
+                    className="btn"
+                    aria-label={`Remove ${sizeLabel(row)}`}
+                    onClick={() => removeSize(row.key)}
+                  >
+                    <Icon name="close" />
+                  </button>
+                )}
+              </div>
+            ))}
+
+            {availableToAdd.length > 0 && (
+              <div className="mix-row mix-add">
+                <select value={addKey} onChange={(e) => setAddKey(e.target.value)}>
+                  <option value="">+ Add a size…</option>
+                  {availableToAdd.map((p) => (
+                    <option key={sizeKey(p)} value={sizeKey(p)}>
+                      {sizeLabel(p)}
+                    </option>
+                  ))}
+                </select>
+                <button className="btn" disabled={!addKey} onClick={addSize}>
+                  Add
+                </button>
+              </div>
+            )}
           </div>
+
           <p className="capacity">
-            {capacity > 0 ? (
+            {requested === 0 ? (
+              <>Set a copy count above to fill the sheet.</>
+            ) : placed >= requested ? (
               <>
-                Fits <b>{capacity}</b> per sheet ({cols}×{rows} grid)
+                Fits all <b>{placed}</b> copies on this sheet
               </>
             ) : (
-              <>This photo is too large for the selected paper.</>
+              <>
+                Fits <b>{placed}</b> of {requested} requested — lower a copy count or pick bigger paper
+              </>
             )}
           </p>
-          {capacity > 0 && (
+          {placed > 0 && (
             <div className="sheet-preview">
               <canvas ref={previewRef} />
             </div>
           )}
           <div className="btn-row">
-            <button className="btn primary" disabled={capacity === 0} onClick={downloadSheet}>
-              Download sheet
+            <button className="btn primary" disabled={placed === 0} onClick={downloadSheet}>
+              <Icon name="print" /> Download sheet
             </button>
           </div>
         </div>
@@ -149,7 +256,7 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
 
       <div className="btn-row">
         <button className="btn" onClick={onBack}>
-          ← Back
+          <Icon name="arrow_back" /> Back
         </button>
       </div>
     </section>
