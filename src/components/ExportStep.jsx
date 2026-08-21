@@ -25,6 +25,12 @@ function sizeKey(p) {
   return `${Math.round(p.wmm * 10)}x${Math.round(p.hmm * 10)}`;
 }
 
+// Combo printing is intentionally narrow: only between the two generic ID
+// sizes (1×1in <-> 2×2in), since they're genuinely interchangeable formats
+// for the same use case. Passport sizes (per-country specs) and custom
+// sizes never get a combo — those are single-purpose by definition.
+const ID_SIZE_PAIR = { 'id-1x1': 'id-2x2', 'id-2x2': 'id-1x1' };
+
 // FR7 single download + FR8–FR11 tile/print sheet. FR6 cutting border lives here
 // (not in the Background step) so it's drawn last — on top of the name strip and
 // attire — right before printing, where a cut guide belongs.
@@ -45,18 +51,10 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
   const h = outCanvas.height;
   const paper = PAPERS.find((p) => p.id === paperId);
 
-  // Combo printing — every OTHER preset with the same aspect ratio as the one
-  // this photo was cropped to, so it can be re-rendered at that size too
-  // without re-cropping (e.g. cropped to 2×2in square -> also offer 1×1in).
   const compatibleSizes = useMemo(() => {
-    const aspect = preset.wmm / preset.hmm;
-    const seen = new Map();
-    PRESETS.forEach((p) => {
-      if (Math.abs(p.wmm / p.hmm - aspect) > 0.02) return;
-      const key = sizeKey(p);
-      if (!seen.has(key)) seen.set(key, p);
-    });
-    return [...seen.values()].sort((a, b) => a.wmm - b.wmm);
+    const otherId = ID_SIZE_PAIR[preset.id];
+    const other = otherId && PRESETS.find((p) => p.id === otherId);
+    return other ? [other] : [];
   }, [preset]);
 
   // The sizes to print, each with its own copy count. Starts with just the
