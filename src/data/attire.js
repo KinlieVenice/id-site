@@ -6,7 +6,13 @@
 // Each entry: { id, group, label, src }. `group` is the picker section.
 
 function attire(id, label) {
-  return { id, group: id.startsWith('men') ? 'Men' : 'Women', label, src: `/attire/${id}.png` };
+  // BASE_URL carries the /id-site/ prefix on GitHub Pages, empty locally.
+  return {
+    id,
+    group: id.startsWith('men') ? 'Men' : 'Women',
+    label,
+    src: `${import.meta.env.BASE_URL}attire/${id}.png`,
+  };
 }
 
 export const ATTIRE = [
