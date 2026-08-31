@@ -87,20 +87,13 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
     setSelected(null);
   }
 
-  // Content kept, just re-placed — used when the photo's pixels changed
-  // (cropped to new dimensions) but attire/name/signature stayed separate
-  // layers, so their old positions no longer line up.
-  function resetOverlayPositions() {
-    setAttireT(null);
-    setStripT(null);
-    setTextT(null);
-    setSigT(null);
-    setSelected(null);
-  }
-
+  // Always shown as the crop reference — photo plus suit/name/signature —
+  // so framing accounts for where the suit sits, exactly like the faint
+  // guide shown while refining edges. Whether it's actually BAKED into the
+  // result depends on refineIncludesOverlays (below): the reference and the
+  // real crop source are two different things.
   function startPhotoCrop() {
-    const source = refineIncludesOverlays ? snapshotStage() : photoCanvas;
-    setPhotoCropSrc(source.toDataURL('image/png'));
+    setPhotoCropSrc(snapshotStage().toDataURL('image/png'));
     setPhotoCrop({ x: 0, y: 0 });
     setPhotoZoom(1);
     setPhotoAreaPixels(null);
@@ -109,12 +102,17 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
 
   async function applyPhotoCrop() {
     if (!photoAreaPixels) return;
-    const canvas = await cropToCanvas(photoCropSrc, photoAreaPixels, presetW, presetH);
+    // The composite reference and the plain photo share identical pixel
+    // dimensions (the Stage snapshot is taken at the same resolution as
+    // photoCanvas), so the same crop rectangle applies to either — crop the
+    // plain photo when overlays aren't being flattened in, so attire/name/
+    // signature keep their exact position afterward instead of being reset.
+    const cropSource = refineIncludesOverlays ? photoCropSrc : photoCanvas.toDataURL('image/png');
+    const canvas = await cropToCanvas(cropSource, photoAreaPixels, presetW, presetH);
     setPhotoCanvas(canvas);
     setOriginalPhoto(canvas);
     setPhotoCropping(false);
     if (refineIncludesOverlays) resetOverlays();
-    else resetOverlayPositions();
   }
 
   // A faint, non-editable reference showing where the suit sits — drawn at
@@ -197,10 +195,9 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   const textRef = useRef(null);
   const sigFileRef = useRef(null);
 
-  // Re-runs whenever attireT is cleared (not just when the image first loads)
-  // so a photo re-crop — which nulls the transform to force a re-placement on
-  // the new dimensions via resetOverlayPositions() — actually gets one,
-  // instead of leaving the suit permanently un-rendered.
+  // Re-runs whenever attireT is cleared (not just when the image first
+  // loads), so anything that resets the transform without changing the
+  // image gets a fresh placement instead of leaving the suit un-rendered.
   useEffect(() => {
     if (attireImg && !attireT) {
       const s = viewW / attireImg.width;
@@ -273,8 +270,8 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   ]);
 
   // Auto-place strip + text the first time strip is turned on, and re-place
-  // it whenever stripT is cleared (e.g. resetOverlayPositions() after a photo
-  // re-crop) — otherwise the name strip would stay permanently un-rendered.
+  // it whenever stripT is cleared without strip itself going false —
+  // otherwise the name strip would stay permanently un-rendered.
   useEffect(() => {
     if (strip && !stripT) {
       const sw = viewW * 0.86;
