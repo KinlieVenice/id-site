@@ -197,6 +197,10 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   const textRef = useRef(null);
   const sigFileRef = useRef(null);
 
+  // Re-runs whenever attireT is cleared (not just when the image first loads)
+  // so a photo re-crop — which nulls the transform to force a re-placement on
+  // the new dimensions via resetOverlayPositions() — actually gets one,
+  // instead of leaving the suit permanently un-rendered.
   useEffect(() => {
     if (attireImg && !attireT) {
       const s = viewW / attireImg.width;
@@ -204,8 +208,10 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
       setSelected('attire');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attireImg]);
+  }, [attireImg, attireT]);
 
+  // Same fix as the attire effect above: re-place the signature whenever its
+  // transform is cleared, not only on first load.
   useEffect(() => {
     if (sigImg && !sigT) {
       const s = Math.min((viewW * 0.45) / sigImg.width, 1);
@@ -219,7 +225,7 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
       setSelected('signature');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sigImg]);
+  }, [sigImg, sigT]);
 
   function chooseAttire(id) {
     setAttireId(id);
@@ -266,7 +272,9 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
     photoCanvas, originalPhoto,
   ]);
 
-  // Auto-place strip + text the first time strip is turned on.
+  // Auto-place strip + text the first time strip is turned on, and re-place
+  // it whenever stripT is cleared (e.g. resetOverlayPositions() after a photo
+  // re-crop) — otherwise the name strip would stay permanently un-rendered.
   useEffect(() => {
     if (strip && !stripT) {
       const sw = viewW * 0.86;
@@ -278,7 +286,7 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
       setSelected('strip');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strip]);
+  }, [strip, stripT]);
 
   // Auto-enable the strip when the user types a name.
   function handleNameChange(e) {
