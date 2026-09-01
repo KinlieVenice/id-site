@@ -60,13 +60,13 @@ export default function UploadStep({ onImage }) {
         >
           <Icon name="add_photo_alternate" className="dropzone-icon" />
           <p className="big">Drop a photo here</p>
-          <p className="hint" style={{ marginBottom: 14 }}>
+          <p className="hint" style={{ marginBottom: 26 }}>
             or choose a file from your device
           </p>
           <span className="btn primary">
             <Icon name="upload" /> Choose photo
           </span>
-          <p className="hint" style={{ marginTop: 14 }}>JPG · PNG · processed on your device</p>
+          <p className="hint" style={{ marginTop: 26 }}>JPG · PNG · processed on your device</p>
           <input
             ref={inputRef}
             type="file"
