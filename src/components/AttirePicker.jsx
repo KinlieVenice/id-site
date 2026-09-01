@@ -1,15 +1,26 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import Icon from './Icon.jsx';
 import { ATTIRE, ATTIRE_GROUPS } from '../data/attire.js';
 
 const CUSTOM_ID = 'custom';
+const YOUR_OWN = 'Your own';
+const TABS = [YOUR_OWN, ...ATTIRE_GROUPS];
 
 // FR16 (Phase 4) — browse the curated attire set, grouped by type/body size.
 // Selecting one drops it onto the editor canvas to position with handles.
 // A custom upload works the same way, just with a user-picked image instead
-// of a stock file.
+// of a stock file. Presented as a "dress-up rail": one category tab active
+// at a time, its items in a horizontal scrolling strip below — same
+// selectedId/onSelect contract as before, just a different layout.
 export default function AttirePicker({ selectedId, customSrc, onSelect, onUploadCustom }) {
   const fileRef = useRef(null);
+  const railRef = useRef(null);
+
+  const startTab =
+    selectedId === CUSTOM_ID
+      ? YOUR_OWN
+      : ATTIRE.find((a) => a.id === selectedId)?.group || ATTIRE_GROUPS[0] || YOUR_OWN;
+  const [activeTab, setActiveTab] = useState(startTab);
 
   function handleFile(file) {
     if (!file || !/^image\//.test(file.type)) return;
@@ -18,62 +29,86 @@ export default function AttirePicker({ selectedId, customSrc, onSelect, onUpload
     reader.readAsDataURL(file);
   }
 
+  function scrollRail(dir) {
+    railRef.current?.scrollBy({ left: dir * 220, behavior: 'smooth' });
+  }
+
+  const items = activeTab === YOUR_OWN ? null : ATTIRE.filter((a) => a.group === activeTab);
+
   return (
-    <div>
+    <div className="dressup">
       <button
-        className={`btn ${!selectedId ? 'primary' : ''}`}
-        style={{ marginBottom: 12 }}
+        className={`btn dressup-none ${!selectedId ? 'primary' : ''}`}
         onClick={() => onSelect(null)}
       >
-        No attire
+        <Icon name="block" /> No attire
       </button>
 
-      <div className="group-label">Your own</div>
-      <div className="attire-grid">
-        <button
-          className={`attire-card ${selectedId === CUSTOM_ID ? 'selected' : ''}`}
-          onClick={() => (customSrc ? onSelect(CUSTOM_ID) : fileRef.current?.click())}
-          title="Upload your own attire image"
-        >
-          {selectedId === CUSTOM_ID && customSrc ? (
-            <>
-              <span className="check-badge" style={{ top: 2, right: 2, width: 16, height: 16, fontSize: 10 }}>
-                <Icon name="check" />
-              </span>
-              <img src={customSrc} alt="Custom attire" />
-              <span className="cap">Your upload</span>
-            </>
-          ) : (
-            <>
-              <Icon name="upload" style={{ fontSize: 22, margin: '14px 0 4px' }} />
-              <span className="cap">Upload custom</span>
-            </>
-          )}
-        </button>
-        {customSrc && (
+      <div className="dressup-tabs seg">
+        {TABS.map((tab) => (
           <button
-            className="attire-card"
-            onClick={() => fileRef.current?.click()}
-            title="Replace your uploaded attire image"
+            key={tab}
+            className={`seg-btn ${activeTab === tab ? 'on' : ''}`}
+            onClick={() => setActiveTab(tab)}
           >
-            <Icon name="sync" style={{ fontSize: 22, margin: '14px 0 4px' }} />
-            <span className="cap">Replace upload</span>
+            {tab}
           </button>
-        )}
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-        />
+        ))}
       </div>
 
-      {ATTIRE_GROUPS.map((group) => (
-        <div key={group}>
-          <div className="group-label">{group}</div>
-          <div className="attire-grid">
-            {ATTIRE.filter((a) => a.group === group).map((a) => (
+      <div className="dressup-rail-wrap">
+        <button
+          type="button"
+          className="rail-arrow left"
+          onClick={() => scrollRail(-1)}
+          aria-label="Scroll rack left"
+        >
+          <Icon name="chevron_left" />
+        </button>
+
+        <div className="dressup-rail" ref={railRef}>
+          {activeTab === YOUR_OWN ? (
+            <>
+              <button
+                className={`attire-card ${selectedId === CUSTOM_ID ? 'selected' : ''}`}
+                onClick={() => (customSrc ? onSelect(CUSTOM_ID) : fileRef.current?.click())}
+                title="Upload your own attire image"
+              >
+                {selectedId === CUSTOM_ID && customSrc ? (
+                  <>
+                    <span className="check-badge">
+                      <Icon name="check" />
+                    </span>
+                    <img src={customSrc} alt="Custom attire" />
+                    <span className="cap">Your upload</span>
+                  </>
+                ) : (
+                  <>
+                    <Icon name="upload" className="attire-card-placeholder" />
+                    <span className="cap">Upload custom</span>
+                  </>
+                )}
+              </button>
+              {customSrc && (
+                <button
+                  className="attire-card"
+                  onClick={() => fileRef.current?.click()}
+                  title="Replace your uploaded attire image"
+                >
+                  <Icon name="sync" className="attire-card-placeholder" />
+                  <span className="cap">Replace upload</span>
+                </button>
+              )}
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+              />
+            </>
+          ) : (
+            items.map((a) => (
               <button
                 key={a.id}
                 className={`attire-card ${selectedId === a.id ? 'selected' : ''}`}
@@ -81,17 +116,26 @@ export default function AttirePicker({ selectedId, customSrc, onSelect, onUpload
                 title={a.label}
               >
                 {selectedId === a.id && (
-                  <span className="check-badge" style={{ top: 2, right: 2, width: 16, height: 16, fontSize: 10 }}>
+                  <span className="check-badge">
                     <Icon name="check" />
                   </span>
                 )}
                 <img src={a.src} alt={a.label} />
                 <span className="cap">{a.label}</span>
               </button>
-            ))}
-          </div>
+            ))
+          )}
         </div>
-      ))}
+
+        <button
+          type="button"
+          className="rail-arrow right"
+          onClick={() => scrollRail(1)}
+          aria-label="Scroll rack right"
+        >
+          <Icon name="chevron_right" />
+        </button>
+      </div>
     </div>
   );
 }
