@@ -55,7 +55,15 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className="game-shell">
+      <aside className="game-rail">
+        <span className="rail-logo" aria-hidden="true">
+          ✨
+        </span>
+        <Stepper current={step} maxReached={maxReached} onGo={goTo} />
+      </aside>
+
+      <div className="game-main">
       <header className="masthead">
         <div>
           <h1>ID &amp; Passport Photo Maker</h1>
@@ -72,8 +80,6 @@ export default function App() {
           )}
         </div>
       </header>
-
-      <Stepper current={step} maxReached={maxReached} onGo={goTo} />
 
       {step === 0 && (
         <UploadStep
@@ -143,6 +149,7 @@ export default function App() {
         <span>Runs entirely in your browser · no accounts · no storage</span>
         <span className="mono">mm · px · dpi</span>
       </footer>
+      </div>
     </div>
   );
 }

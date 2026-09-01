@@ -1,10 +1,16 @@
 /* ---------------------------------------------------------------------------
-   Visual identity — "Dress-Up Studio":
-   - playful, candy-bright, bubble-rounded — like a dress-up/character game
+   Visual identity — "Dress-Up Studio", sticker-book edition:
+   - flat candy colors only — no gradients anywhere, every fill is one solid
+     colour (checkerboards/rainbow swatch are tiled flat-colour SVG, not
+     CSS gradient functions)
+   - thick "comic outline" borders (3px, ink-coloured) + hard offset
+     shadows (no blur) instead of soft drop-shadows — a sticker/pop-art
+     look, and buttons visibly press flat into their shadow on click
+   - a vertical game "level-select" rail carries the stepper on desktop
+     (drops back to a horizontal strip on narrow screens) instead of a
+     generic top nav bar
    - Baloo 2 for headings & buttons, Nunito for body copy, JetBrains Mono
      kept only for tiny technical readouts (mm · px · dpi)
-   - chunky "pressable" buttons, stickers, a level-path stepper, a wardrobe
-     rail for attire — soft candy shadows instead of hairline precision UI
 --------------------------------------------------------------------------- */
 
 :root {
@@ -22,11 +28,14 @@
   --accent-2-soft: #ece3ff;
   --gold: #ffc93c;
   --white: #ffffff;
-  --radius: 16px;
-  --radius-lg: 26px;
+  --radius: 14px;
+  --radius-lg: 22px;
   --radius-full: 999px;
-  --shadow-sm: 0 2px 0 rgba(196, 31, 99, 0.12), 0 6px 16px rgba(124, 77, 255, 0.1);
-  --shadow-md: 0 10px 28px rgba(124, 77, 255, 0.16);
+  /* hard, flat, un-blurred "sticker" shadows — the whole depth system for
+     this theme, replacing soft/blurred drop-shadows */
+  --shadow-sm: 4px 4px 0 var(--ink);
+  --shadow-md: 6px 6px 0 var(--ink);
+  --checkerboard: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill='%23fff'/%3E%3Crect width='10' height='10' fill='%23ffe4f1'/%3E%3Crect x='10' y='10' width='10' height='10' fill='%23ffe4f1'/%3E%3C/svg%3E");
   --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'SFMono-Regular', 'Menlo',
     'Consolas', monospace;
   --sans: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -45,14 +54,6 @@ body {
   color: var(--ink);
   font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
-}
-
-body {
-  background-image: radial-gradient(circle at 8% 0%, #ffe9f4 0%, transparent 46%),
-    radial-gradient(circle at 100% 12%, #efe6ff 0%, transparent 40%),
-    radial-gradient(circle at 50% 100%, #fff6da 0%, transparent 45%);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
 }
 
 .mono {
@@ -86,12 +87,63 @@ button {
   }
 }
 
-/* ---- layout --------------------------------------------------------------- */
+/* ---- shell: a vertical "level-select" rail + main stage -------------------- */
 
-.app {
-  max-width: 1200px;
+.game-shell {
+  display: flex;
+  align-items: stretch;
+  min-height: 100vh;
+  background: var(--paper);
+}
+
+.game-rail {
+  flex: 0 0 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 10px;
+  background: var(--white);
+  border-right: 3px solid var(--ink);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.rail-logo {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.game-main {
+  flex: 1;
+  min-width: 0;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 0 8px 80px;
+  padding: 0 16px 80px;
+  width: 100%;
+}
+
+@media (max-width: 860px) {
+  .game-shell {
+    flex-direction: column;
+  }
+  .game-rail {
+    flex-direction: row;
+    width: 100%;
+    height: auto;
+    position: static;
+    border-right: none;
+    border-bottom: 3px solid var(--ink);
+    padding: 10px;
+    overflow-x: auto;
+    gap: 10px;
+  }
+  .rail-logo {
+    flex-shrink: 0;
+    font-size: 24px;
+  }
 }
 
 .masthead {
@@ -100,14 +152,7 @@ button {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  padding: 14px 16px;
-  background: rgba(255, 242, 248, 0.88);
-  backdrop-filter: blur(6px);
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  border-bottom: 3px dashed var(--line-2);
-  margin: 0 -16px 6px;
+  padding: 18px 0;
 }
 
 .masthead h1 {
@@ -117,9 +162,6 @@ button {
   margin: 0 0 2px;
   letter-spacing: -0.01em;
   color: var(--accent);
-}
-.masthead h1::before {
-  content: '✨ ';
 }
 
 .masthead p {
@@ -149,80 +191,79 @@ button {
   font-weight: 700;
   font-size: 0.76rem;
   color: var(--accent-2);
-  border: 2px solid var(--accent-2-soft);
+  border: 2px solid var(--ink);
   border-radius: var(--radius-full);
   padding: 7px 14px;
   white-space: nowrap;
   background: var(--white);
 }
 
-/* ---- stepper: a game "level path" ------------------------------------------ */
+/* ---- stepper: the rail's "level path" (vertical on desktop, a strip on
+   narrow screens — see the .game-rail media query above) ------------------- */
 
 .stepper {
   display: flex;
-  gap: 4px;
-  margin: 22px 0;
-  flex-wrap: wrap;
-  padding: 10px;
-  background: var(--white);
-  border: 3px solid var(--line);
-  border-radius: var(--radius-full);
-  position: relative;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
 }
 
 .step-chip {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  min-height: 44px;
+  gap: 6px;
   font-family: var(--display);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1rem;
+  line-height: 1.1;
+  overflow-wrap: break-word;
   color: var(--ink-3);
-  padding: 6px 16px 6px 6px;
+  padding: 8px 4px;
   background: none;
-  border: none;
-  border-radius: var(--radius-full);
-  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  width: 100%;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
 }
 
 .step-chip .idx {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 2px solid var(--line-2);
+  border: 3px solid var(--ink);
   display: grid;
   place-items: center;
   font-family: var(--display);
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: var(--ink-3);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--ink);
   background: var(--paper-2);
+  flex-shrink: 0;
 }
 
 .step-chip.active {
   color: var(--accent);
   background: var(--accent-soft);
+  border-color: var(--ink);
   transform: scale(1.04);
 }
 .step-chip.active .idx {
-  border-color: var(--accent);
   background: var(--accent);
   color: var(--white);
-  box-shadow: 0 0 0 4px var(--accent-soft);
 }
 .step-chip.done {
   color: var(--accent-2);
 }
 .step-chip.done .idx {
-  border-color: var(--accent-2);
   background: var(--accent-2);
   color: var(--white);
   font-size: 0; /* the number text is replaced by a star below */
 }
 .step-chip.done .idx::after {
   content: '★';
-  font-size: 0.75rem;
+  font-size: 1rem;
 }
 .step-chip.clickable {
   cursor: pointer;
@@ -235,33 +276,44 @@ button {
   opacity: 0.5;
 }
 
+@media (max-width: 860px) {
+  .stepper {
+    flex-direction: row;
+    width: auto;
+  }
+  .step-chip {
+    flex-direction: row;
+    width: auto;
+    white-space: nowrap;
+    padding: 6px 12px 6px 6px;
+  }
+  .step-chip .idx {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+  .step-chip.done .idx::after {
+    font-size: 0.8rem;
+  }
+}
+
 /* ---- panels --------------------------------------------------------------- */
 
 .panel {
   position: relative;
-  border: 3px solid var(--white);
+  border: 3px solid var(--ink);
   border-radius: var(--radius-lg);
   background: var(--white);
   padding: 30px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   box-shadow: var(--shadow-md);
-  overflow: hidden;
-}
-.panel::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 8px;
-  background: linear-gradient(90deg, var(--accent), var(--gold), var(--accent-2));
 }
 
 .panel h2 {
   font-family: var(--display);
   font-weight: 700;
   font-size: 1.25rem;
-  margin: 10px 0 4px;
+  margin: 0 0 4px;
   letter-spacing: -0.01em;
   color: var(--ink);
 }
@@ -285,7 +337,7 @@ button {
   height: 10px;
   border-radius: 50%;
   background: var(--gold);
-  opacity: 0.7;
+  border: 2px solid var(--ink);
 }
 .crop-marks span::before,
 .crop-marks span::after {
@@ -308,38 +360,34 @@ button {
   right: 0;
 }
 
-/* ---- buttons: chunky, pressable ------------------------------------------- */
+/* ---- buttons: flat fill, thick outline, hard shadow that presses flat ----- */
 
 .btn {
   font-family: var(--display);
   font-size: 1rem;
-  font-weight: 600;
-  border: 2px solid var(--line-2);
+  font-weight: 700;
+  border: 2.5px solid var(--ink);
   background: var(--white);
   color: var(--ink);
-  padding: 13px 22px;
+  padding: 12px 22px;
   border-radius: var(--radius-full);
-  box-shadow: 0 3px 0 var(--line-2);
+  box-shadow: 3px 3px 0 var(--ink);
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
 }
 .btn:hover {
   background: var(--paper-2);
 }
 .btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 0 0 var(--line-2);
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--ink);
 }
 .btn.primary {
   background: var(--accent);
-  border-color: var(--accent);
+  border-color: var(--ink);
   color: var(--accent-ink);
-  box-shadow: 0 4px 0 #8f1748;
 }
 .btn.primary:hover {
   background: #d42a6e;
-}
-.btn.primary:active {
-  box-shadow: 0 0 0 #8f1748;
 }
 .btn:disabled {
   opacity: 0.45;
@@ -388,25 +436,24 @@ button {
   width: 48px;
   height: 28px;
   border-radius: 100px;
-  border: 2px solid var(--line-2);
+  border: 2.5px solid var(--ink);
   background: var(--paper-2);
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease;
 }
 .pill-switch::after {
   content: '';
   position: absolute;
-  top: 2px;
-  left: 2px;
+  top: 1px;
+  left: 1px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
   background: var(--white);
-  box-shadow: 0 1px 3px rgba(52, 32, 74, 0.35);
+  border: 2px solid var(--ink);
   transition: transform 0.15s ease;
 }
 .pill-switch.on {
   background: var(--accent);
-  border-color: var(--accent);
 }
 .pill-switch.on::after {
   transform: translateX(20px);
@@ -422,23 +469,23 @@ button {
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: var(--gold);
+  border: 2.5px solid var(--ink);
   color: var(--ink);
   display: grid;
   place-items: center;
   font-size: 15px;
   line-height: 1;
-  box-shadow: 0 2px 4px rgba(52, 32, 74, 0.25);
 }
 
 /* ---- workspace: canvas + tool sidebar pattern ------------------------------ */
 
 .workspace .col:last-child {
   background: var(--paper-2);
-  border: 3px solid var(--white);
+  border: 3px solid var(--ink);
   border-radius: var(--radius-lg);
   padding: 20px;
   box-shadow: var(--shadow-sm);
@@ -463,12 +510,9 @@ button {
   order: 1;
   flex: 1 1 320px;
   min-width: 0;
-  /* explicit solid background-color alongside the gradient image: identical
-     render, but gives contrast-checking tools a real color to test text
-     against instead of seeing through to the page background */
-  background-color: var(--accent-2);
-  background-image: linear-gradient(160deg, var(--accent-2), #5b2fd6);
+  background: var(--accent-2);
   color: var(--white);
+  border: 3px solid var(--ink);
   border-radius: var(--radius-lg);
   padding: 32px;
   display: flex;
@@ -521,7 +565,7 @@ button {
 /* ---- upload --------------------------------------------------------------- */
 
 .dropzone {
-  border: 3px dashed var(--line-2);
+  border: 3px dashed var(--ink);
   border-radius: var(--radius-lg);
   padding: 48px 24px;
   text-align: center;
@@ -575,7 +619,7 @@ button {
   font-weight: 600;
   font-size: 0.95rem;
   padding: 11px 14px 11px 40px;
-  border: 2px solid var(--line-2);
+  border: 2.5px solid var(--ink);
   border-radius: var(--radius-full);
   background: var(--white);
   color: var(--ink);
@@ -606,7 +650,7 @@ button {
   padding: 8px;
   list-style: none;
   background: var(--white);
-  border: 2px solid var(--line-2);
+  border: 2.5px solid var(--ink);
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
 }
@@ -655,22 +699,22 @@ button {
 .size-card {
   position: relative;
   text-align: left;
-  border: 3px solid var(--line);
+  border: 3px solid var(--ink);
   border-radius: var(--radius-lg);
   background: var(--white);
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+  box-shadow: 3px 3px 0 var(--line-2);
+  transition: box-shadow 0.12s ease, transform 0.12s ease;
 }
 .size-card:hover {
-  border-color: var(--accent-2-soft);
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-sm);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--line-2);
 }
 .size-card.selected {
-  border-color: var(--accent);
+  background: var(--accent-soft);
   box-shadow: var(--shadow-md);
 }
 
@@ -681,12 +725,12 @@ button {
   color: var(--ink);
   font-size: 15px;
   background: var(--gold);
+  border: 2.5px solid var(--ink);
   border-radius: 50%;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   display: grid;
   place-items: center;
-  box-shadow: 0 2px 4px rgba(52, 32, 74, 0.25);
 }
 
 .size-card-head {
@@ -696,9 +740,10 @@ button {
   color: var(--ink);
 }
 .size-card-head .icon {
-  font-size: 24px;
-  color: var(--accent);
-  background: var(--accent-soft);
+  font-size: 22px;
+  color: var(--ink);
+  background: var(--gold);
+  border: 2.5px solid var(--ink);
   border-radius: 50%;
   width: 44px;
   height: 44px;
@@ -734,7 +779,8 @@ button {
 .size-card-tags span {
   background: var(--paper-2);
   color: var(--ink-2);
-  padding: 5px 10px;
+  border: 1.5px solid var(--ink);
+  padding: 4px 9px;
   border-radius: var(--radius-full);
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -747,10 +793,12 @@ button {
   border-style: dashed;
   cursor: pointer;
   min-height: 190px;
+  box-shadow: none;
 }
 .size-card.custom:hover {
   border-color: var(--accent);
   background: var(--paper-2);
+  transform: none;
 }
 .size-card.custom .icon {
   font-size: 34px;
@@ -785,7 +833,7 @@ button {
   margin-top: 14px;
   padding: 14px 16px;
   background: var(--paper-2);
-  border: 2px solid var(--line);
+  border: 2.5px solid var(--ink);
   border-radius: var(--radius);
 }
 .variant-row .lbl {
@@ -804,9 +852,10 @@ button {
   color: var(--ink-2);
   line-height: 1.5;
   background: var(--accent-2-soft);
-  border-left: 4px solid var(--accent-2);
+  border: 2px solid var(--ink);
+  border-left-width: 5px;
   padding: 12px 14px;
-  border-radius: 0 var(--radius) var(--radius) 0;
+  border-radius: var(--radius);
   margin-top: 16px;
 }
 .notes .src {
@@ -821,13 +870,13 @@ button {
 /* ---- custom size ---------------------------------------------------------- */
 
 .custom-size {
-  border: 2px solid var(--line-2);
+  border: 2.5px solid var(--ink);
   border-radius: var(--radius);
   padding: 14px;
 }
 .custom-size.selected {
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
+  background: var(--accent-soft);
+  box-shadow: var(--shadow-sm);
 }
 .custom-fields {
   display: flex;
@@ -878,7 +927,7 @@ button {
   background: #2a1b3d;
   border-radius: var(--radius);
   overflow: hidden;
-  border: 3px solid var(--white);
+  border: 3px solid var(--ink);
   box-shadow: var(--shadow-sm);
 }
 
@@ -888,7 +937,7 @@ button {
   gap: 12px;
   margin-top: 18px;
   background: var(--paper-2);
-  border: 2px solid var(--line);
+  border: 2.5px solid var(--ink);
   border-radius: var(--radius-full);
   padding: 8px 8px 8px 18px;
 }
@@ -944,8 +993,9 @@ input[type='range'] {
 
 .preview-frame {
   position: relative;
-  background: repeating-conic-gradient(#ffe4f1 0% 25%, #fff 0% 50%) 50% / 20px 20px;
-  border: 3px solid var(--white);
+  background-image: var(--checkerboard);
+  background-size: 20px 20px;
+  border: 3px solid var(--ink);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   display: grid;
@@ -981,8 +1031,7 @@ input[type='range'] {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 3px solid var(--white);
-  box-shadow: 0 0 0 2px var(--line-2);
+  border: 3px solid var(--ink);
   padding: 0;
   flex-shrink: 0;
   transition: transform 0.1s ease;
@@ -991,21 +1040,14 @@ input[type='range'] {
   transform: scale(1.08);
 }
 .swatch.selected {
-  box-shadow: 0 0 0 3px var(--accent);
+  box-shadow: 0 0 0 3px var(--white), 0 0 0 6px var(--ink);
 }
 
-/* Rainbow custom colour swatch — visually inviting, hides the native picker */
+/* Custom colour swatch: flat + dashed, matching the "upload custom" pattern
+   used elsewhere, instead of a gradient colour wheel */
 .swatch.custom {
-  background: conic-gradient(
-    hsl(0, 90%, 65%),
-    hsl(45, 90%, 60%),
-    hsl(90, 70%, 50%),
-    hsl(160, 70%, 45%),
-    hsl(210, 80%, 60%),
-    hsl(270, 70%, 65%),
-    hsl(315, 80%, 65%),
-    hsl(360, 90%, 65%)
-  );
+  background: var(--paper-2);
+  border-style: dashed;
   position: relative;
   display: grid;
   place-items: center;
@@ -1014,10 +1056,9 @@ input[type='range'] {
 }
 .swatch.custom::after {
   content: '+';
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: white;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--accent-2);
   pointer-events: none;
   z-index: 1;
 }
@@ -1048,16 +1089,16 @@ input[type='range'] {
   margin-bottom: 6px;
 }
 .progress .bar {
-  height: 10px;
+  height: 12px;
   background: var(--paper-2);
-  border: 2px solid var(--line);
+  border: 2px solid var(--ink);
   border-radius: 100px;
   overflow: hidden;
 }
 .progress .bar i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  background: var(--accent);
   transition: width 0.2s ease;
   min-width: 6px;
   border-radius: 100px;
@@ -1103,7 +1144,7 @@ input[type='range'] {
 .guided-header {
   margin-bottom: 18px;
   padding-bottom: 14px;
-  border-bottom: 3px dashed var(--line);
+  border-bottom: 3px dashed var(--line-2);
 }
 
 .guided-step-label {
@@ -1159,7 +1200,7 @@ input[type='range'] {
   gap: 8px;
   margin-top: 20px;
   padding-top: 14px;
-  border-top: 3px dashed var(--line);
+  border-top: 3px dashed var(--line-2);
   flex-wrap: wrap;
 }
 .guided-nav .spacer {
@@ -1193,10 +1234,11 @@ input[type='range'] {
 }
 
 .subpanel {
-  border: 3px solid var(--line);
+  border: 3px solid var(--ink);
   border-radius: var(--radius-lg);
   padding: 18px;
   background: var(--white);
+  box-shadow: var(--shadow-sm);
 }
 .subpanel h3 {
   margin: 0 0 12px;
@@ -1212,7 +1254,7 @@ input[type='number'] {
   font-weight: 700;
   font-size: 0.92rem;
   padding: 10px 12px;
-  border: 2px solid var(--line-2);
+  border: 2.5px solid var(--ink);
   border-radius: var(--radius);
   background: var(--white);
   color: var(--ink);
@@ -1231,7 +1273,7 @@ input[type='text']:focus {
   font-weight: 600;
   font-size: 0.95rem;
   padding: 10px 12px;
-  border: 2px solid var(--line-2);
+  border: 2.5px solid var(--ink);
   border-radius: var(--radius);
   background: var(--white);
   color: var(--ink);
@@ -1279,7 +1321,7 @@ input[type='text']:focus {
 }
 
 .sheet-preview {
-  border: 3px solid var(--line);
+  border: 3px solid var(--ink);
   border-radius: var(--radius);
   background: var(--paper-2);
   padding: 12px;
@@ -1290,8 +1332,7 @@ input[type='text']:focus {
 .sheet-preview canvas {
   max-width: 100%;
   max-height: 320px;
-  box-shadow: 0 2px 8px rgba(52, 32, 74, 0.2);
-  border-radius: 4px;
+  border: 2px solid var(--ink);
 }
 
 /* ---- segmented control ------------------------------------------------------ */
@@ -1300,7 +1341,7 @@ input[type='text']:focus {
   display: inline-flex;
   gap: 3px;
   background: var(--paper-2);
-  border: 2px solid var(--line);
+  border: 2.5px solid var(--ink);
   border-radius: var(--radius-full);
   padding: 3px;
 }
@@ -1315,12 +1356,11 @@ input[type='text']:focus {
   border-radius: var(--radius-full);
   text-transform: capitalize;
   min-height: 44px;
-  transition: background 0.1s ease, box-shadow 0.1s ease, color 0.1s ease;
+  transition: background 0.1s ease, color 0.1s ease;
 }
 .seg-btn.on {
   background: var(--accent);
   color: var(--white);
-  box-shadow: var(--shadow-sm);
 }
 
 /* ---- attire picker: the "dress-up rail" ------------------------------------ */
@@ -1344,8 +1384,8 @@ input[type='text']:focus {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(180deg, #fdf1f6, #fff);
-  border: 3px dashed var(--line-2);
+  background: var(--paper-2);
+  border: 3px dashed var(--ink);
   border-radius: var(--radius-lg);
   padding: 14px 8px;
 }
@@ -1375,18 +1415,19 @@ input[type='text']:focus {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 2px solid var(--line-2);
+  border: 2.5px solid var(--ink);
   background: var(--white);
   color: var(--accent);
   display: grid;
   place-items: center;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 2px 2px 0 var(--ink);
 }
 .rail-arrow:hover {
   background: var(--accent-soft);
 }
 .rail-arrow:active {
-  transform: scale(0.94);
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--ink);
 }
 
 .attire-card {
@@ -1394,25 +1435,25 @@ input[type='text']:focus {
   flex: 0 0 auto;
   scroll-snap-align: start;
   width: 116px;
-  border: 3px solid var(--line);
+  border: 3px solid var(--ink);
   border-radius: var(--radius);
-  background: repeating-conic-gradient(#ffe4f1 0% 25%, #fff 0% 50%) 50% / 14px 14px;
+  background-color: var(--white);
+  background-image: var(--checkerboard);
+  background-size: 14px 14px;
   padding: 10px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  transition: border-color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .attire-card:hover {
-  border-color: var(--accent-2-soft);
-  transform: translateY(-4px);
+  transform: translate(-2px, -2px);
   box-shadow: var(--shadow-sm);
 }
 .attire-card.selected {
-  border-color: var(--accent);
   background-color: var(--accent-soft);
-  transform: translateY(-4px) scale(1.04);
+  transform: translate(-2px, -2px);
   box-shadow: var(--shadow-md);
 }
 .attire-card img {
@@ -1437,7 +1478,7 @@ input[type='text']:focus {
 
 .sig-stage {
   position: relative;
-  border: 3px dashed var(--line-2);
+  border: 3px dashed var(--ink);
   border-radius: var(--radius);
   background: var(--white);
   height: 180px;
@@ -1486,7 +1527,7 @@ input[type='text']:focus {
   font-size: 0.88rem;
   font-weight: 600;
   line-height: 1.65;
-  border: 3px solid var(--white);
+  border: 3px solid var(--ink);
   border-radius: var(--radius-lg);
   background: var(--white);
   padding: 4px 20px;
