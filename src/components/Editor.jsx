@@ -253,13 +253,16 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
 
   // Auto-place strip + text the first time strip is turned on, and re-place
   // it whenever stripT is cleared without strip itself going false —
-  // otherwise the name strip would stay permanently un-rendered.
+  // otherwise the name strip would stay permanently un-rendered. Default
+  // placement is a full-width bar flush with the bottom edge, like a real
+  // ID photo's name tag — still just the starting point, fully draggable
+  // and resizable afterward like any other overlay.
   useEffect(() => {
     if (strip && !stripT) {
-      const sw = viewW * 0.86;
+      const sw = viewW;
       const sh = viewH * 0.15;
-      const sx = (viewW - sw) / 2;
-      const sy = viewH * 0.8;
+      const sx = 0;
+      const sy = viewH - sh;
       setStripT({ x: sx, y: sy, width: sw, height: sh, rotation: 0 });
       setTextT({ x: sx, y: sy + sh * 0.26, width: sw, fontSize: sh * 0.4, rotation: 0 });
       setSelected('strip');
