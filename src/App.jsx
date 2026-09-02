@@ -149,11 +149,6 @@ export default function App() {
       {step === 5 && finalCanvas && preset && (
         <ExportStep finalCanvas={finalCanvas} preset={preset} onBack={() => goTo(4)} />
       )}
-
-      <footer className="site-footer">
-        <span>Runs entirely in your browser · no accounts · no storage</span>
-        <span className="mono">mm · px · dpi</span>
-      </footer>
       </div>
     </div>
   );

@@ -1906,16 +1906,3 @@ input[type='text']:focus {
     grid-template-columns: 1fr;
   }
 }
-
-.site-footer {
-  margin-top: 40px;
-  padding-top: 18px;
-  border-top: 3px dashed var(--line-2);
-  font-family: var(--mono);
-  font-size: 0.76rem;
-  color: var(--ink-3);
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-}
