@@ -10,7 +10,7 @@ const TABS = [YOUR_OWN, ...ATTIRE_GROUPS];
 // Selecting one drops it onto the editor canvas to position with handles.
 // A custom upload works the same way, just with a user-picked image instead
 // of a stock file. Presented as a "dress-up rail": one category tab active
-// at a time, its items in a horizontal scrolling strip below — same
+// at a time, its items in a vertical scrolling strip below — same
 // selectedId/onSelect contract as before, just a different layout.
 export default function AttirePicker({ selectedId, customSrc, onSelect, onUploadCustom }) {
   const fileRef = useRef(null);
@@ -30,7 +30,7 @@ export default function AttirePicker({ selectedId, customSrc, onSelect, onUpload
   }
 
   function scrollRail(dir) {
-    railRef.current?.scrollBy({ left: dir * 220, behavior: 'smooth' });
+    railRef.current?.scrollBy({ top: dir * 160, behavior: 'smooth' });
   }
 
   const items = activeTab === YOUR_OWN ? null : ATTIRE.filter((a) => a.group === activeTab);
@@ -61,11 +61,11 @@ export default function AttirePicker({ selectedId, customSrc, onSelect, onUpload
       <div className="dressup-rail-wrap">
         <button
           type="button"
-          className="rail-arrow left"
+          className="rail-arrow up"
           onClick={() => scrollRail(-1)}
-          aria-label="Scroll rack left"
+          aria-label="Scroll rack up"
         >
-          <Icon name="chevron_left" />
+          <Icon name="expand_more" style={{ transform: 'rotate(180deg)' }} />
         </button>
 
         <div className="dressup-rail" ref={railRef}>
@@ -131,11 +131,11 @@ export default function AttirePicker({ selectedId, customSrc, onSelect, onUpload
 
         <button
           type="button"
-          className="rail-arrow right"
+          className="rail-arrow down"
           onClick={() => scrollRail(1)}
-          aria-label="Scroll rack right"
+          aria-label="Scroll rack down"
         >
-          <Icon name="chevron_right" />
+          <Icon name="expand_more" />
         </button>
       </div>
     </div>
