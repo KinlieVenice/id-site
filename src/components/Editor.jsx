@@ -351,13 +351,20 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   const canGoNext = subStep < 2;
   const editingPhoto = photoCropping || photoBrushing;
 
-  return (
-    <section className="panel">
-      <CropMarks />
-      <h2>Add attire, name &amp; signature</h2>
-      <p className="sub">All optional — skip any section you don&apos;t need.</p>
+  const attireFocus = subStep === 0 && !editingPhoto;
 
-      <div className={`editor-row row ${editingPhoto ? '' : 'workspace'}`}>
+  return (
+    <>
+      <div className="page-head">
+        <span className="step-badge">STEP 4 OF 5</span>
+        <h1>Add attire, name &amp; signature</h1>
+        <p className="sub">All optional — skip any section you don&apos;t need.</p>
+      </div>
+
+      <section className="panel">
+      <CropMarks />
+
+      <div className={`editor-row row ${editingPhoto ? '' : 'workspace'} ${attireFocus ? 'attire-focus' : ''}`}>
         {/* Canvas column */}
         <div className="col editor-canvas-col" ref={canvasColRef}>
           {photoCropping ? (
@@ -725,6 +732,7 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
           </button>
         </div>
       )}
-    </section>
+      </section>
+    </>
   );
 }

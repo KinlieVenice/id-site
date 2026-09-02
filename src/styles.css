@@ -1360,6 +1360,17 @@ input[type='range'] {
   min-width: 220px;
 }
 
+/* Clothing overlay sub-step: give the photo more room so the suit is easier
+   to align precisely, instead of the canvas col's usual content-fit width.
+   The controls col keeps its default flex-basis of 0 (just `flex: 1`) so it
+   grows to fill the rest of the row — giving it its own 40% basis here would
+   make the two items' hypothetical sizes sum past the row's width, which
+   forces an unwanted wrap even though shrinking would make them fit. */
+.editor-row.attire-focus .editor-canvas-col {
+  flex: 0 0 60%;
+  max-width: 60%;
+}
+
 /* "No attire" and the category tabs share one row instead of stacking, so
    the picker's top controls take one line instead of two. */
 .dressup-controls {
@@ -1440,8 +1451,10 @@ input[type='range'] {
   .editor-row {
     flex-direction: column;
   }
-  .editor-canvas-col {
+  .editor-canvas-col,
+  .editor-row.attire-focus .editor-canvas-col {
     width: 100%;
+    max-width: 100%;
   }
   .editor-controls-col {
     min-width: 0;
