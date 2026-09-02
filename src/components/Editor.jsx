@@ -256,7 +256,10 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   // otherwise the name strip would stay permanently un-rendered. Default
   // placement is a full-width bar flush with the bottom edge, like a real
   // ID photo's name tag — still just the starting point, fully draggable
-  // and resizable afterward like any other overlay.
+  // and resizable afterward like any other overlay. The text box matches
+  // the strip's box exactly (same x/y/width/height) with verticalAlign
+  // "middle" so it's centered by Konva's own text layout — correct for
+  // any font/name length, not a hand-tuned offset.
   useEffect(() => {
     if (strip && !stripT) {
       const sw = viewW;
@@ -264,7 +267,7 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
       const sx = 0;
       const sy = viewH - sh;
       setStripT({ x: sx, y: sy, width: sw, height: sh, rotation: 0 });
-      setTextT({ x: sx, y: sy + sh * 0.26, width: sw, fontSize: sh * 0.4, rotation: 0 });
+      setTextT({ x: sx, y: sy, width: sw, height: sh, fontSize: sh * 0.4, rotation: 0 });
       setSelected('strip');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -311,11 +314,16 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
     const s = node.scaleX();
     const fs = Math.max(6, node.fontSize() * s);
     const w = Math.max(20, node.width() * s);
+    // Text resize is corner-only + uniform (keepRatio), so scaleY === scaleX
+    // here — height scales the same way width/fontSize do, keeping it
+    // centered in its own (now larger/smaller) box via verticalAlign.
+    const h = Math.max(10, node.height() * s);
     node.scaleX(1);
     node.scaleY(1);
     node.fontSize(fs);
     node.width(w);
-    setTextT((t) => ({ ...t, x: node.x(), y: node.y(), width: w, fontSize: fs, rotation: node.rotation() }));
+    node.height(h);
+    setTextT((t) => ({ ...t, x: node.x(), y: node.y(), width: w, height: h, fontSize: fs, rotation: node.rotation() }));
   }
 
   function apply() {
@@ -471,6 +479,8 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
                       x={textT.x}
                       y={textT.y}
                       width={textT.width}
+                      height={textT.height}
+                      verticalAlign="middle"
                       rotation={textT.rotation}
                       fontSize={textT.fontSize}
                       align={align}
