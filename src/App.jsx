@@ -63,9 +63,9 @@ export default function App() {
         <div className="sidebar-spacer" />
         <div className="sidebar-privacy">
           <span className="sidebar-privacy-head">
-            <Icon name="lock" /> Your privacy is important to us
+            <Icon name="lock" /> On-device processing
           </span>
-          <p>Your photo is processed on your device and never uploaded.</p>
+          <p>Your photo never leaves your device.</p>
         </div>
       </aside>
 
@@ -77,14 +77,6 @@ export default function App() {
               <Icon name="add_a_photo" /> New photo
             </button>
           )}
-          <span className="topbar-status">
-            <Icon name="shield_check" />
-            <span className="ts-copy">
-              <span className="ts-title">On-device processing</span>
-              <span className="ts-sub">Your photo never leaves your device.</span>
-            </span>
-            <Icon name="info" className="ts-info" />
-          </span>
         </div>
       </div>
 

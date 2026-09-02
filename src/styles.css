@@ -483,9 +483,9 @@ button {
 
 .card {
   background: var(--white);
-  border: 1.5px solid var(--hairline-2);
+  border: 3px solid var(--ink);
   border-radius: var(--r-lg);
-  box-shadow: var(--shadow-soft-md);
+  box-shadow: 3px 3px 0 var(--line-2);
 }
 .side-card {
   padding: 24px;
@@ -700,17 +700,18 @@ button {
 /* ---- landing page: dropzone, tips, feature list, examples (new design) ----- */
 
 .dropzone {
-  border: 2px dashed var(--hairline-2);
+  border: 3px dashed var(--ink);
   border-radius: var(--r-lg);
   padding: 56px 24px;
   text-align: center;
   background: var(--pink-soft);
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
 }
 .dropzone:hover {
   border-color: var(--pink);
-  box-shadow: var(--shadow-soft-sm);
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 var(--line-2);
 }
 .dropzone.over {
   border-color: var(--pink);
@@ -761,16 +762,16 @@ button {
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
-  padding: 12px;
-  border: 1.5px solid var(--hairline-2);
+  padding: 9px;
+  border: 3px solid var(--ink);
   border-radius: var(--r-sm);
   background: var(--white);
-  box-shadow: var(--shadow-soft-sm);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 3px 3px 0 var(--line-2);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .tip-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-soft-lift);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--line-2);
 }
 .tip-card .icon {
   color: var(--accent-2);
