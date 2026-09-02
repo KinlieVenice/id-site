@@ -1142,10 +1142,61 @@ input[type='range'] {
 
 /* Attire step: drop the 2-column split and let the wardrobe rail run the
    full panel width below the photo, instead of being squeezed into the
-   narrow controls column. */
+   narrow controls column. The photo itself is shrunk and centered, and the
+   header/controls above the rail are tightened, so the suits are reachable
+   without scrolling past the photo first. */
+.editor-row.attire-substep {
+  justify-content: center;
+  gap: 10px;
+}
+.editor-row.attire-substep .editor-canvas-col {
+  max-width: 340px;
+}
+.editor-row.attire-substep .editor-canvas-col .btn-row {
+  margin-top: 12px;
+}
+/* Keep Crop/Refine side by side once there's room for their full labels on
+   one line each — below this the original stacked, full-width buttons read
+   better than wrapped text inside a pill. */
+@media (min-width: 460px) {
+  .editor-row.attire-substep .editor-canvas-col .btn-row {
+    flex-wrap: nowrap;
+  }
+  .editor-row.attire-substep .editor-canvas-col .btn-row .btn {
+    padding: 12px 14px;
+  }
+}
 .editor-row.attire-substep .editor-controls-col {
   flex: 1 1 100%;
   min-width: 100%;
+}
+.editor-row.attire-substep .guided-header {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+}
+/* The repeated step description is redundant with the picker's own title
+   right above it — dropping it buys back a line of height here only. */
+.editor-row.attire-substep .guided-sub {
+  display: none;
+}
+.editor-row.attire-substep .dressup {
+  gap: 8px;
+}
+.editor-row.attire-substep .dressup-rail-wrap {
+  padding: 10px 8px;
+}
+.editor-row.attire-substep .guided-nav {
+  margin-top: 10px;
+  padding-top: 8px;
+}
+
+/* "No attire" and the category tabs share one row instead of stacking, so
+   the picker's top controls take one line instead of two. */
+.dressup-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 /* Guided step header */
