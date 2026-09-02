@@ -206,7 +206,7 @@ export default function EditStep({ baseCanvas, preset, persisted, tab, onTabChan
   }, []);
 
   const scale = useMemo(
-    () => Math.min((canvasColW - 32) / baseW, 640 / baseH, 1),
+    () => Math.min((canvasColW - 32) / baseW, 360 / baseH, 1),
     [canvasColW, baseW, baseH],
   );
   const viewW = Math.round(baseW * scale);
@@ -881,7 +881,7 @@ export default function EditStep({ baseCanvas, preset, persisted, tab, onTabChan
         </div>
       </div>
 
-      <div className="edit-tabbar" style={{ marginTop: 20 }}>
+      <div className="edit-tabbar" style={{ marginTop: 10 }}>
         {TABS.map((t) => (
           <button
             key={t.key}

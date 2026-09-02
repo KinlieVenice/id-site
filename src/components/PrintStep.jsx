@@ -88,7 +88,7 @@ export default function PrintStep({ finalCanvas, preset, onBack, ready }) {
             )}
           </div>
 
-          <div className="field" style={{ marginTop: 18 }}>
+          <div className="field" style={{ marginTop: 10 }}>
             <span className="lbl">Photos per sheet</span>
             <div className="chip-row">
               {COUNT_CHIPS.map((n) => (
@@ -103,7 +103,7 @@ export default function PrintStep({ finalCanvas, preset, onBack, ready }) {
             </div>
           </div>
 
-          <div className="two-col" style={{ marginTop: 18, alignItems: 'flex-end' }}>
+          <div className="two-col" style={{ marginTop: 10, alignItems: 'flex-end' }}>
             <div className="field" style={{ maxWidth: 220, marginBottom: 0 }}>
               <span className="lbl">File format</span>
               <select value={format} onChange={(e) => setFormat(e.target.value)}>

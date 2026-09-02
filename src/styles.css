@@ -136,6 +136,34 @@ button {
   flex-direction: column;
 }
 
+/* Desktop ("lg"): the whole app fits one viewport, no page scrollbar. Only
+   .content scrolls, and only when its content actually overflows — in
+   practice that's just the About accordion being opened, since every step
+   screen is sized to fit the remaining height on its own. */
+@media (min-width: 901px) {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  .app-shell {
+    height: 100vh;
+    overflow: hidden;
+  }
+  .main-col {
+    height: 100vh;
+    overflow: hidden;
+  }
+  .content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .site-footer {
+    display: none;
+  }
+}
+
 @media (max-width: 900px) {
   .app-shell {
     flex-direction: column;
@@ -184,8 +212,9 @@ button {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  padding: 20px 32px;
+  padding: 10px 32px;
   background: var(--paper);
+  flex-shrink: 0;
 }
 
 .topbar-status {
@@ -230,7 +259,7 @@ button {
 
 .content {
   flex: 1;
-  padding: 4px 32px 48px;
+  padding: 0 32px 20px;
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
@@ -434,7 +463,7 @@ button {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 24px;
+  margin-top: 14px;
 }
 .btn-row .spacer {
   flex: 1;
@@ -523,7 +552,7 @@ button {
 }
 
 .page-head {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 .step-badge {
   display: inline-block;
@@ -533,26 +562,26 @@ button {
   color: var(--accent);
   background: var(--accent-soft);
   border-radius: var(--radius-full);
-  padding: 5px 12px;
-  margin-bottom: 12px;
+  padding: 4px 12px;
+  margin-bottom: 6px;
 }
 .page-head h1 {
-  font-size: 1.6rem;
+  font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.01em;
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   color: var(--ink);
 }
 .page-head .sub {
   margin: 0;
   color: var(--ink-2);
-  font-size: 0.98rem;
+  font-size: 0.92rem;
 }
 
 .two-col {
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 24px;
+  grid-template-columns: 1fr 360px;
+  gap: 18px;
   align-items: start;
 }
 @media (max-width: 980px) {
@@ -562,29 +591,29 @@ button {
 }
 
 .side-card {
-  padding: 24px;
+  padding: 16px;
 }
 .side-card h2 {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 800;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   color: var(--ink);
 }
 .side-card .sub {
-  margin: 0 0 16px;
+  margin: 0 0 10px;
   color: var(--ink-2);
-  font-size: 0.88rem;
-  line-height: 1.5;
+  font-size: 0.86rem;
+  line-height: 1.4;
 }
 
 .bottom-banner {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   background: var(--accent-2-soft);
   border-radius: var(--radius-lg);
-  padding: 18px 22px;
-  margin-top: 20px;
+  padding: 10px 16px;
+  margin-top: 10px;
   flex-wrap: wrap;
 }
 .bottom-banner .bb-icon {
@@ -617,7 +646,7 @@ button {
 .dropzone {
   border: 2px dashed var(--line-2);
   border-radius: var(--radius-lg);
-  padding: 56px 24px;
+  padding: 22px 24px;
   text-align: center;
   background: var(--accent-soft);
   transition: border-color 0.15s ease, background 0.15s ease;
@@ -627,41 +656,41 @@ button {
   background: var(--accent-soft);
 }
 .dropzone-icon-wrap {
-  width: 72px;
-  height: 72px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: var(--white);
   display: grid;
   place-items: center;
-  margin: 0 auto 20px;
+  margin: 0 auto 10px;
 }
 .dropzone-icon {
-  font-size: 32px;
+  font-size: 24px;
   color: var(--accent);
 }
 .dropzone .big {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   margin: 0 0 4px;
   color: var(--ink);
 }
 .dropzone .sub-line {
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   color: var(--ink-2);
-  margin: 0 0 20px;
+  margin: 0 0 12px;
 }
 .dropzone .hint {
   font-family: var(--sans);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--ink-2);
-  margin-top: 18px;
+  margin-top: 10px;
 }
 
 .tips-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: 10px;
 }
 @media (max-width: 760px) {
   .tips-row {
@@ -694,11 +723,11 @@ button {
 
 .feature-list {
   list-style: none;
-  margin: 0 0 20px;
+  margin: 0 0 10px;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
 }
 .feature-list li {
   display: flex;
@@ -719,7 +748,7 @@ button {
   justify-content: space-between;
   font-size: 0.82rem;
   font-weight: 700;
-  margin: 16px 0 8px;
+  margin: 8px 0 6px;
 }
 .example-label.good {
   color: var(--success);
@@ -730,11 +759,11 @@ button {
 .example-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 .example-thumb {
   position: relative;
-  aspect-ratio: 1;
+  aspect-ratio: 3 / 2;
   border-radius: var(--radius);
   overflow: hidden;
   background: var(--line);
@@ -778,7 +807,7 @@ button {
   display: flex;
   gap: 4px;
   border-bottom: 1px solid var(--line);
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 .tabbar-btn {
   display: flex;
@@ -787,7 +816,7 @@ button {
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  padding: 10px 16px;
+  padding: 8px 16px;
   font-size: 0.92rem;
   font-weight: 600;
   color: var(--ink-3);
@@ -818,7 +847,7 @@ button {
   background: none;
   border: none;
   border-radius: var(--radius-full);
-  padding: 9px 16px;
+  padding: 7px 16px;
   font-size: 0.86rem;
   font-weight: 600;
   color: var(--ink-2);
@@ -835,7 +864,7 @@ button {
 .size-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
+  gap: 10px;
 }
 
 .size-card {
@@ -844,10 +873,10 @@ button {
   border: 1.5px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--white);
-  padding: 20px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
   transition: border-color 0.12s ease, box-shadow 0.12s ease;
 }
 .size-card:hover {
@@ -879,12 +908,12 @@ button {
   gap: 12px;
 }
 .size-card-head .icon {
-  font-size: 20px;
+  font-size: 16px;
   color: var(--accent-2);
   background: var(--accent-2-soft);
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -933,7 +962,7 @@ button {
   justify-content: center;
   border-style: dashed;
   cursor: pointer;
-  min-height: 150px;
+  min-height: 96px;
 }
 .size-card.custom:hover {
   border-color: var(--accent);
@@ -1115,8 +1144,8 @@ button {
   gap: 14px;
   background: var(--accent-soft);
   border-radius: var(--radius-lg);
-  padding: 16px 20px;
-  margin-top: 20px;
+  padding: 10px 16px;
+  margin-top: 10px;
   flex-wrap: wrap;
 }
 .help-banner .hb-icon {
@@ -1142,15 +1171,15 @@ button {
   position: relative;
   background: var(--line);
   border-radius: var(--radius);
-  padding: 32px 20px;
+  padding: 16px;
   display: grid;
   place-items: center;
-  margin-bottom: 16px;
-  min-height: 220px;
+  margin-bottom: 10px;
+  min-height: 140px;
 }
 .size-preview img {
   max-width: 100%;
-  max-height: 220px;
+  max-height: 140px;
   border-radius: 4px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
@@ -1176,13 +1205,13 @@ button {
 .about-rows {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 .about-row {
   display: flex;
   justify-content: space-between;
   font-size: 0.86rem;
-  padding-bottom: 10px;
+  padding-bottom: 6px;
   border-bottom: 1px solid var(--line);
 }
 .about-row:last-child {
@@ -1203,8 +1232,8 @@ button {
   gap: 10px;
   background: var(--success-soft);
   border-radius: var(--radius);
-  padding: 12px 14px;
-  margin-top: 16px;
+  padding: 10px 14px;
+  margin-top: 10px;
 }
 .requirement-badge .icon {
   color: var(--success);
@@ -1236,17 +1265,17 @@ button {
 }
 
 .edit-canvas-card {
-  padding: 24px;
+  padding: 16px;
 }
 .edit-canvas-card h1 {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  margin: 0 0 4px;
+  margin: 0 0 2px;
 }
 .edit-canvas-card > .sub {
-  margin: 0 0 18px;
+  margin: 0 0 10px;
   color: var(--ink-2);
-  font-size: 0.9rem;
+  font-size: 0.86rem;
 }
 
 .preview-frame {
@@ -1256,8 +1285,8 @@ button {
   border-radius: var(--radius);
   display: grid;
   place-items: center;
-  padding: 16px;
-  min-height: 260px;
+  padding: 10px;
+  min-height: 180px;
 }
 .preview-frame img {
   max-width: 100%;
@@ -1269,7 +1298,7 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 16px;
+  margin-top: 10px;
 }
 .canvas-toolbar .zoom-group {
   display: flex;
@@ -1312,15 +1341,15 @@ button {
 }
 
 .edit-panel {
-  padding: 22px;
+  padding: 16px;
   position: sticky;
-  top: 20px;
+  top: 0;
 }
 .edit-panel-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 .edit-panel-head h2 {
   font-size: 1.05rem;
@@ -1331,8 +1360,8 @@ button {
 .bg-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 .bg-option {
   position: relative;
@@ -1378,7 +1407,7 @@ button {
 }
 
 .control-block {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 .control-block-head {
   display: flex;
@@ -1485,13 +1514,13 @@ input[type='range'] {
 /* ---- Details tab: outfit / name / signature ------------------------------------ */
 
 .details-section {
-  margin-bottom: 24px;
+  margin-bottom: 10px;
 }
 .details-section-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 .details-section-title {
   display: flex;
@@ -1535,7 +1564,7 @@ input[type='range'] {
   gap: 6px;
   background: var(--line);
   border-radius: var(--radius);
-  padding: 10px 8px;
+  padding: 6px 8px;
 }
 .dressup-rail-wrap.vertical {
   flex-direction: column;
@@ -1611,7 +1640,7 @@ input[type='range'] {
 }
 .attire-card img {
   width: 100%;
-  height: 56px;
+  height: 44px;
   object-fit: contain;
 }
 .attire-card-placeholder {
@@ -1651,7 +1680,7 @@ input[type='range'] {
   border: 1.5px dashed var(--line-2);
   border-radius: var(--radius);
   background: var(--white);
-  height: 160px;
+  height: 120px;
 }
 .sig-canvas {
   position: absolute;
@@ -1673,7 +1702,7 @@ input[type='range'] {
 .sig-upload-zone {
   border: 1.5px dashed var(--line-2);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 12px;
   text-align: center;
   color: var(--accent-2);
   font-weight: 700;
@@ -1712,7 +1741,7 @@ input[type='range'] {
 .crop-stage {
   position: relative;
   width: 100%;
-  height: 420px;
+  height: 260px;
   background: #1b1826;
   border-radius: var(--radius);
   overflow: hidden;
@@ -1740,20 +1769,20 @@ input[type='range'] {
 .print-preview {
   background: var(--line);
   border-radius: var(--radius);
-  padding: 24px;
+  padding: 12px;
   display: grid;
   place-items: center;
-  min-height: 300px;
+  min-height: 180px;
 }
 .print-preview canvas {
   max-width: 100%;
-  max-height: 460px;
+  max-height: 260px;
   background: var(--white);
   box-shadow: var(--shadow-md);
 }
 
 .field {
-  margin-bottom: 18px;
+  margin-bottom: 10px;
 }
 .field > .lbl {
   display: block;
@@ -1877,7 +1906,8 @@ input[type='text']:focus {
 /* ---- footer guide ------------------------------------------------------------ */
 
 .guide {
-  margin-top: 32px;
+  margin-top: 12px;
+  margin-bottom: 12px;
   color: var(--ink-2);
   font-size: 0.88rem;
   line-height: 1.65;
@@ -1893,8 +1923,8 @@ input[type='text']:focus {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 16px 0;
-  font-size: 0.98rem;
+  padding: 10px 0;
+  font-size: 0.94rem;
   font-weight: 700;
   color: var(--accent);
   letter-spacing: -0.01em;

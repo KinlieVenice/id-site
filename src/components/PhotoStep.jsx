@@ -84,7 +84,7 @@ export default function PhotoStep({ onImage }) {
 
           {error && <p className="error">{error}</p>}
 
-          <p className="control-block-title" style={{ marginTop: 24, marginBottom: 4 }}>
+          <p className="control-block-title" style={{ marginTop: 12, marginBottom: 4 }}>
             Tips for best results
           </p>
           <div className="tips-row">
