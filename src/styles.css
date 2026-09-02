@@ -1371,6 +1371,14 @@ input[type='range'] {
   max-width: 60%;
 }
 
+/* Name/Signature sub-steps: a smaller but still fixed share, so the photo
+   stays a stable, comparable size across all three sub-steps instead of
+   snapping to whatever the (much shorter) controls column leaves behind. */
+.editor-row.namesig-focus .editor-canvas-col {
+  flex: 0 0 45%;
+  max-width: 45%;
+}
+
 /* "No attire" and the category tabs share one row instead of stacking, so
    the picker's top controls take one line instead of two. */
 .dressup-controls {
@@ -1452,7 +1460,8 @@ input[type='range'] {
     flex-direction: column;
   }
   .editor-canvas-col,
-  .editor-row.attire-focus .editor-canvas-col {
+  .editor-row.attire-focus .editor-canvas-col,
+  .editor-row.namesig-focus .editor-canvas-col {
     width: 100%;
     max-width: 100%;
   }

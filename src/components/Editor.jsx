@@ -352,6 +352,7 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   const editingPhoto = photoCropping || photoBrushing;
 
   const attireFocus = subStep === 0 && !editingPhoto;
+  const nameSigFocus = subStep > 0 && !editingPhoto;
 
   return (
     <>
@@ -364,7 +365,7 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
       <section className="panel">
       <CropMarks />
 
-      <div className={`editor-row row ${editingPhoto ? '' : 'workspace'} ${attireFocus ? 'attire-focus' : ''}`}>
+      <div className={`editor-row row ${editingPhoto ? '' : 'workspace'} ${attireFocus ? 'attire-focus' : ''} ${nameSigFocus ? 'namesig-focus' : ''}`}>
         {/* Canvas column */}
         <div className="col editor-canvas-col" ref={canvasColRef}>
           {photoCropping ? (
