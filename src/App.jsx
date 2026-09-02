@@ -61,6 +61,11 @@ export default function App() {
         </div>
         <Stepper current={step} maxReached={maxReached} onGo={goTo} />
         <div className="sidebar-spacer" />
+        {step > 0 && (
+          <button className="btn2" onClick={handleNewPhoto} style={{ marginBottom: 12, width: '100%' }}>
+            <Icon name="add_a_photo" /> New photo
+          </button>
+        )}
         <div className="sidebar-privacy">
           <span className="sidebar-privacy-head">
             <Icon name="lock" /> On-device processing
@@ -70,16 +75,6 @@ export default function App() {
       </aside>
 
       <div className="game-main">
-      <div className="topbar">
-        <div className="topbar-actions">
-          {step > 0 && (
-            <button className="btn2" onClick={handleNewPhoto}>
-              <Icon name="add_a_photo" /> New photo
-            </button>
-          )}
-        </div>
-      </div>
-
       {step === 0 && (
         <UploadStep
           onImage={(src) => {
