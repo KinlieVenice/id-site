@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import CropMarks from './CropMarks.jsx';
 import Icon from './Icon.jsx';
+import PrintSheetCanvas from './PrintSheetCanvas.jsx';
 import { PAPERS } from '../data/paper.js';
 import { PRESETS } from '../data/presets.js';
 import {
-  buildMixedTileSheet,
+  layoutMixedTiles,
+  renderTileSheet,
   scaleCanvasTo,
   addBorder,
   downloadCanvas,
@@ -38,7 +40,6 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
   const [format, setFormat] = useState('image/png');
   const [border, setBorder] = useState(false);
   const [paperId, setPaperId] = useState(PAPERS[0].id);
-  const previewRef = useRef(null);
 
   // The canvas we actually export: the finished photo, with the cutting border
   // applied last if requested.
@@ -93,25 +94,43 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
     [mix, outCanvas],
   );
 
-  const { canvas: sheetCanvas, placed, requested } = useMemo(
-    () => buildMixedTileSheet(items, paper, preset.dpi),
+  // Auto-packed starting layout: shelf-packed placements at full sheet
+  // resolution. Re-runs whenever the requested sizes/copies or paper change.
+  const layout = useMemo(
+    () => layoutMixedTiles(items, paper, preset.dpi),
     [items, paper, preset.dpi],
   );
+  const placed = layout.placements.length;
+  const requested = layout.requested;
 
-  // Render a scaled-down preview of the print sheet into the small canvas.
+  // Where each tile ACTUALLY sits right now — starts equal to the auto-pack,
+  // but the user can drag any tile off it (with snapping) in the editor
+  // below. Resets to the fresh auto-pack whenever the layout itself changes
+  // (a different paper size or a different copy count changes what's even
+  // being packed, so any old manual arrangement no longer applies).
+  const [positions, setPositions] = useState(() => layout.placements.map((p) => ({ x: p.x, y: p.y })));
+  const layoutSig = `${paper.id}|${layout.placements.length}|${layout.placements.map((p) => `${p.w}x${p.h}`).join(',')}`;
+  const layoutSigRef = useRef(layoutSig);
   useEffect(() => {
-    if (!previewRef.current || placed === 0) return;
-    const view = previewRef.current;
-    const maxW = 280;
-    const scale = Math.min(1, maxW / sheetCanvas.width);
-    view.width = Math.round(sheetCanvas.width * scale);
-    view.height = Math.round(sheetCanvas.height * scale);
-    const ctx = view.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, view.width, view.height);
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(sheetCanvas, 0, 0, view.width, view.height);
-  }, [sheetCanvas, placed]);
+    if (layoutSigRef.current !== layoutSig) {
+      layoutSigRef.current = layoutSig;
+      setPositions(layout.placements.map((p) => ({ x: p.x, y: p.y })));
+    }
+  }, [layoutSig, layout]);
+
+  function resetArrangement() {
+    setPositions(layout.placements.map((p) => ({ x: p.x, y: p.y })));
+  }
+
+  // The layout actually rendered/downloaded: auto-pack placements with the
+  // user's dragged x/y swapped in.
+  const arrangedLayout = useMemo(
+    () => ({
+      ...layout,
+      placements: layout.placements.map((p, i) => ({ ...p, x: positions[i]?.x ?? p.x, y: positions[i]?.y ?? p.y })),
+    }),
+    [layout, positions],
+  );
 
   const ext = format === 'image/png' ? 'png' : 'jpg';
 
@@ -120,6 +139,7 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
   }
 
   function downloadSheet() {
+    const sheetCanvas = renderTileSheet(arrangedLayout);
     downloadCanvas(sheetCanvas, `id-sheet_${preset.id}_${paper.id}.${ext}`, format);
   }
 
@@ -240,9 +260,19 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
             )}
           </p>
           {placed > 0 && (
-            <div className="sheet-preview">
-              <canvas ref={previewRef} />
-            </div>
+            <>
+              <div className="sheet-preview sheet-preview-interactive">
+                <PrintSheetCanvas layout={layout} positions={positions} onPositionsChange={setPositions} />
+              </div>
+              <p className="hint" style={{ marginTop: 8 }}>
+                Drag a photo to reposition it — it snaps to the sheet edges and to other photos.
+              </p>
+              <div className="btn-row" style={{ marginTop: 8 }}>
+                <button className="btn" onClick={resetArrangement}>
+                  <Icon name="sync" /> Auto-arrange
+                </button>
+              </div>
+            </>
           )}
           <div className="btn-row">
             <button className="btn primary" disabled={placed === 0} onClick={downloadSheet}>

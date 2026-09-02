@@ -4,10 +4,12 @@ import UploadStep from './components/UploadStep.jsx';
 import SizeStep from './components/SizeStep.jsx';
 import CropStep from './components/CropStep.jsx';
 import BackgroundStep from './components/BackgroundStep.jsx';
-import ExportStep from './components/ExportStep.jsx';
 import Icon from './components/Icon.jsx';
 
 const Editor = lazy(() => import('./components/Editor.jsx'));
+// Also pulls in Konva (for the draggable print-sheet editor) — lazy for the
+// same reason as Editor, so that weight stays out of the initial bundle.
+const ExportStep = lazy(() => import('./components/ExportStep.jsx'));
 
 export default function App() {
   const [step, setStep] = useState(0);
@@ -132,7 +134,9 @@ export default function App() {
       )}
 
       {step === 5 && finalCanvas && preset && (
-        <ExportStep finalCanvas={finalCanvas} preset={preset} onBack={() => goTo(4)} />
+        <Suspense fallback={<div className="panel mono">Loading export…</div>}>
+          <ExportStep finalCanvas={finalCanvas} preset={preset} onBack={() => goTo(4)} />
+        </Suspense>
       )}
       </div>
     </div>

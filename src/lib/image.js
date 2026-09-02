@@ -181,10 +181,14 @@ export function scaleCanvasTo(sourceCanvas, w, h) {
 // after it stack vertically to fill that same height before starting a new
 // column — e.g. four 1×1in tiles stack 2×2 into the same footprint as one
 // 2×2in tile, instead of wasting the space below a single 1×1in.
-export function buildMixedTileSheet(items, paper, dpi, opts = {}) {
+//
+// Returns placements (px, in full sheet-resolution coordinates) rather than
+// a flattened canvas, so a caller can either draw them as-is (renderTileSheet)
+// or let the user drag them around first (the interactive print-sheet editor)
+// before flattening.
+export function layoutMixedTiles(items, paper, dpi, opts = {}) {
   const gapMm = opts.gapMm ?? 0;
   const marginMm = opts.marginMm ?? 2.5;
-  const background = opts.background ?? '#ffffff';
 
   const sheetW = mmToPx(paper.wmm, dpi);
   const sheetH = mmToPx(paper.hmm, dpi);
@@ -199,14 +203,7 @@ export function buildMixedTileSheet(items, paper, dpi, opts = {}) {
   // remaining) tile, and every tile placed after it is guaranteed to fit.
   tiles.sort((a, b) => b.height - a.height);
 
-  const canvas = document.createElement('canvas');
-  canvas.width = sheetW;
-  canvas.height = sheetH;
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = background;
-  ctx.fillRect(0, 0, sheetW, sheetH);
-
-  let placed = 0;
+  const placements = [];
   let i = 0;
   let shelfY = margin;
 
@@ -226,9 +223,8 @@ export function buildMixedTileSheet(items, paper, dpi, opts = {}) {
       const colW = tiles[i].width;
       let y = shelfY;
       while (i < tiles.length && tiles[i].width <= colW && y + tiles[i].height <= shelfY + shelfH) {
-        ctx.drawImage(tiles[i], x, y);
+        placements.push({ canvas: tiles[i], x, y, w: tiles[i].width, h: tiles[i].height });
         y += tiles[i].height + gap;
-        placed++;
         i++;
       }
       x += colW + gap;
@@ -237,7 +233,24 @@ export function buildMixedTileSheet(items, paper, dpi, opts = {}) {
     shelfY += shelfH + gap;
   }
 
-  return { canvas, placed, requested: tiles.length };
+  return { sheetW, sheetH, margin, gap, placements, requested: tiles.length };
+}
+
+// Flatten a print-sheet layout — the auto-packed one from layoutMixedTiles,
+// or a copy with user-dragged `x`/`y` on each placement — into one canvas
+// ready to download.
+export function renderTileSheet(layout, opts = {}) {
+  const background = opts.background ?? '#ffffff';
+  const canvas = document.createElement('canvas');
+  canvas.width = layout.sheetW;
+  canvas.height = layout.sheetH;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = background;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (const p of layout.placements) {
+    ctx.drawImage(p.canvas, p.x, p.y);
+  }
+  return canvas;
 }
 
 // ---- transparency helpers --------------------------------------------------

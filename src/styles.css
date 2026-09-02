@@ -1586,6 +1586,21 @@ input[type='text']:focus {
   border: 2px solid var(--ink);
 }
 
+/* The interactive editor draws its own sheet border + margin guide inside
+   the Konva stage, and needs to stay tall enough for a portrait sheet to be
+   draggable at a usable size — so it opts out of the static preview's caps. */
+.sheet-preview-interactive {
+  width: 100%;
+}
+.sheet-preview-interactive canvas {
+  max-height: none;
+  border: none;
+  cursor: grab;
+}
+.sheet-preview-interactive canvas:active {
+  cursor: grabbing;
+}
+
 /* ---- segmented control ------------------------------------------------------ */
 
 .seg {
