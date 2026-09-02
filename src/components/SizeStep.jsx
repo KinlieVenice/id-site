@@ -7,9 +7,23 @@ import { PRESETS, presetPixels } from '../data/presets.js';
 // Generic inch-defined ID formats get their own small cards, in inches — every
 // other preset (all real national/ICAO passport specs, whatever unit they're
 // legally defined in) lives behind the single "Passport" country combobox.
-const ID_FORMAT_IDS = new Set(['id-1x1', 'id-2x2']);
+const ID_FORMAT_IDS = new Set(['id-1x1', 'id-1.5x1.5', 'id-2x2', 'asa-loan']);
 const ID_FORMATS = PRESETS.filter((p) => ID_FORMAT_IDS.has(p.id));
-const ID_ICONS = { 'id-1x1': 'crop_square', 'id-2x2': 'aspect_ratio' };
+const ID_ICONS = { 'id-1x1': 'crop_square', 'id-1.5x1.5': 'crop_square', 'id-2x2': 'aspect_ratio', 'asa-loan': 'aspect_ratio' };
+const ID_DESCRIPTIONS = {
+  'id-1x1': 'Common for local IDs and specific visa applications.',
+  'id-1.5x1.5': 'Common for local IDs and specific applications.',
+  'id-2x2': 'Common for local IDs and many visa applications worldwide.',
+  'asa-loan': 'Landscape photo for ASA microfinance loan applications.',
+};
+// Formats an inch dimension the way these cards' labels read: whole numbers
+// bare ("2"), fractional ones to one decimal ("1.5") — never "1.50" or "2.0".
+// Snaps to the nearest 0.1 in first — mm/25.4 (e.g. 76.2/25.4) doesn't always
+// land on an exact float, so "3 in" could otherwise render as "3.0000000004".
+function fmtIn(n) {
+  const r = Math.round(n * 10) / 10;
+  return Number.isInteger(r) ? `${r}` : r.toFixed(1);
+}
 
 // Extract leading flag emoji (4 chars = two surrogate pairs for regional indicator flags).
 function getFlag(label) {
@@ -76,7 +90,8 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
         {ID_FORMATS.map((p) => {
           const { w, h } = presetPixels(p);
           const isSelected = selected?.id === p.id;
-          const inches = Math.round(p.wmm / 25.4);
+          const wIn = p.wmm / 25.4;
+          const hIn = p.hmm / 25.4;
           return (
             <button
               key={p.id}
@@ -88,17 +103,13 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
               <div className="size-card-head">
                 <Icon name={ID_ICONS[p.id]} />
                 <h2>
-                  {inches}×{inches} in
+                  {fmtIn(wIn)}×{fmtIn(hIn)} in
                 </h2>
               </div>
-              <p className="size-card-desc">
-                {p.id === 'id-1x1'
-                  ? 'Common for local IDs and specific visa applications.'
-                  : 'Common for local IDs and many visa applications worldwide.'}
-              </p>
+              <p className="size-card-desc">{ID_DESCRIPTIONS[p.id]}</p>
               <div className="size-card-tags">
                 <span>
-                  {inches}.0 × {inches}.0 in
+                  {fmtIn(wIn)} × {fmtIn(hIn)} in
                 </span>
                 <span>{p.dpi} dpi</span>
               </div>

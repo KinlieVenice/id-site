@@ -116,6 +116,17 @@ export const PRESETS = [
     source: 'Generic 1×1 inch ID size',
   },
   {
+    id: 'id-1.5x1.5',
+    group: 'Square & inch formats',
+    label: 'Generic ID · 1.5×1.5 in',
+    wmm: 38.1,
+    hmm: 38.1,
+    dpi: DPI,
+    defaultBg: WHITE,
+    notes: 'Square 1.5×1.5 in (38×38 mm → 450×450 px @ 300 dpi). White background. Common for local IDs and specific applications.',
+    source: 'Generic 1.5×1.5 inch ID size',
+  },
+  {
     id: 'id-2x2',
     group: 'Square & inch formats',
     label: 'Generic ID · 2×2 in',
@@ -125,6 +136,18 @@ export const PRESETS = [
     defaultBg: WHITE,
     notes: 'Square 2×2 in (51×51 mm → 600×600 px @ 300 dpi). White background. Common for IDs and visa applications worldwide.',
     source: 'Generic 2×2 inch ID size',
+  },
+  {
+    id: 'asa-loan',
+    group: 'Square & inch formats',
+    label: 'ASA Loan · 2×3 in (landscape)',
+    wmm: 76.2,
+    hmm: 50.8,
+    dpi: DPI,
+    defaultBg: WHITE,
+    notes:
+      'Landscape 3×2 in (76×51 mm → 900×600 px @ 300 dpi). White background. Common requirement for ASA microfinance loan applications in the Philippines.',
+    source: 'ASA Philippines loan application requirements',
   },
 
   // Other national formats
