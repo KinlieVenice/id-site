@@ -72,7 +72,7 @@ export default function UploadStep({ onImage }) {
             </div>
             <p className="big">Drag and drop your photo here</p>
             <p className="sub-line">or choose a file from your device</p>
-            <span className="btn2 primary">
+            <span className="btn primary">
               <Icon name="add_photo_alternate" /> Choose a photo
             </span>
             <p className="dropzone-caption">JPG, PNG · Max 20MB · Processed on your device</p>
