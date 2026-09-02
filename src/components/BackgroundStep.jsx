@@ -70,9 +70,16 @@ export default function BackgroundStep({ croppedCanvas, preset, persisted, onDon
   }, [removeBg, cutout, croppedCanvas]);
 
   useEffect(() => {
-    let base = croppedCanvas;
-    if (removeBg && cutout) base = compositeOnColor(cutout, bgColor);
-    base = applyAdjustments(base, { brightness, contrast, smooth });
+    // With a cutout, adjust it first (it still has an alpha channel, so
+    // brightness/contrast/smooth only touch the subject) and composite the
+    // solid background color on afterward, clean. Without one, there's no
+    // way to tell subject from background, so adjustments hit the whole photo.
+    let base;
+    if (removeBg && cutout) {
+      base = compositeOnColor(applyAdjustments(cutout, { brightness, contrast, smooth }), bgColor);
+    } else {
+      base = applyAdjustments(croppedCanvas, { brightness, contrast, smooth });
+    }
     finalRef.current = base;
 
     let url;
