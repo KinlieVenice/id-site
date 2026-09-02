@@ -364,7 +364,11 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
       <h2>Add attire, name &amp; signature</h2>
       <p className="sub">All optional — skip any section you don&apos;t need.</p>
 
-      <div className={`editor-row row ${editingPhoto ? '' : 'workspace'}`}>
+      <div
+        className={`editor-row row ${editingPhoto ? '' : 'workspace'} ${
+          !editingPhoto && subStep === 0 ? 'attire-substep' : ''
+        }`}
+      >
         {/* Canvas column */}
         <div className="col editor-canvas-col" ref={canvasColRef}>
           {photoCropping ? (

@@ -1140,6 +1140,14 @@ input[type='range'] {
   min-width: 220px;
 }
 
+/* Attire step: drop the 2-column split and let the wardrobe rail run the
+   full panel width below the photo, instead of being squeezed into the
+   narrow controls column. */
+.editor-row.attire-substep .editor-controls-col {
+  flex: 1 1 100%;
+  min-width: 100%;
+}
+
 /* Guided step header */
 .guided-header {
   margin-bottom: 18px;
