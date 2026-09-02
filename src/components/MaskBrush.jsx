@@ -206,7 +206,7 @@ export default function MaskBrush({ cutout, original, eraseColor, guide, onApply
 
       <div
         className="preview-frame"
-        style={{ minHeight: 0, padding: 10, maxHeight: 520, overflow: 'auto', placeItems: zoom > 1 ? 'start' : 'center' }}
+        style={{ minHeight: 0, padding: 10, maxHeight: 520, overflow: 'auto', placeItems: 'safe center' }}
       >
         <div className="brush-wrap">
           <canvas
