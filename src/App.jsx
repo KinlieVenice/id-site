@@ -71,28 +71,20 @@ export default function App() {
 
       <div className="game-main">
       <div className="topbar">
-        <span className="topbar-status">
-          <Icon name="shield_check" />
-          <span className="ts-copy">
-            <span className="ts-title">On-device processing</span>
-            <span className="ts-sub">Your photo never leaves your device.</span>
-          </span>
-          <Icon name="info" className="ts-info" />
-        </span>
         <div className="topbar-actions">
           {step > 0 && (
             <button className="btn2" onClick={handleNewPhoto}>
               <Icon name="add_a_photo" /> New photo
             </button>
           )}
-          {step === 0 && (
-            <button
-              className="btn2 primary"
-              onClick={() => document.getElementById('photo-file-input')?.click()}
-            >
-              Get started <Icon name="arrow_forward" />
-            </button>
-          )}
+          <span className="topbar-status">
+            <Icon name="shield_check" />
+            <span className="ts-copy">
+              <span className="ts-title">On-device processing</span>
+              <span className="ts-sub">Your photo never leaves your device.</span>
+            </span>
+            <Icon name="info" className="ts-info" />
+          </span>
         </div>
       </div>
 

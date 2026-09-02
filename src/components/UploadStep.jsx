@@ -102,6 +102,17 @@ export default function UploadStep({ onImage }) {
               </div>
             ))}
           </div>
+
+          <div className="bottom-banner">
+            <span className="bb-icon">
+              <Icon name="sparkles" />
+            </span>
+            <span className="bb-copy">
+              <span className="bb-title">We&rsquo;ll take care of the rest</span>
+              <br />
+              <span className="bb-sub">After upload, you can adjust the size, background, lighting, and more.</span>
+            </span>
+          </div>
         </div>
 
         <div className="card side-card">
@@ -145,17 +156,6 @@ export default function UploadStep({ onImage }) {
           </div>
           <p className="example-caption">Avoid glasses, shadows, and side profiles.</p>
         </div>
-      </div>
-
-      <div className="bottom-banner">
-        <span className="bb-icon">
-          <Icon name="sparkles" />
-        </span>
-        <span className="bb-copy">
-          <span className="bb-title">We&rsquo;ll take care of the rest</span>
-          <br />
-          <span className="bb-sub">After upload, you can adjust the size, background, lighting, and more.</span>
-        </span>
       </div>
     </>
   );
