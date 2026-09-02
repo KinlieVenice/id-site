@@ -56,42 +56,18 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   const [photoBrushing, setPhotoBrushing] = useState(false);
   const [photoBrushSource, setPhotoBrushSource] = useState(null);
   const [brushGuide, setBrushGuide] = useState(null);
-  // Off by default: refine edges only touches the photo itself. Turning this
-  // on flattens the placed attire/name/signature in first, so brushing can
-  // clean up around/into the suit too — but then those become part of the
-  // photo (no longer separately draggable), so it's opt-in.
-  const [refineIncludesOverlays, setRefineIncludesOverlays] = useState(false);
 
   const onPhotoCropComplete = useCallback((_, pixels) => setPhotoAreaPixels(pixels), []);
 
-  // Re-cropping/refining works on what's actually on screen right now — photo
-  // plus any placed attire/name/signature — so framing accounts for the suit.
-  // Applying either one bakes that composite in as the new base photo, so
-  // attire/name/signature reset (their pixels are now part of the photo).
+  // Crop/refine only ever touch the plain photo — attire/name/signature are
+  // never baked in, so they stay exactly where they were (still draggable)
+  // once you're done. The composite (photo + suit/name/signature) is still
+  // shown as a reference while cropping, so framing accounts for where the
+  // suit sits, but it's never what actually gets kept.
   function snapshotStage() {
     return stageRef.current.toCanvas({ pixelRatio: 1 / scale });
   }
 
-  // Everything baked into the photo pixels — used once attire/name/signature
-  // have actually been flattened in (their own state no longer matters).
-  function resetOverlays() {
-    setAttireId(null);
-    setCustomAttireSrc(null);
-    setAttireT(null);
-    setSigUrl(null);
-    setSigT(null);
-    setStrip(false);
-    setNameText('');
-    setStripT(null);
-    setTextT(null);
-    setSelected(null);
-  }
-
-  // Always shown as the crop reference — photo plus suit/name/signature —
-  // so framing accounts for where the suit sits, exactly like the faint
-  // guide shown while refining edges. Whether it's actually BAKED into the
-  // result depends on refineIncludesOverlays (below): the reference and the
-  // real crop source are two different things.
   function startPhotoCrop() {
     setPhotoCropSrc(snapshotStage().toDataURL('image/png'));
     setPhotoCrop({ x: 0, y: 0 });
@@ -102,23 +78,14 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
 
   async function applyPhotoCrop() {
     if (!photoAreaPixels) return;
-    // The composite reference and the plain photo share identical pixel
-    // dimensions (the Stage snapshot is taken at the same resolution as
-    // photoCanvas), so the same crop rectangle applies to either — crop the
-    // plain photo when overlays aren't being flattened in, so attire/name/
-    // signature keep their exact position afterward instead of being reset.
-    const cropSource = refineIncludesOverlays ? photoCropSrc : photoCanvas.toDataURL('image/png');
-    const canvas = await cropToCanvas(cropSource, photoAreaPixels, presetW, presetH);
+    const canvas = await cropToCanvas(photoCanvas.toDataURL('image/png'), photoAreaPixels, presetW, presetH);
     setPhotoCanvas(canvas);
     setOriginalPhoto(canvas);
     setPhotoCropping(false);
-    if (refineIncludesOverlays) resetOverlays();
   }
 
   // A faint, non-editable reference showing where the suit sits — drawn at
   // full photo resolution so it lines up with the brush's working canvas.
-  // Only needed when the suit ISN'T already part of the brush source (i.e.
-  // "refine also affects the suit" is off), since otherwise it's baked in.
   function buildAttireGuide() {
     if (!attireImg || !attireT) return null;
     const canvas = document.createElement('canvas');
@@ -135,8 +102,8 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   }
 
   function startPhotoBrush() {
-    setPhotoBrushSource(refineIncludesOverlays ? snapshotStage() : photoCanvas);
-    setBrushGuide(refineIncludesOverlays ? null : buildAttireGuide());
+    setPhotoBrushSource(photoCanvas);
+    setBrushGuide(buildAttireGuide());
     setPhotoBrushing(true);
   }
 
@@ -186,6 +153,21 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   const [selected, setSelected] = useState(saved.selected ?? null);
   const [attireT, setAttireT] = useState(saved.attireT ?? null);
   const [sigT, setSigT] = useState(saved.sigT ?? null);
+
+  // Moving between sub-steps (Back/Next) otherwise leaves whatever was
+  // selected on the PREVIOUS sub-step still showing its Transformer handles
+  // on top of the new one — e.g. the suit's bounding box still visible after
+  // clicking Next into Name. Skips the very first run so a restored
+  // selection (saved.selected, from navigating back into the Editor step)
+  // isn't wiped out on mount.
+  const subStepMounted = useRef(false);
+  useEffect(() => {
+    if (!subStepMounted.current) {
+      subStepMounted.current = true;
+      return;
+    }
+    setSelected(null);
+  }, [subStep]);
 
   const stageRef = useRef(null);
   const trRef = useRef(null);
@@ -412,16 +394,12 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
           ) : photoBrushing && photoBrushSource ? (
             <MaskBrush
               cutout={photoBrushSource}
-              original={refineIncludesOverlays ? photoBrushSource : originalPhoto}
+              original={originalPhoto}
               eraseColor={bgColor}
               guide={brushGuide}
               onApply={(canvas) => {
                 setPhotoCanvas(canvas);
                 setPhotoBrushing(false);
-                if (refineIncludesOverlays) {
-                  setOriginalPhoto(canvas);
-                  resetOverlays();
-                }
               }}
               onCancel={() => setPhotoBrushing(false)}
             />
@@ -440,7 +418,20 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
                 }}
               >
                 <Layer>
-                  <KImage image={photoCanvas} x={0} y={0} width={viewW} height={viewH} />
+                  {/* Fills the whole stage, so it — not the bare Stage —
+                      is what actually receives a click on the photo away
+                      from the suit/name/signature. Deselect here too, or
+                      the onMouseDown/onTouchStart check below (which only
+                      fires for clicks that miss every shape) never runs. */}
+                  <KImage
+                    image={photoCanvas}
+                    x={0}
+                    y={0}
+                    width={viewW}
+                    height={viewH}
+                    onClick={() => setSelected(null)}
+                    onTap={() => setSelected(null)}
+                  />
 
                   {attireImg && attireT && (
                     <KImage
@@ -524,19 +515,6 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
             <p className="hint" style={{ marginTop: 8 }}>
               Tap to select · drag to move · corners to scale · top handle to rotate
             </p>
-          )}
-          {!editingPhoto && (attireId || strip || sigUrl) && (
-            <label
-              className="hint"
-              style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 6, marginTop: 8 }}
-            >
-              <input
-                type="checkbox"
-                checked={refineIncludesOverlays}
-                onChange={(e) => setRefineIncludesOverlays(e.target.checked)}
-              />
-              Crop/refine also affects the suit, name &amp; signature
-            </label>
           )}
           {!editingPhoto && (
             <div className="btn-row" style={{ justifyContent: 'flex-end' }}>
