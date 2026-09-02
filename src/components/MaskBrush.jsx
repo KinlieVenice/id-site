@@ -193,16 +193,13 @@ export default function MaskBrush({ cutout, original, eraseColor, guide, onApply
         <button className="btn" disabled={!canUndo} onClick={undo} title="Undo (Ctrl+Z)">
           ↶ Undo
         </button>
-      </div>
-
-      <div className="control-row" style={{ marginTop: 10, marginBottom: 12 }}>
-        <button className="btn" disabled={zoom <= 1} onClick={zoomOut} title="Zoom out">
+        <button className="btn" disabled={zoom <= 1} onClick={zoomOut} title="Zoom out" style={{ padding: '10px 14px' }}>
           <Icon name="zoom_out" />
         </button>
-        <span className="mono" style={{ minWidth: 44, textAlign: 'center' }}>
+        <span className="mono" style={{ minWidth: 40, textAlign: 'center' }}>
           {Math.round(zoom * 100)}%
         </span>
-        <button className="btn" disabled={zoom >= 3} onClick={zoomIn} title="Zoom in">
+        <button className="btn" disabled={zoom >= 3} onClick={zoomIn} title="Zoom in" style={{ padding: '10px 14px' }}>
           <Icon name="zoom_in" />
         </button>
       </div>
