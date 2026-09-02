@@ -152,26 +152,6 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
     return canvas;
   }
 
-  // The exact inverse of buildAttireGuide's placement transform: given the
-  // edited (post-brush) composite and an overlay's own image + current
-  // transform, lift just that overlay's own pixels back out at its native
-  // resolution. This is what lets "refine also affects the suit" let you
-  // erase into the suit/signature graphic itself while keeping it a
-  // separate, still-draggable layer afterward — its transform never
-  // changes, only the image data it's pointing at.
-  function extractOverlayFromComposite(composite, img, t) {
-    const inv = 1 / scale;
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    ctx.scale(1 / (t.scaleX * inv), 1 / (t.scaleY * inv));
-    ctx.rotate((-(t.rotation || 0) * Math.PI) / 180);
-    ctx.translate(-t.x * inv, -t.y * inv);
-    ctx.drawImage(composite, 0, 0);
-    return canvas;
-  }
-
   // Same deselect-then-snapshot-next-frame trick as startPhotoCrop (and for
   // the same reason: only needed when flattening, since only then is the
   // Transformer-visible stage snapshot what actually gets kept).
@@ -472,37 +452,12 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
               eraseColor={bgColor}
               guide={brushGuide}
               onApply={(canvas) => {
-                // With "also affects the suit/signature" checked, the whole
-                // composite was shown so erasing near the suit's edge lines
-                // up precisely — but what actually gets kept is only lifted
-                // back out for whichever of the suit/signature are present,
-                // via extractOverlayFromComposite, leaving photoCanvas (and
-                // their transforms) untouched so they stay separately
-                // draggable afterward instead of getting fused into the
-                // photo. If neither is actually placed there's nothing to
-                // lift out, so it falls back to committing the whole edited
-                // canvas as the new photo — same as the unchecked case —
-                // rather than silently discarding the touch-up.
-                const hasAttire = attireImg && attireT;
-                const hasSig = sigImg && sigT;
-                if (refineIncludesOverlays && (hasAttire || hasSig)) {
-                  if (hasAttire) {
-                    setCustomAttireSrc(extractOverlayFromComposite(canvas, attireImg, attireT).toDataURL('image/png'));
-                    setAttireId('custom');
-                  }
-                  if (hasSig) {
-                    setSigUrl(extractOverlayFromComposite(canvas, sigImg, sigT).toDataURL('image/png'));
-                  }
-                  // Its transform never changed, so the usual "just placed,
-                  // pick it as selected" effect never fires (that only
-                  // triggers on a null transform) — select it explicitly so
-                  // it's still draggable right away, same as the unchecked
-                  // path leaves it.
-                  setSelected(hasAttire ? 'attire' : 'signature');
-                } else {
-                  setPhotoCanvas(canvas);
-                }
+                setPhotoCanvas(canvas);
                 setPhotoBrushing(false);
+                if (refineIncludesOverlays) {
+                  setOriginalPhoto(canvas);
+                  resetOverlays();
+                }
               }}
               onCancel={() => setPhotoBrushing(false)}
             />
