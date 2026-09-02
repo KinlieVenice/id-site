@@ -5,7 +5,6 @@ import SizeStep from './components/SizeStep.jsx';
 import CropStep from './components/CropStep.jsx';
 import BackgroundStep from './components/BackgroundStep.jsx';
 import ExportStep from './components/ExportStep.jsx';
-import Guide from './components/Guide.jsx';
 import Icon from './components/Icon.jsx';
 
 const Editor = lazy(() => import('./components/Editor.jsx'));
@@ -56,11 +55,18 @@ export default function App() {
 
   return (
     <div className="game-shell">
-      <aside className="game-rail">
-        <span className="rail-logo" aria-hidden="true">
-          ✨
-        </span>
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <Icon name="sparkles" /> ID Photo Maker
+        </div>
         <Stepper current={step} maxReached={maxReached} onGo={goTo} />
+        <div className="sidebar-spacer" />
+        <div className="sidebar-privacy">
+          <span className="sidebar-privacy-head">
+            <Icon name="lock" /> Your privacy is important to us
+          </span>
+          <p>Your photo is processed on your device and never uploaded.</p>
+        </div>
       </aside>
 
       <div className="game-main">
@@ -142,8 +148,6 @@ export default function App() {
       {step === 5 && finalCanvas && preset && (
         <ExportStep finalCanvas={finalCanvas} preset={preset} onBack={() => goTo(4)} />
       )}
-
-      <Guide />
 
       <footer className="site-footer">
         <span>Runs entirely in your browser · no accounts · no storage</span>

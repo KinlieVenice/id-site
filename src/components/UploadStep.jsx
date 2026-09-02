@@ -4,13 +4,13 @@ import Icon from './Icon.jsx';
 import { fileToDataURL } from '../lib/image.js';
 
 const FEATURES = [
-  { icon: 'flag', text: 'Official passport sizes for dozens of countries' },
-  { icon: 'crop_square', text: '1×1in, 2×2in, or any custom size you need' },
   { icon: 'apparel', text: 'Add a corporate attire overlay' },
-  { icon: 'badge', text: 'Add your name and signature' },
-  { icon: 'auto_fix_high', text: 'Remove the background, pick any colour' },
-  { icon: 'brush', text: 'Refine edges by hand for a clean cutout' },
-  { icon: 'tune', text: 'Adjust brightness, contrast, and smoothen' },
+  { icon: 'badge', text: 'Add your name & signature' },
+  { icon: 'auto_fix_high', text: 'Remove the background + choose any color' },
+  { icon: 'brush', text: 'Manually refine edges for a cleaner cutout' },
+  { icon: 'tune', text: 'Adjust brightness, contrast & smoothness' },
+  { icon: 'flag', text: 'Use official passport photo sizes for dozens of countries' },
+  { icon: 'crop_square', text: 'Choose 1×1", 2×2", or any custom size' },
 ];
 
 // FR1 — upload via file input or drag-and-drop. Nothing leaves the device.

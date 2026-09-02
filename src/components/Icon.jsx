@@ -130,6 +130,14 @@ const ICONS = {
     ['circle', { cx: 6, cy: 12, r: 2, ...F }],
     ['circle', { cx: 16, cy: 18, r: 2, ...F }],
   ],
+  sparkles: [
+    ['path', { d: 'M9 2l1.2 3 3 1.2-3 1.2L9 10.4 7.8 7.4 4.8 6.2l3-1.2L9 2z', ...F }],
+    ['path', { d: 'M17.5 12l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z', ...F }],
+  ],
+  person: [
+    ['circle', { cx: 12, cy: 8, r: 3.5, ...S }],
+    ['path', { d: 'M4.5 20.5c1.2-4 4-6 7.5-6s6.3 2 7.5 6', ...S }],
+  ],
 };
 
 // `fill` is accepted for API compatibility with existing call sites
