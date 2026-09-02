@@ -69,9 +69,22 @@ export async function cropToCanvas(imageSrc, cropPixels, outW, outH) {
 export async function removeBackground(sourceCanvas, onProgress) {
   const { removeBackground: imglyRemove } = await import('@imgly/background-removal');
   const blob = await canvasToBlob(sourceCanvas, 'image/png');
+  // The library reports progress per internal phase (model download, each
+  // asset file, then inference) — each phase's own current/total resets to
+  // 0, so passing the raw fraction straight through jumps backward and can
+  // read "100%" mid-phase while work continues in the next one. Smooth that
+  // into a single monotonic 0-95% bar; the caller treats the promise
+  // resolving as the last 5% ("done"), so the number never regresses or
+  // completes early.
+  let maxFrac = 0;
   const resultBlob = await imglyRemove(blob, {
+    // Use WebGPU when the browser supports it (meaningfully faster than the
+    // WASM/CPU path) — falls back to CPU automatically otherwise.
+    device: 'gpu',
     progress: (key, current, total) => {
-      if (onProgress && total) onProgress(current / total, key);
+      if (!onProgress || !total) return;
+      maxFrac = Math.max(maxFrac, current / total);
+      onProgress(Math.min(maxFrac, 0.95), key);
     },
   });
   const url = URL.createObjectURL(resultBlob);
