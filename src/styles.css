@@ -176,7 +176,7 @@ button {
 .game-main {
   flex: 1;
   min-width: 0;
-  max-width: 1080px;
+  max-width: 1340px;
   margin: 0 auto;
   padding: 0 16px 80px;
   width: 100%;
@@ -750,19 +750,19 @@ button {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
-  padding: 10px 8px;
+  gap: 8px;
+  padding: 12px;
   border: 1px solid var(--hairline);
   border-radius: var(--r-sm);
   background: var(--white);
 }
 .tip-card .icon {
   color: var(--accent-2);
-  font-size: 18px;
+  font-size: 20px;
   flex-shrink: 0;
 }
 .tip-card-title {
-  font-size: 0.71rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--ink);
   white-space: nowrap;
@@ -771,8 +771,8 @@ button {
   max-width: 100%;
 }
 .tip-card-sub {
-  font-size: 0.7rem;
-  color: var(--ink-3);
+  font-size: 0.8rem;
+  color: var(--ink-2);
 }
 
 .feature-list {
