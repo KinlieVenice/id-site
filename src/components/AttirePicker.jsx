@@ -37,23 +37,25 @@ export default function AttirePicker({ selectedId, customSrc, onSelect, onUpload
 
   return (
     <div className="dressup">
-      <button
-        className={`btn dressup-none ${!selectedId ? 'primary' : ''}`}
-        onClick={() => onSelect(null)}
-      >
-        <Icon name="block" /> No attire
-      </button>
+      <div className="dressup-controls">
+        <button
+          className={`btn dressup-none ${!selectedId ? 'primary' : ''}`}
+          onClick={() => onSelect(null)}
+        >
+          <Icon name="block" /> No attire
+        </button>
 
-      <div className="dressup-tabs seg">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            className={`seg-btn ${activeTab === tab ? 'on' : ''}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </button>
-        ))}
+        <div className="dressup-tabs seg">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              className={`seg-btn ${activeTab === tab ? 'on' : ''}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="dressup-rail-wrap">
