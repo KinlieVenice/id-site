@@ -1,45 +1,54 @@
 /* ---------------------------------------------------------------------------
-   Visual identity — "Dress-Up Studio", sticker-book edition:
-   - flat candy colors only — no gradients anywhere, every fill is one solid
-     colour (checkerboards/rainbow swatch are tiled flat-colour SVG, not
-     CSS gradient functions)
-   - thick "comic outline" borders (3px, ink-coloured) + hard offset
-     shadows (no blur) instead of soft drop-shadows — a sticker/pop-art
-     look, and buttons visibly press flat into their shadow on click
-   - a vertical game "level-select" rail carries the stepper on desktop
-     (drops back to a horizontal strip on narrow screens) instead of a
-     generic top nav bar
-   - Baloo 2 for headings & buttons, Nunito for body copy, JetBrains Mono
-     kept only for tiny technical readouts (mm · px · dpi)
+   Visual identity — "Vanity Room" (per the ID Maker design spec):
+   - warm stationery pastels: cream/peach paper, dusty-rose accent, powder
+     blue/lavender/sage secondaries, warm-brown structure — no gradients
+   - text uses a dark plum-brown ink; borders/shadows use a separate warm
+     brown "outline" colour, per the spec's distinct Structure colours
+   - hand-placed, physical feel: 2-3px warm-brown outlines + soft *offset*
+     shadows (not blurred, but not the harsh opaque "sticker" shadow from
+     the previous pass either — rgba per the spec's own example)
+   - Fredoka for headings/buttons (rounded, friendly display face),
+     Quicksand for body copy, Caveat for occasional handwritten accents
+     (sticky-note style tips only — never load-bearing instructions),
+     JetBrains Mono kept only for tiny technical readouts (mm · px · dpi)
+
+   NOTE: currently applied to the landing page (shell + Upload step) only,
+   at the user's request, as a direction check before rolling further.
 --------------------------------------------------------------------------- */
 
 :root {
-  --paper: #fff2f8;
-  --paper-2: #ffe3f0;
-  --ink: #34204a;
-  --ink-2: #6b5480;
-  --ink-3: #6e5a82;
-  --line: #f6d6e8;
-  --line-2: #eeb3d6;
-  --accent: #c41f63;
+  --paper: #fff7ea;
+  --paper-2: #fce8e5;
+  --ink: #432b46;
+  --ink-2: #7a5c63;
+  --ink-3: #7c5f64;
+  --line: #f3d9c9;
+  --line-2: #e6c0b3;
+  --outline: #6b5147;
+  --shadow-color: rgba(91, 65, 72, 0.28);
+  --accent: #b84f5d;
+  --accent-soft-bg: #e98b91;
   --accent-ink: #ffffff;
-  --accent-soft: #ffe1ef;
-  --accent-2: #7c4dff;
-  --accent-2-soft: #ece3ff;
-  --gold: #ffc93c;
+  --accent-soft: #fbe1de;
+  --accent-2: #4f6f82;
+  --accent-2-bg: #bfdce8;
+  --accent-2-soft: #e3eef2;
+  --sage: #c9d8c2;
+  --lavender: #d8c9e8;
+  --gold: #f6d77a;
   --white: #ffffff;
   --radius: 14px;
   --radius-lg: 22px;
   --radius-full: 999px;
-  /* hard, flat, un-blurred "sticker" shadows — the whole depth system for
-     this theme, replacing soft/blurred drop-shadows */
-  --shadow-sm: 4px 4px 0 var(--ink);
-  --shadow-md: 6px 6px 0 var(--ink);
-  --checkerboard: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill='%23fff'/%3E%3Crect width='10' height='10' fill='%23ffe4f1'/%3E%3Crect x='10' y='10' width='10' height='10' fill='%23ffe4f1'/%3E%3C/svg%3E");
+  /* soft, physical "sitting on the desk" shadows — offset but not harsh */
+  --shadow-sm: 4px 5px 0 var(--shadow-color);
+  --shadow-md: 6px 7px 0 var(--shadow-color);
+  --checkerboard: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill='%23fff'/%3E%3Crect width='10' height='10' fill='%23fce8e5'/%3E%3Crect x='10' y='10' width='10' height='10' fill='%23fce8e5'/%3E%3C/svg%3E");
   --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'SFMono-Regular', 'Menlo',
     'Consolas', monospace;
-  --sans: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --display: 'Baloo 2', var(--sans);
+  --sans: 'Quicksand', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --display: 'Fredoka', var(--sans);
+  --hand: 'Caveat', var(--display);
 }
 
 * {
@@ -104,7 +113,7 @@ button {
   gap: 18px;
   padding: 20px 10px;
   background: var(--white);
-  border-right: 3px solid var(--ink);
+  border-right: 3px solid var(--outline);
   position: sticky;
   top: 0;
   height: 100vh;
@@ -135,7 +144,7 @@ button {
     height: auto;
     position: static;
     border-right: none;
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 3px solid var(--outline);
     padding: 10px;
     overflow-x: auto;
     gap: 10px;
@@ -191,7 +200,7 @@ button {
   font-weight: 700;
   font-size: 0.76rem;
   color: var(--accent-2);
-  border: 2px solid var(--ink);
+  border: 2px solid var(--outline);
   border-radius: var(--radius-full);
   padding: 7px 14px;
   white-space: nowrap;
@@ -232,11 +241,11 @@ button {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 3px solid var(--ink);
+  border: 3px solid var(--outline);
   display: grid;
   place-items: center;
   font-family: var(--display);
-  font-weight: 800;
+  font-weight: 600;
   font-size: 1rem;
   color: var(--ink);
   background: var(--paper-2);
@@ -245,8 +254,9 @@ button {
 
 .step-chip.active {
   color: var(--accent);
-  background: var(--accent-soft);
-  border-color: var(--ink);
+  background: var(--white);
+  border-color: var(--outline);
+  box-shadow: var(--shadow-sm);
   transform: scale(1.04);
 }
 .step-chip.active .idx {
@@ -301,12 +311,41 @@ button {
 
 .panel {
   position: relative;
-  border: 3px solid var(--ink);
+  border: 3px solid var(--outline);
   border-radius: var(--radius-lg);
   background: var(--white);
   padding: 30px;
   margin-bottom: 24px;
   box-shadow: var(--shadow-md);
+}
+
+/* a tiny "helper" peeking over the panel corner, per the spec's mascot —
+   deliberately small and decorative, never load-bearing information */
+.mascot-bubble {
+  position: absolute;
+  top: -20px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--white);
+  border: 2px solid var(--outline);
+  border-radius: var(--radius-full);
+  padding: 6px 16px 6px 10px;
+  box-shadow: var(--shadow-sm);
+  transform: rotate(-3deg);
+}
+.mascot-face {
+  font-size: 20px;
+  line-height: 1;
+}
+.mascot-text {
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--ink);
+  white-space: nowrap;
 }
 
 .panel h2 {
@@ -325,19 +364,20 @@ button {
   font-weight: 600;
 }
 
-/* corner registration ticks — kept as a decorative sticker-corner flourish */
+/* corner "washi tape" stickers — a scrapbook flourish suggesting the panel
+   is pinned to the page like a photo, rather than a plain UI card */
 .crop-marks {
   position: absolute;
-  inset: 10px;
+  inset: -6px;
   pointer-events: none;
 }
 .crop-marks span {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  width: 34px;
+  height: 16px;
   background: var(--gold);
-  border: 2px solid var(--ink);
+  opacity: 0.85;
+  box-shadow: 0 1px 2px rgba(91, 65, 72, 0.25);
 }
 .crop-marks span::before,
 .crop-marks span::after {
@@ -345,19 +385,25 @@ button {
 }
 .crop-marks .tl {
   top: 0;
-  left: 0;
+  left: 18px;
+  transform: rotate(-8deg);
 }
 .crop-marks .tr {
   top: 0;
-  right: 0;
+  right: 18px;
+  transform: rotate(8deg);
+  background: var(--accent-2-bg);
 }
 .crop-marks .bl {
   bottom: 0;
-  left: 0;
+  left: 18px;
+  transform: rotate(6deg);
+  background: var(--accent-2-bg);
 }
 .crop-marks .br {
   bottom: 0;
-  right: 0;
+  right: 18px;
+  transform: rotate(-6deg);
 }
 
 /* ---- buttons: flat fill, thick outline, hard shadow that presses flat ----- */
@@ -365,29 +411,29 @@ button {
 .btn {
   font-family: var(--display);
   font-size: 1rem;
-  font-weight: 700;
-  border: 2.5px solid var(--ink);
+  font-weight: 600;
+  border: 2.5px solid var(--outline);
   background: var(--white);
   color: var(--ink);
   padding: 12px 22px;
   border-radius: var(--radius-full);
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 4px 0 var(--shadow-color);
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
 }
 .btn:hover {
   background: var(--paper-2);
 }
 .btn:active {
-  transform: translate(3px, 3px);
-  box-shadow: 0 0 0 var(--ink);
+  transform: translate(3px, 4px);
+  box-shadow: 0 0 0 var(--shadow-color);
 }
 .btn.primary {
   background: var(--accent);
-  border-color: var(--ink);
+  border-color: var(--outline);
   color: var(--accent-ink);
 }
 .btn.primary:hover {
-  background: #d42a6e;
+  background: #a4404d;
 }
 .btn:disabled {
   opacity: 0.45;
@@ -512,7 +558,7 @@ button {
   min-width: 0;
   background: var(--accent-2);
   color: var(--white);
-  border: 3px solid var(--ink);
+  border: 3px solid var(--outline);
   border-radius: var(--radius-lg);
   padding: 32px;
   display: flex;
@@ -565,16 +611,21 @@ button {
 /* ---- upload --------------------------------------------------------------- */
 
 .dropzone {
-  border: 3px dashed var(--ink);
+  border: 3px dashed var(--outline);
   border-radius: var(--radius-lg);
   padding: 48px 24px;
   text-align: center;
-  background: var(--paper-2);
-  transition: border-color 0.15s ease, background 0.15s ease;
+  /* soft pink checkered background, per the spec's "vanity room" upload
+     zone — same flat two-tone SVG tile as the transparency checkerboards
+     elsewhere, just at a bigger scale (no gradients, per your last note) */
+  background-color: var(--paper-2);
+  background-image: var(--checkerboard);
+  background-size: 28px 28px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 .dropzone.over {
   border-color: var(--accent);
-  background: var(--accent-soft);
+  background-color: var(--accent-soft);
 }
 .dropzone-icon {
   display: block;
@@ -1527,7 +1578,7 @@ input[type='text']:focus {
   font-size: 0.88rem;
   font-weight: 600;
   line-height: 1.65;
-  border: 3px solid var(--ink);
+  border: 3px solid var(--outline);
   border-radius: var(--radius-lg);
   background: var(--white);
   padding: 4px 20px;

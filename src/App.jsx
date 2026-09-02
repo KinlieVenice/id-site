@@ -66,8 +66,8 @@ export default function App() {
       <div className="game-main">
       <header className="masthead">
         <div>
-          <h1>ID &amp; Passport Photo Maker</h1>
-          <p>Crop, clean up, and tile print-ready ID photos — start to finish.</p>
+          <h1>ID Maker</h1>
+          <p>Dress up your photo. Get it ID-ready! ✨</p>
         </div>
         <div className="masthead-actions">
           <span className="privacy-badge">

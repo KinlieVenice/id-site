@@ -33,8 +33,12 @@ export default function UploadStep({ onImage }) {
     <div className="landing-split">
       <section className="panel landing-upload">
         <CropMarks />
-        <h2>Upload your photo</h2>
-        <p className="sub">A clear, front-facing photo works best. JPG or PNG.</p>
+        <div className="mascot-bubble" aria-hidden="true">
+          <span className="mascot-face">🧸</span>
+          <span className="mascot-text">Let's start with a photo!</span>
+        </div>
+        <h2>Let's get you ready! ✨</h2>
+        <p className="sub">Upload a clear, front-facing photo to start. JPG or PNG.</p>
 
         <div
           className={`dropzone ${over ? 'over' : ''}`}
@@ -59,12 +63,12 @@ export default function UploadStep({ onImage }) {
           }}
         >
           <Icon name="add_photo_alternate" className="dropzone-icon" />
-          <p className="big">Drop a photo here</p>
+          <p className="big">Drop your photo here</p>
           <p className="hint" style={{ marginBottom: 26 }}>
-            or choose a file from your device
+            or choose a photo from your device
           </p>
           <span className="btn primary">
-            <Icon name="upload" /> Choose photo
+            <Icon name="upload" /> Choose photo ♡
           </span>
           <p className="hint" style={{ marginTop: 26 }}>JPG · PNG · processed on your device</p>
           <input
