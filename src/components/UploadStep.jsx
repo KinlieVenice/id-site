@@ -10,13 +10,13 @@ const TIPS = [
 ];
 
 const FEATURES = [
-  { icon: 'apparel', text: 'Add a corporate attire overlay' },
-  { icon: 'badge', text: 'Add your name & signature' },
-  { icon: 'auto_fix_high', text: 'Remove the background + choose any color' },
-  { icon: 'brush', text: 'Manually refine edges for a cleaner cutout' },
-  { icon: 'tune', text: 'Adjust brightness, contrast & smoothness' },
-  { icon: 'flag', text: 'Use official passport photo sizes for dozens of countries' },
-  { icon: 'crop_square', text: 'Choose 1×1", 2×2", or any custom size' },
+  { icon: 'apparel', text: 'Corporate attire overlay' },
+  { icon: 'badge', text: 'Name & signature' },
+  { icon: 'auto_fix_high', text: 'Background removal & colors' },
+  { icon: 'brush', text: 'Manual edge refinement' },
+  { icon: 'tune', text: 'Brightness, contrast & smoothness' },
+  { icon: 'flag', text: 'Official passport sizes worldwide' },
+  { icon: 'crop_square', text: '1×1", 2×2" & custom sizes' },
 ];
 
 // FR1 — upload via file input or drag-and-drop. Nothing leaves the device.
