@@ -92,30 +92,12 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   // guide shown while refining edges. Whether it's actually BAKED into the
   // result depends on refineIncludesOverlays (below): the reference and the
   // real crop source are two different things.
-  // When flattening, deselect first (same trick as apply(), below) and wait
-  // a frame before snapshotting — otherwise the Transformer's own blue
-  // selection handles are still on screen at snapshot time and end up baked
-  // permanently into the flattened photo. Skipped when NOT flattening: the
-  // crop source there is the plain photo canvas regardless (never this
-  // snapshot), so deselecting would only cost the suit its "still selected"
-  // state after the crop for no benefit.
   function startPhotoCrop() {
-    if (refineIncludesOverlays) {
-      setSelected(null);
-      requestAnimationFrame(() => {
-        setPhotoCropSrc(snapshotStage().toDataURL('image/png'));
-        setPhotoCrop({ x: 0, y: 0 });
-        setPhotoZoom(1);
-        setPhotoAreaPixels(null);
-        setPhotoCropping(true);
-      });
-    } else {
-      setPhotoCropSrc(snapshotStage().toDataURL('image/png'));
-      setPhotoCrop({ x: 0, y: 0 });
-      setPhotoZoom(1);
-      setPhotoAreaPixels(null);
-      setPhotoCropping(true);
-    }
+    setPhotoCropSrc(snapshotStage().toDataURL('image/png'));
+    setPhotoCrop({ x: 0, y: 0 });
+    setPhotoZoom(1);
+    setPhotoAreaPixels(null);
+    setPhotoCropping(true);
   }
 
   async function applyPhotoCrop() {
@@ -152,22 +134,10 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
     return canvas;
   }
 
-  // Same deselect-then-snapshot-next-frame trick as startPhotoCrop (and for
-  // the same reason: only needed when flattening, since only then is the
-  // Transformer-visible stage snapshot what actually gets kept).
   function startPhotoBrush() {
-    if (refineIncludesOverlays) {
-      setSelected(null);
-      requestAnimationFrame(() => {
-        setPhotoBrushSource(snapshotStage());
-        setBrushGuide(null);
-        setPhotoBrushing(true);
-      });
-    } else {
-      setPhotoBrushSource(photoCanvas);
-      setBrushGuide(buildAttireGuide());
-      setPhotoBrushing(true);
-    }
+    setPhotoBrushSource(refineIncludesOverlays ? snapshotStage() : photoCanvas);
+    setBrushGuide(refineIncludesOverlays ? null : buildAttireGuide());
+    setPhotoBrushing(true);
   }
 
   const [subStep, setSubStep] = useState(saved.subStep ?? 0);
@@ -228,25 +198,19 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   // Re-runs whenever attireT is cleared (not just when the image first
   // loads), so anything that resets the transform without changing the
   // image gets a fresh placement instead of leaving the suit un-rendered.
-  // Gated on attireId (not just attireImg): attireImg is loaded async by
-  // useImage and still holds the OLD image for a render or two after
-  // attireId/attireT are cleared (e.g. by a "refine also flattens the suit
-  // in" reset), which would otherwise resurrect the just-flattened suit as
-  // a live duplicate before useImage catches up.
   useEffect(() => {
-    if (attireId && attireImg && !attireT) {
+    if (attireImg && !attireT) {
       const s = viewW / attireImg.width;
       setAttireT({ x: 0, y: viewH - attireImg.height * s, scaleX: s, scaleY: s, rotation: 0 });
       setSelected('attire');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attireId, attireImg, attireT]);
+  }, [attireImg, attireT]);
 
   // Same fix as the attire effect above: re-place the signature whenever its
-  // transform is cleared, not only on first load. Gated on sigUrl for the
-  // same reason attireId gates the attire effect.
+  // transform is cleared, not only on first load.
   useEffect(() => {
-    if (sigUrl && sigImg && !sigT) {
+    if (sigImg && !sigT) {
       const s = Math.min((viewW * 0.45) / sigImg.width, 1);
       setSigT({
         x: viewW * 0.5 - (sigImg.width * s) / 2,
@@ -258,7 +222,7 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
       setSelected('signature');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sigUrl, sigImg, sigT]);
+  }, [sigImg, sigT]);
 
   function chooseAttire(id) {
     setAttireId(id);
