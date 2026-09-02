@@ -55,6 +55,7 @@
   --r-lg: 16px;
   --shadow-soft-sm: 0 1px 2px rgba(30, 15, 40, 0.05), 0 1px 1px rgba(30, 15, 40, 0.04);
   --shadow-soft-md: 0 8px 24px rgba(30, 15, 40, 0.08);
+  --shadow-soft-lift: 0 12px 28px rgba(30, 15, 40, 0.14);
   --shadow-soft-focus: 0 0 0 3px rgba(208, 24, 79, 0.25);
 }
 
@@ -356,7 +357,7 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-  border: 1px solid var(--hairline);
+  border: 1.5px solid var(--hairline-2);
   background: var(--white);
   border-radius: var(--radius-full);
   padding: 8px 16px;
@@ -411,13 +412,16 @@ button {
   min-height: 44px;
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-soft-sm);
-  transition: background 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
 }
 .btn2:hover {
   background: var(--hairline);
+  box-shadow: var(--shadow-soft-md);
+  transform: translateY(-1px);
 }
 .btn2:active {
   transform: translateY(1px);
+  box-shadow: var(--shadow-soft-sm);
 }
 .btn2.primary {
   background: var(--pink);
@@ -428,6 +432,7 @@ button {
 .btn2.primary:hover {
   background: var(--pink-hover);
   border-color: var(--pink-hover);
+  box-shadow: 0 8px 20px rgba(208, 24, 79, 0.35);
 }
 .btn2:disabled {
   opacity: 0.45;
@@ -478,9 +483,9 @@ button {
 
 .card {
   background: var(--white);
-  border: 1px solid var(--hairline);
+  border: 1.5px solid var(--hairline-2);
   border-radius: var(--r-lg);
-  box-shadow: var(--shadow-soft-sm);
+  box-shadow: var(--shadow-soft-md);
 }
 .side-card {
   padding: 24px;
@@ -700,7 +705,12 @@ button {
   padding: 56px 24px;
   text-align: center;
   background: var(--pink-soft);
-  transition: border-color 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.dropzone:hover {
+  border-color: var(--pink);
+  box-shadow: var(--shadow-soft-sm);
 }
 .dropzone.over {
   border-color: var(--pink);
@@ -752,9 +762,15 @@ button {
   align-items: flex-start;
   gap: 8px;
   padding: 12px;
-  border: 1px solid var(--hairline);
+  border: 1.5px solid var(--hairline-2);
   border-radius: var(--r-sm);
   background: var(--white);
+  box-shadow: var(--shadow-soft-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.tip-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft-lift);
 }
 .tip-card .icon {
   color: var(--accent-2);
@@ -823,6 +839,7 @@ button {
   border-radius: var(--r-sm);
   overflow: hidden;
   background: var(--hairline);
+  border: 1.5px solid var(--hairline-2);
   display: flex;
   align-items: center;
   justify-content: center;
