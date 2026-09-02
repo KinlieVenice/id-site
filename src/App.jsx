@@ -61,11 +61,9 @@ export default function App() {
         </div>
         <Stepper current={step} maxReached={maxReached} onGo={goTo} />
         <div className="sidebar-spacer" />
-        {step > 0 && (
-          <button className="btn2" onClick={handleNewPhoto} style={{ marginBottom: 12, width: '100%' }}>
-            <Icon name="add_a_photo" /> New photo
-          </button>
-        )}
+        <button className="btn primary" onClick={handleNewPhoto} style={{ marginBottom: 12, width: '100%' }}>
+          <Icon name="add_a_photo" /> New photo
+        </button>
         <div className="sidebar-privacy">
           <span className="sidebar-privacy-head">
             <Icon name="lock" /> On-device processing

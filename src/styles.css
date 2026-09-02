@@ -482,6 +482,7 @@ button {
 }
 
 .card {
+  position: relative;
   background: var(--white);
   border: 3px solid var(--ink);
   border-radius: var(--r-lg);

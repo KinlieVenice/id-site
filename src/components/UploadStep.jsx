@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import Icon from './Icon.jsx';
+import CropMarks from './CropMarks.jsx';
 import { fileToDataURL } from '../lib/image.js';
 
 const TIPS = [
@@ -114,6 +115,7 @@ export default function UploadStep({ onImage }) {
         </div>
 
         <div className="card side-card">
+          <CropMarks />
           <h2>One photo. Multiple possibilities.</h2>
           <p className="sub">We&rsquo;ll help you crop, clean up, and format it perfectly.</p>
           <ul className="feature-list">
