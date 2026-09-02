@@ -6,7 +6,6 @@ import { fileToDataURL } from '../lib/image.js';
 const TIPS = [
   { icon: 'person', title: 'Face the camera', sub: 'Look straight ahead' },
   { icon: 'light_mode', title: 'Good lighting', sub: 'Avoid harsh shadows' },
-  { icon: 'person', title: 'Neutral expression', sub: 'Natural expression' },
   { icon: 'apparel', title: 'Avoid hats & glasses', sub: 'Unless required' },
 ];
 
