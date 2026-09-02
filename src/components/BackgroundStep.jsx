@@ -4,12 +4,17 @@ import Icon from './Icon.jsx';
 import MaskBrush from './MaskBrush.jsx';
 import { removeBackground, compositeOnColor, applyAdjustments, canvasToBlob } from '../lib/image.js';
 
+// Most common Philippine ID photo background colors: white is the strict
+// requirement for the current DFA ePassport/PhilID, NBI clearance, LTO
+// driver's license, PRC license, and the Civil Service Exam ID photo —
+// off-white/cream/grey are explicitly rejected for the PH passport. Blue is
+// the well-documented secondary color, used by older machine-readable PH
+// passports and many overseas PH consulates, commonly cited at #0038A8 (the
+// same blue as the Philippine flag).
 const SWATCHES = [
   { color: '#ffffff', label: 'White' },
-  { color: '#f2f2f2', label: 'Off-white' },
-  { color: '#dbe7f3', label: 'Light blue' },
-  { color: '#c9dbea', label: 'Blue' },
-  { color: '#e8c9c9', label: 'Light red' },
+  { color: '#bcd4f0', label: 'Light blue' },
+  { color: '#0038a8', label: 'Royal blue' },
 ];
 
 export default function BackgroundStep({ croppedCanvas, preset, persisted, onDone, onBack }) {
