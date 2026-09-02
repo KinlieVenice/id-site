@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import Icon from './Icon.jsx';
 
 // FR15 (Phase 3) — manual touch-up brush to fix background-removal misses on
 // hair, glasses and edges (Decision D3). Two modes:
@@ -15,10 +16,20 @@ export default function MaskBrush({ cutout, original, eraseColor, guide, onApply
   const [size, setSize] = useState(28);
   const [canUndo, setCanUndo] = useState(false);
   const [ring, setRing] = useState(null); // brush-size cursor preview
+  const [zoom, setZoom] = useState(1); // display-only zoom, for precise touch-up
 
   const scale = Math.min(1, 640 / cutout.width);
   const viewW = Math.round(cutout.width * scale);
   const viewH = Math.round(cutout.height * scale);
+  const dispW = Math.round(viewW * zoom);
+  const dispH = Math.round(viewH * zoom);
+
+  function zoomIn() {
+    setZoom((z) => Math.min(3, Math.round((z + 0.5) * 100) / 100));
+  }
+  function zoomOut() {
+    setZoom((z) => Math.max(1, Math.round((z - 0.5) * 100) / 100));
+  }
 
   // Seed the working copy once from the incoming cutout.
   useEffect(() => {
@@ -184,13 +195,28 @@ export default function MaskBrush({ cutout, original, eraseColor, guide, onApply
         </button>
       </div>
 
-      <div className="preview-frame" style={{ minHeight: 0, padding: 10 }}>
+      <div className="control-row" style={{ marginTop: 10, marginBottom: 12 }}>
+        <button className="btn" disabled={zoom <= 1} onClick={zoomOut} title="Zoom out">
+          <Icon name="zoom_out" />
+        </button>
+        <span className="mono" style={{ minWidth: 44, textAlign: 'center' }}>
+          {Math.round(zoom * 100)}%
+        </span>
+        <button className="btn" disabled={zoom >= 3} onClick={zoomIn} title="Zoom in">
+          <Icon name="zoom_in" />
+        </button>
+      </div>
+
+      <div
+        className="preview-frame"
+        style={{ minHeight: 0, padding: 10, maxHeight: 520, overflow: 'auto', placeItems: zoom > 1 ? 'start' : 'center' }}
+      >
         <div className="brush-wrap">
           <canvas
             ref={viewRef}
             width={viewW}
             height={viewH}
-            style={{ touchAction: 'none', cursor: 'crosshair', maxWidth: '100%', display: 'block' }}
+            style={{ touchAction: 'none', cursor: 'crosshair', width: dispW, height: dispH, display: 'block' }}
             onPointerDown={onDown}
             onPointerMove={onMove}
             onPointerUp={onUp}
