@@ -1140,56 +1140,6 @@ input[type='range'] {
   min-width: 220px;
 }
 
-/* Attire step: drop the 2-column split and let the wardrobe rail run the
-   full panel width below the photo, instead of being squeezed into the
-   narrow controls column. The photo itself is shrunk and centered, and the
-   header/controls above the rail are tightened, so the suits are reachable
-   without scrolling past the photo first. */
-.editor-row.attire-substep {
-  justify-content: center;
-  gap: 10px;
-}
-.editor-row.attire-substep .editor-canvas-col {
-  max-width: 340px;
-}
-.editor-row.attire-substep .editor-canvas-col .btn-row {
-  margin-top: 12px;
-}
-/* Keep Crop/Refine side by side once there's room for their full labels on
-   one line each — below this the original stacked, full-width buttons read
-   better than wrapped text inside a pill. */
-@media (min-width: 460px) {
-  .editor-row.attire-substep .editor-canvas-col .btn-row {
-    flex-wrap: nowrap;
-  }
-  .editor-row.attire-substep .editor-canvas-col .btn-row .btn {
-    padding: 12px 14px;
-  }
-}
-.editor-row.attire-substep .editor-controls-col {
-  flex: 1 1 100%;
-  min-width: 100%;
-}
-.editor-row.attire-substep .guided-header {
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-}
-/* The repeated step description is redundant with the picker's own title
-   right above it — dropping it buys back a line of height here only. */
-.editor-row.attire-substep .guided-sub {
-  display: none;
-}
-.editor-row.attire-substep .dressup {
-  gap: 8px;
-}
-.editor-row.attire-substep .dressup-rail-wrap {
-  padding: 10px 8px;
-}
-.editor-row.attire-substep .guided-nav {
-  margin-top: 10px;
-  padding-top: 8px;
-}
-
 /* "No attire" and the category tabs share one row instead of stacking, so
    the picker's top controls take one line instead of two. */
 .dressup-controls {
@@ -1441,28 +1391,35 @@ input[type='text']:focus {
 .dressup-rail-wrap {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 6px;
   background: var(--paper-2);
   border: 3px dashed var(--ink);
   border-radius: var(--radius-lg);
-  padding: 14px 8px;
+  padding: 10px 14px;
+  max-height: 440px;
 }
 
 .dressup-rail {
   flex: 1;
+  min-height: 0;
+  width: 100%;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y proximity;
   scroll-behavior: smooth;
-  padding: 4px 6px 10px;
+  padding: 6px 10px 6px 4px;
   /* thin, theme-colored scrollbar instead of the bulky OS default */
   scrollbar-width: thin;
   scrollbar-color: var(--line-2) transparent;
 }
 .dressup-rail::-webkit-scrollbar {
-  height: 8px;
+  width: 8px;
 }
 .dressup-rail::-webkit-scrollbar-thumb {
   background: var(--line-2);
@@ -1471,6 +1428,7 @@ input[type='text']:focus {
 
 .rail-arrow {
   flex-shrink: 0;
+  align-self: center;
   width: 44px;
   height: 44px;
   border-radius: 50%;
