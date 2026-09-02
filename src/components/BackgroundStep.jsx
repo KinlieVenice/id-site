@@ -89,10 +89,15 @@ export default function BackgroundStep({ croppedCanvas, preset, persisted, onDon
   const pct = Math.round((progress?.pct || 0) * 100);
 
   return (
-    <section className="panel">
+    <>
+      <div className="page-head">
+        <span className="step-badge">STEP 3 OF 5</span>
+        <h1>Background &amp; finish</h1>
+        <p className="sub">Optional. Skip any of these and head straight to export.</p>
+      </div>
+
+      <section className="panel">
       <CropMarks />
-      <h2>Background &amp; finish</h2>
-      <p className="sub">Optional. Skip any of these and head straight to export.</p>
 
       {brushing && cutout ? (
         <div>
@@ -277,6 +282,7 @@ export default function BackgroundStep({ croppedCanvas, preset, persisted, onDon
           </button>
         </div>
       )}
-    </section>
+      </section>
+    </>
   );
 }

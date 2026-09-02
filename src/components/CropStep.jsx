@@ -39,16 +39,21 @@ export default function CropStep({ imageSrc, preset, persisted, onCropped, onBac
   }
 
   return (
-    <section className="panel">
+    <>
+      <div className="page-head">
+        <span className="step-badge">STEP 3 OF 5</span>
+        <h1>Crop to size</h1>
+        <p className="sub">
+          Position your face within the frame. Locked to{' '}
+          <span className="mono">
+            {Math.round(preset.wmm)}×{Math.round(preset.hmm)} mm ({w}×{h} px)
+          </span>
+          .
+        </p>
+      </div>
+
+      <section className="panel">
       <CropMarks />
-      <h2>Crop to size</h2>
-      <p className="sub">
-        Position your face within the frame. Locked to{' '}
-        <span className="mono">
-          {Math.round(preset.wmm)}×{Math.round(preset.hmm)} mm ({w}×{h} px)
-        </span>
-        .
-      </p>
 
       <div className="crop-stage">
         <Cropper
@@ -91,6 +96,7 @@ export default function CropStep({ imageSrc, preset, persisted, onCropped, onBac
           {busy ? 'Working…' : <>Background <Icon name="arrow_forward" /></>}
         </button>
       </div>
-    </section>
+      </section>
+    </>
   );
 }
