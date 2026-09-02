@@ -70,22 +70,31 @@ export default function App() {
       </aside>
 
       <div className="game-main">
-      <header className="masthead">
-        <div>
-          <h1>ID &amp; Passport Photo Maker</h1>
-          <p>Crop, clean up, and tile print-ready ID photos — start to finish.</p>
-        </div>
-        <div className="masthead-actions">
-          <span className="privacy-badge">
-            <Icon name="lock" /> On-device · nothing uploaded
+      <div className="topbar">
+        <span className="topbar-status">
+          <Icon name="shield_check" />
+          <span className="ts-copy">
+            <span className="ts-title">On-device processing</span>
+            <span className="ts-sub">Your photo never leaves your device.</span>
           </span>
+          <Icon name="info" className="ts-info" />
+        </span>
+        <div className="topbar-actions">
           {step > 0 && (
-            <button className="btn new-photo-btn" onClick={handleNewPhoto}>
+            <button className="btn2" onClick={handleNewPhoto}>
               <Icon name="add_a_photo" /> New photo
             </button>
           )}
+          {step === 0 && (
+            <button
+              className="btn2 primary"
+              onClick={() => document.getElementById('photo-file-input')?.click()}
+            >
+              Get started <Icon name="arrow_forward" />
+            </button>
+          )}
         </div>
-      </header>
+      </div>
 
       {step === 0 && (
         <UploadStep

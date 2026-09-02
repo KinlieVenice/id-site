@@ -38,8 +38,24 @@
   --checkerboard: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill='%23fff'/%3E%3Crect width='10' height='10' fill='%23ffe4f1'/%3E%3Crect x='10' y='10' width='10' height='10' fill='%23ffe4f1'/%3E%3C/svg%3E");
   --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'SFMono-Regular', 'Menlo',
     'Consolas', monospace;
-  --sans: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --display: 'Baloo 2', var(--sans);
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --display: var(--sans);
+
+  /* ---- new "clean SaaS" design tokens ------------------------------------
+     Scoped to pages that have been migrated to the new white/pink look
+     (currently just the landing/Photo page + sidebar + top bar). Old pages
+     keep using the tokens above until they're migrated too — see the
+     per-page CLAUDE.md-less history in git log for the plan. */
+  --pink: #d0184f;
+  --pink-soft: #fdecf2;
+  --pink-hover: #b21344;
+  --hairline: #ece7ef;
+  --hairline-2: #e0d9e6;
+  --r-sm: 12px;
+  --r-lg: 16px;
+  --shadow-soft-sm: 0 1px 2px rgba(30, 15, 40, 0.05), 0 1px 1px rgba(30, 15, 40, 0.04);
+  --shadow-soft-md: 0 8px 24px rgba(30, 15, 40, 0.08);
+  --shadow-soft-focus: 0 0 0 3px rgba(208, 24, 79, 0.25);
 }
 
 * {
@@ -325,56 +341,161 @@ button {
   line-height: 1.35;
 }
 
-.masthead {
+/* ---- top bar (new design) --------------------------------------------------- */
+
+.topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  padding: 18px 0;
+  padding: 20px 0 8px;
 }
 
-.masthead h1 {
-  font-family: var(--display);
+.topbar-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--hairline);
+  background: var(--white);
+  border-radius: var(--radius-full);
+  padding: 8px 16px;
+  box-shadow: var(--shadow-soft-sm);
+}
+.topbar-status .icon {
+  color: #22c55e;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.topbar-status .ts-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.topbar-status .ts-title {
   font-weight: 700;
-  font-size: 1.35rem;
-  margin: 0 0 2px;
-  letter-spacing: -0.01em;
-  color: var(--accent);
-}
-
-.masthead p {
-  margin: 0;
-  color: var(--ink-2);
   font-size: 0.86rem;
-  font-weight: 600;
+  color: var(--ink);
+}
+.topbar-status .ts-sub {
+  font-size: 0.76rem;
+  color: var(--ink-2);
+}
+.topbar-status .ts-info {
+  color: var(--ink-3);
+  font-size: 15px;
+  margin-left: 4px;
 }
 
-.masthead-actions {
+.topbar-actions {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
 }
 
-.new-photo-btn {
-  font-size: 0.92rem;
-  padding: 10px 16px;
-}
-
-.privacy-badge {
+/* soft-style buttons for migrated pages — parallel to .btn (the old
+   thick-border/hard-shadow button) so unmigrated pages are unaffected */
+.btn2 {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 6px;
   font-family: var(--sans);
-  font-weight: 700;
-  font-size: 0.76rem;
-  color: var(--accent-2);
-  border: 2px solid var(--ink);
-  border-radius: var(--radius-full);
-  padding: 7px 14px;
-  white-space: nowrap;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 1px solid var(--hairline-2);
   background: var(--white);
+  color: var(--ink);
+  padding: 10px 18px;
+  min-height: 44px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-soft-sm);
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+}
+.btn2:hover {
+  background: var(--hairline);
+}
+.btn2:active {
+  transform: translateY(1px);
+}
+.btn2.primary {
+  background: var(--pink);
+  border-color: var(--pink);
+  color: var(--white);
+  font-weight: 700;
+}
+.btn2.primary:hover {
+  background: var(--pink-hover);
+  border-color: var(--pink-hover);
+}
+.btn2:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ---- page head + soft cards (new design) ------------------------------------ */
+
+.page-head {
+  margin-bottom: 20px;
+}
+.step-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--pink);
+  background: var(--pink-soft);
+  border-radius: var(--radius-full);
+  padding: 5px 12px;
+  margin-bottom: 12px;
+}
+.page-head h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+.page-head .sub {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 0.98rem;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 980px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-soft-sm);
+}
+.side-card {
+  padding: 24px;
+}
+.side-card h2 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.side-card .sub {
+  margin: 0 0 16px;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
 /* ---- panels --------------------------------------------------------------- */
@@ -571,108 +692,198 @@ button {
   box-shadow: var(--shadow-sm);
 }
 
-/* ---- landing split: upload + feature panel --------------------------------- */
-
-.landing-split {
-  display: flex;
-  align-items: stretch;
-  gap: 18px;
-}
-
-.landing-upload {
-  order: 2;
-  flex: 1 1 380px;
-  min-width: 0;
-  margin-bottom: 0;
-}
-
-.landing-features {
-  order: 1;
-  flex: 1 1 320px;
-  min-width: 0;
-  background: var(--accent-2);
-  color: var(--white);
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-lg);
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  box-shadow: var(--shadow-md);
-}
-.landing-features h2 {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 1.4rem;
-  letter-spacing: -0.01em;
-  margin: 0 0 6px;
-}
-.landing-features .sub {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.92rem;
-  font-weight: 600;
-  margin: 0 0 22px;
-}
-.landing-features ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.landing-features li {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  font-size: 0.94rem;
-  font-weight: 600;
-  line-height: 1.4;
-}
-.landing-features li .icon {
-  flex-shrink: 0;
-  font-size: 20px;
-  margin-top: 1px;
-  color: var(--white);
-}
-
-@media (max-width: 780px) {
-  .landing-split {
-    flex-direction: column;
-  }
-}
-
-/* ---- upload --------------------------------------------------------------- */
+/* ---- landing page: dropzone, tips, feature list, examples (new design) ----- */
 
 .dropzone {
-  border: 3px dashed var(--ink);
-  border-radius: var(--radius-lg);
-  padding: 48px 24px;
+  border: 2px dashed var(--hairline-2);
+  border-radius: var(--r-lg);
+  padding: 56px 24px;
   text-align: center;
-  background: var(--paper-2);
+  background: var(--pink-soft);
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .dropzone.over {
-  border-color: var(--accent);
-  background: var(--accent-soft);
+  border-color: var(--pink);
+}
+.dropzone-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--white);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 20px;
 }
 .dropzone-icon {
-  display: block;
-  font-size: 44px;
-  color: var(--accent-2);
-  margin: 0 auto 18px;
+  font-size: 32px;
+  color: var(--pink);
 }
 .dropzone .big {
-  font-family: var(--display);
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  margin: 0 0 10px;
+  margin: 0 0 4px;
   color: var(--ink);
 }
-.dropzone .hint {
-  font-family: var(--mono);
-  font-size: 0.78rem;
+.dropzone .sub-line {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  margin: 0 0 20px;
+}
+.dropzone-caption {
+  font-size: 0.8rem;
+  color: var(--ink-2);
+  margin-top: 18px;
+}
+
+.tips-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+@media (max-width: 760px) {
+  .tips-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.tip-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  background: var(--white);
+}
+.tip-card .icon {
+  color: var(--accent-2);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.tip-card-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.tip-card-sub {
+  font-size: 0.74rem;
   color: var(--ink-3);
+}
+
+.feature-list {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.feature-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  line-height: 1.4;
+}
+.feature-list .icon {
+  color: var(--pink);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.example-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin: 16px 0 8px;
+}
+.example-label.good {
+  color: #16a34a;
+}
+.example-label.bad {
+  color: #dc2626;
+}
+.example-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.example-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.example-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.example-mark {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--white);
+  font-size: 11px;
+}
+.example-mark.good {
+  background: #22c55e;
+}
+.example-mark.bad {
+  background: #ef4444;
+}
+.example-caption {
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  margin-top: 8px;
+}
+
+.bottom-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--accent-2-soft);
+  border-radius: var(--r-lg);
+  padding: 18px 22px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.bottom-banner .bb-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--white);
+  display: grid;
+  place-items: center;
+  color: var(--accent-2);
+  font-size: 18px;
+}
+.bottom-banner .bb-copy {
+  flex: 1;
+  min-width: 200px;
+}
+.bottom-banner .bb-title {
+  font-weight: 700;
+  font-size: 0.94rem;
+  color: var(--ink);
+}
+.bottom-banner .bb-sub {
+  font-size: 0.82rem;
+  color: var(--ink-2);
 }
 
 /* ---- size picker ---------------------------------------------------------- */

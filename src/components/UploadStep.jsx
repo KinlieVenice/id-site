@@ -1,7 +1,13 @@
 import { useRef, useState } from 'react';
-import CropMarks from './CropMarks.jsx';
 import Icon from './Icon.jsx';
 import { fileToDataURL } from '../lib/image.js';
+
+const TIPS = [
+  { icon: 'person', title: 'Face the camera', sub: 'Look straight ahead' },
+  { icon: 'light_mode', title: 'Good lighting', sub: 'Avoid harsh shadows' },
+  { icon: 'person', title: 'Neutral expression', sub: 'Natural expression' },
+  { icon: 'apparel', title: 'Avoid hats & glasses', sub: 'Unless required' },
+];
 
 const FEATURES = [
   { icon: 'apparel', text: 'Add a corporate attire overlay' },
@@ -30,67 +36,127 @@ export default function UploadStep({ onImage }) {
   }
 
   return (
-    <div className="landing-split">
-      <section className="panel landing-upload">
-        <CropMarks />
-        <h2>Upload your photo</h2>
-        <p className="sub">A clear, front-facing photo works best. JPG or PNG.</p>
+    <>
+      <div className="page-head">
+        <span className="step-badge">STEP 1 OF 5</span>
+        <h1>Let&rsquo;s get your photo</h1>
+        <p className="sub">Upload a clear, front-facing photo for the best results.</p>
+      </div>
 
-        <div
-          className={`dropzone ${over ? 'over' : ''}`}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setOver(true);
-          }}
-          onDragLeave={() => setOver(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setOver(false);
-            if (e.dataTransfer.files?.[0]) handleFile(e.dataTransfer.files[0]);
-          }}
-          onClick={() => inputRef.current?.click()}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+      <div className="two-col">
+        <div>
+          <div
+            className={`dropzone ${over ? 'over' : ''}`}
+            onDragOver={(e) => {
               e.preventDefault();
-              inputRef.current?.click();
-            }
-          }}
-        >
-          <Icon name="add_photo_alternate" className="dropzone-icon" />
-          <p className="big">Drop a photo here</p>
-          <p className="hint" style={{ marginBottom: 26 }}>
-            or choose a file from your device
+              setOver(true);
+            }}
+            onDragLeave={() => setOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setOver(false);
+              if (e.dataTransfer.files?.[0]) handleFile(e.dataTransfer.files[0]);
+            }}
+            onClick={() => inputRef.current?.click()}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                inputRef.current?.click();
+              }
+            }}
+          >
+            <div className="dropzone-icon-wrap">
+              <Icon name="upload" className="dropzone-icon" />
+            </div>
+            <p className="big">Drag and drop your photo here</p>
+            <p className="sub-line">or choose a file from your device</p>
+            <span className="btn2 primary">
+              <Icon name="add_photo_alternate" /> Choose a photo
+            </span>
+            <p className="dropzone-caption">JPG, PNG · Max 20MB · Processed on your device</p>
+            <input
+              ref={inputRef}
+              id="photo-file-input"
+              type="file"
+              accept="image/png,image/jpeg"
+              hidden
+              onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+            />
+          </div>
+
+          {error && <p className="error">{error}</p>}
+
+          <p style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--ink)', marginTop: 24, marginBottom: 4 }}>
+            Tips for best results
           </p>
-          <span className="btn primary">
-            <Icon name="upload" /> Choose photo
-          </span>
-          <p className="hint" style={{ marginTop: 26 }}>JPG · PNG · processed on your device</p>
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/png,image/jpeg"
-            hidden
-            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-          />
+          <div className="tips-row">
+            {TIPS.map((t) => (
+              <div className="tip-card" key={t.title}>
+                <Icon name={t.icon} />
+                <div>
+                  <div className="tip-card-title">{t.title}</div>
+                  <div className="tip-card-sub">{t.sub}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {error && <p className="error">{error}</p>}
-      </section>
+        <div className="card side-card">
+          <h2>One photo. Multiple possibilities.</h2>
+          <p className="sub">We&rsquo;ll help you crop, clean up, and format it perfectly.</p>
+          <ul className="feature-list">
+            {FEATURES.map((f) => (
+              <li key={f.text}>
+                <Icon name={f.icon} />
+                <span>{f.text}</span>
+              </li>
+            ))}
+          </ul>
 
-      <aside className="landing-features">
-        <h2>Everything you need, in one place</h2>
-        <p className="sub">Crop, clean up, and print-ready — all in your browser.</p>
-        <ul>
-          {FEATURES.map((f) => (
-            <li key={f.text}>
-              <Icon name={f.icon} />
-              <span>{f.text}</span>
-            </li>
-          ))}
-        </ul>
-      </aside>
-    </div>
+          <div className="example-label good">
+            Good example <Icon name="check_circle" />
+          </div>
+          <div className="example-grid">
+            {[0, 1, 2].map((i) => (
+              <div className="example-thumb" key={i}>
+                <Icon name="person" style={{ fontSize: 34, color: '#22c55e' }} />
+                <span className="example-mark good">
+                  <Icon name="check" />
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="example-label bad">
+            Not recommended <Icon name="close" />
+          </div>
+          <div className="example-grid">
+            {[0, 1, 2].map((i) => (
+              <div className="example-thumb" key={i}>
+                <Icon name="person" style={{ fontSize: 34, color: '#ef4444' }} />
+                <span className="example-mark bad">
+                  <Icon name="close" />
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="example-caption">Avoid glasses, shadows, and side profiles.</p>
+        </div>
+      </div>
+
+      <div className="bottom-banner">
+        <span className="bb-icon">
+          <Icon name="sparkles" />
+        </span>
+        <span className="bb-copy">
+          <span className="bb-title">We&rsquo;ll take care of the rest</span>
+          <br />
+          <span className="bb-sub">After upload, you can adjust the size, background, lighting, and more.</span>
+        </span>
+      </div>
+    </>
   );
 }

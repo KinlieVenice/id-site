@@ -138,6 +138,10 @@ const ICONS = {
     ['circle', { cx: 12, cy: 8, r: 3.5, ...S }],
     ['path', { d: 'M4.5 20.5c1.2-4 4-6 7.5-6s6.3 2 7.5 6', ...S }],
   ],
+  shield_check: [
+    ['path', { d: 'M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z', ...S }],
+    ['path', { d: 'M8.5 12l2.3 2.3L15.5 9.5', ...S }],
+  ],
 };
 
 // `fill` is accepted for API compatibility with existing call sites
