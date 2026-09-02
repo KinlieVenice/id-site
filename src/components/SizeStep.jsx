@@ -53,12 +53,17 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
   );
 
   return (
-    <section className="panel">
-      <CropMarks />
-      <h2>Choose a size</h2>
-      <p className="sub">Pick a passport (by country) or a common ID size.</p>
+    <>
+      <div className="page-head">
+        <span className="step-badge">STEP 2 OF 5</span>
+        <h1>Choose a size</h1>
+        <p className="sub">Pick a passport (by country) or a common ID size.</p>
+      </div>
 
-      <div className="size-grid">
+      <section className="panel">
+        <CropMarks />
+
+        <div className="size-grid">
         <div
           className={`size-card passport-card ${isPassport ? 'selected' : ''}`}
           onClick={() => {
@@ -107,36 +112,24 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
                 </h2>
               </div>
               <p className="size-card-desc">{ID_DESCRIPTIONS[p.id]}</p>
-              <div className="size-card-tags">
-                <span>
-                  {fmtIn(wIn)} × {fmtIn(hIn)} in
-                </span>
-                <span>{p.dpi} dpi</span>
-              </div>
             </button>
           );
         })}
 
-        <CustomSize selected={selected} onSelect={onSelect} />
-      </div>
-
-      {selected && (
-        <div className="notes">
-          {selected.notes}
-          {selected.source && <span className="src">Verify: {selected.source}</span>}
+          <CustomSize selected={selected} onSelect={onSelect} />
         </div>
-      )}
 
-      <div className="btn-row">
-        <button className="btn" onClick={onBack}>
-          <Icon name="arrow_back" /> Back
-        </button>
-        <span className="spacer" />
-        <button className="btn primary" disabled={!selected} onClick={onNext}>
-          Crop <Icon name="arrow_forward" />
-        </button>
-      </div>
-    </section>
+        <div className="btn-row">
+          <button className="btn" onClick={onBack}>
+            <Icon name="arrow_back" /> Back
+          </button>
+          <span className="spacer" />
+          <button className="btn primary" disabled={!selected} onClick={onNext}>
+            Crop <Icon name="arrow_forward" />
+          </button>
+        </div>
+      </section>
+    </>
   );
 }
 
