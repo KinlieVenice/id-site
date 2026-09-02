@@ -37,14 +37,14 @@ export default function UploadStep({ onImage }) {
 
   return (
     <>
-      <div className="page-head">
-        <span className="step-badge">STEP 1 OF 5</span>
-        <h1>Let&rsquo;s get your photo</h1>
-        <p className="sub">Upload a clear, front-facing photo for the best results.</p>
-      </div>
-
       <div className="two-col">
         <div>
+          <div className="page-head">
+            <span className="step-badge">STEP 1 OF 5</span>
+            <h1>Let&rsquo;s get your photo</h1>
+            <p className="sub">Upload a clear, front-facing photo for the best results.</p>
+          </div>
+
           <div
             className={`dropzone ${over ? 'over' : ''}`}
             onDragOver={(e) => {
@@ -95,10 +95,8 @@ export default function UploadStep({ onImage }) {
             {TIPS.map((t) => (
               <div className="tip-card" key={t.title}>
                 <Icon name={t.icon} />
-                <div>
-                  <div className="tip-card-title">{t.title}</div>
-                  <div className="tip-card-sub">{t.sub}</div>
-                </div>
+                <div className="tip-card-title">{t.title}</div>
+                <div className="tip-card-sub">{t.sub}</div>
               </div>
             ))}
           </div>

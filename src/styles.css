@@ -737,7 +737,7 @@ button {
 
 .tips-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin-top: 20px;
 }
@@ -748,9 +748,10 @@ button {
 }
 .tip-card {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 10px 8px;
   border: 1px solid var(--hairline);
   border-radius: var(--r-sm);
   background: var(--white);
@@ -761,12 +762,16 @@ button {
   flex-shrink: 0;
 }
 .tip-card-title {
-  font-size: 0.82rem;
+  font-size: 0.71rem;
   font-weight: 700;
   color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 .tip-card-sub {
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   color: var(--ink-3);
 }
 
