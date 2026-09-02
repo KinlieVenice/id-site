@@ -50,7 +50,7 @@ export default function Guide() {
         </div>
       </div>
 
-      <p style={{ marginTop: 20, fontSize: '0.8rem', color: 'var(--ink-3)' }}>
+      <p style={{ marginTop: 20, fontSize: '0.8rem', color: 'var(--ink-2)' }}>
         Requirements change and vary by consulate. Always confirm the current official specification
         for your document before submitting. The size notes here are a starting point, not legal
         guidance.

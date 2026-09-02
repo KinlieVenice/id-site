@@ -4,14 +4,14 @@ import { ATTIRE, ATTIRE_GROUPS } from '../data/attire.js';
 
 const CUSTOM_ID = 'custom';
 const YOUR_OWN = 'Your own';
-const TABS = [YOUR_OWN, ...ATTIRE_GROUPS];
+const TABS = [...ATTIRE_GROUPS, YOUR_OWN];
 
 // FR16 (Phase 4) — browse the curated attire set, grouped by type/body size.
 // Selecting one drops it onto the editor canvas to position with handles.
 // A custom upload works the same way, just with a user-picked image instead
-// of a stock file. Presented as a "dress-up rail": one category tab active
-// at a time, its items in a vertical scrolling strip below — same
-// selectedId/onSelect contract as before, just a different layout.
+// of a stock file. One category tab active at a time (Man/Woman/Your own),
+// its items — "No outfit" first, then the stock cards — in a horizontal
+// scrolling strip below. Same selectedId/onSelect contract throughout.
 export default function AttirePicker({ selectedId, customSrc, onSelect, onUploadCustom }) {
   const fileRef = useRef(null);
   const railRef = useRef(null);
@@ -30,45 +30,52 @@ export default function AttirePicker({ selectedId, customSrc, onSelect, onUpload
   }
 
   function scrollRail(dir) {
-    railRef.current?.scrollBy({ top: dir * 160, behavior: 'smooth' });
+    railRef.current?.scrollBy({ left: dir * 200, behavior: 'smooth' });
   }
 
   const items = activeTab === YOUR_OWN ? null : ATTIRE.filter((a) => a.group === activeTab);
 
   return (
     <div className="dressup">
-      <div className="dressup-controls">
-        <button
-          className={`btn dressup-none ${!selectedId ? 'primary' : ''}`}
-          onClick={() => onSelect(null)}
-        >
-          <Icon name="block" /> No attire
-        </button>
-
-        <div className="dressup-tabs seg">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              className={`seg-btn ${activeTab === tab ? 'on' : ''}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+      <div className="dressup-tabs seg">
+        {TABS.map((tab) => (
+          <button
+            key={tab}
+            className={`seg-btn ${activeTab === tab ? 'on' : ''}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
       </div>
 
       <div className="dressup-rail-wrap">
         <button
           type="button"
-          className="rail-arrow up"
+          className="rail-arrow left"
           onClick={() => scrollRail(-1)}
-          aria-label="Scroll rack up"
+          aria-label="Scroll rack left"
         >
-          <Icon name="expand_more" style={{ transform: 'rotate(180deg)' }} />
+          <Icon name="chevron_left" />
         </button>
 
         <div className="dressup-rail" ref={railRef}>
+          {activeTab !== YOUR_OWN && (
+            <button
+              className={`attire-card ${!selectedId ? 'selected' : ''}`}
+              onClick={() => onSelect(null)}
+              title="No outfit"
+            >
+              {!selectedId && (
+                <span className="check-badge">
+                  <Icon name="check" />
+                </span>
+              )}
+              <Icon name="block" className="attire-card-placeholder" />
+              <span className="cap">No outfit</span>
+            </button>
+          )}
+
           {activeTab === YOUR_OWN ? (
             <>
               <button
@@ -131,11 +138,11 @@ export default function AttirePicker({ selectedId, customSrc, onSelect, onUpload
 
         <button
           type="button"
-          className="rail-arrow down"
+          className="rail-arrow right"
           onClick={() => scrollRail(1)}
-          aria-label="Scroll rack down"
+          aria-label="Scroll rack right"
         >
-          <Icon name="expand_more" />
+          <Icon name="chevron_right" />
         </button>
       </div>
     </div>

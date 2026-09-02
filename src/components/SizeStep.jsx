@@ -1,31 +1,13 @@
 import { useMemo, useState } from 'react';
-import CropMarks from './CropMarks.jsx';
 import Icon from './Icon.jsx';
 import Combobox from './Combobox.jsx';
 import { PRESETS, presetPixels } from '../data/presets.js';
 
 // Generic inch-defined ID formats get their own small cards, in inches — every
 // other preset (all real national/ICAO passport specs, whatever unit they're
-// legally defined in) lives behind the single "Passport" country combobox.
+// legally defined in) lives behind the "By country" combobox.
 const ID_FORMAT_IDS = new Set(['id-1x1', 'id-1.5x1.5', 'id-2x2', 'asa-loan']);
-const ID_FORMATS = PRESETS.filter((p) => ID_FORMAT_IDS.has(p.id));
-const ID_ICONS = { 'id-1x1': 'crop_square', 'id-1.5x1.5': 'crop_square', 'id-2x2': 'aspect_ratio', 'asa-loan': 'aspect_ratio' };
-const ID_DESCRIPTIONS = {
-  'id-1x1': 'Common for local IDs and specific visa applications.',
-  'id-1.5x1.5': 'Common for local IDs and specific applications.',
-  'id-2x2': 'Common for local IDs and many visa applications worldwide.',
-  'asa-loan': 'Landscape photo for ASA microfinance loan applications.',
-};
-// Formats an inch dimension the way these cards' labels read: whole numbers
-// bare ("2"), fractional ones to one decimal ("1.5") — never "1.50" or "2.0".
-// Snaps to the nearest 0.1 in first — mm/25.4 (e.g. 76.2/25.4) doesn't always
-// land on an exact float, so "3 in" could otherwise render as "3.0000000004".
-function fmtIn(n) {
-  const r = Math.round(n * 10) / 10;
-  return Number.isInteger(r) ? `${r}` : r.toFixed(1);
-}
 
-// Extract leading flag emoji (4 chars = two surrogate pairs for regional indicator flags).
 function getFlag(label) {
   return label.charCodeAt(0) === 0xd83c ? label.slice(0, 4) : '';
 }
@@ -33,115 +15,239 @@ function getCountryName(label) {
   const flag = getFlag(label);
   return label.slice(flag.length).split('·')[0].trim();
 }
+function fmtIn(n) {
+  const r = Math.round(n * 10) / 10;
+  return Number.isInteger(r) ? `${r}` : r.toFixed(1);
+}
 
 const DEFAULT_PASSPORT_ID = 'ph';
 const PASSPORT_PRESETS = PRESETS.filter((p) => !ID_FORMAT_IDS.has(p.id)).sort((a, b) =>
   getCountryName(a.label).localeCompare(getCountryName(b.label)),
 );
+const VISA_PRESET = PRESETS.find((p) => p.id === 'id-2x2');
+const SCHOOL_PRESET = PRESETS.find((p) => p.id === 'id-1.5x1.5');
+const ID2X2_PRESET = PRESETS.find((p) => p.id === 'id-2x2');
 
 const UNIT_TO_MM = { mm: 1, cm: 10, in: 25.4 };
 
-export default function SizeStep({ selected, onSelect, onNext, onBack }) {
-  const isPassport = selected && PASSPORT_PRESETS.some((p) => p.id === selected.id);
-  const passportId = isPassport ? selected.id : DEFAULT_PASSPORT_ID;
-  const passportPreset = PASSPORT_PRESETS.find((p) => p.id === passportId);
-  const { w: pw, h: ph } = presetPixels(passportPreset);
+export default function SizeStep({ imageSrc, selected, onSelect, onBack }) {
+  const [tab, setTab] = useState('popular');
+  const [passportId, setPassportId] = useState(DEFAULT_PASSPORT_ID);
+  const passportPreset = PASSPORT_PRESETS.find((p) => p.id === passportId) || PASSPORT_PRESETS[0];
 
   const countryOptions = useMemo(
     () => PASSPORT_PRESETS.map((p) => ({ id: p.id, label: getCountryName(p.label), preset: p })),
     [],
   );
 
+  const w = selected ? presetPixels(selected).w : null;
+  const h = selected ? presetPixels(selected).h : null;
+
   return (
-    <section className="panel">
-      <CropMarks />
-      <h2>Choose a size</h2>
-      <p className="sub">Pick a passport (by country) or a common ID size.</p>
+    <>
+      <div className="page-head">
+        <span className="step-badge">STEP 2 OF 5</span>
+        <h1>Choose a size</h1>
+        <p className="sub">Select the size you need. We&rsquo;ll set everything up for you.</p>
+      </div>
 
-      <div className="size-grid">
-        <div
-          className={`size-card passport-card ${isPassport ? 'selected' : ''}`}
-          onClick={() => {
-            if (!isPassport) onSelect(passportPreset);
-          }}
-        >
-          {isPassport && <Icon name="check_circle" fill className="size-card-check" />}
-          <div className="size-card-head">
-            <Icon name="flag" />
-            <h2>Passport</h2>
-          </div>
-          <label className="group-label" htmlFor="passport-country">
-            Country / region
-          </label>
-          <Combobox
-            id="passport-country"
-            options={countryOptions}
-            value={passportId}
-            onChange={(opt) => onSelect(opt.preset)}
-            placeholder="Type a country…"
-          />
-          <p className="passport-card-hint">
-            <Icon name="info" />
-            {Math.round(passportPreset.wmm)}×{Math.round(passportPreset.hmm)} mm · {pw}×{ph} px ·{' '}
-            {passportPreset.dpi} dpi
-          </p>
-        </div>
-
-        {ID_FORMATS.map((p) => {
-          const { w, h } = presetPixels(p);
-          const isSelected = selected?.id === p.id;
-          const wIn = p.wmm / 25.4;
-          const hIn = p.hmm / 25.4;
-          return (
-            <button
-              key={p.id}
-              className={`size-card ${isSelected ? 'selected' : ''}`}
-              onClick={() => onSelect(p)}
-              aria-pressed={isSelected}
-            >
-              {isSelected && <Icon name="check_circle" fill className="size-card-check" />}
-              <div className="size-card-head">
-                <Icon name={ID_ICONS[p.id]} />
-                <h2>
-                  {fmtIn(wIn)}×{fmtIn(hIn)} in
-                </h2>
-              </div>
-              <p className="size-card-desc">{ID_DESCRIPTIONS[p.id]}</p>
-              <div className="size-card-tags">
-                <span>
-                  {fmtIn(wIn)} × {fmtIn(hIn)} in
-                </span>
-                <span>{p.dpi} dpi</span>
-              </div>
+      <div className="two-col">
+        <div>
+          <div className="tabbar">
+            <button className={`tabbar-btn ${tab === 'popular' ? 'on' : ''}`} onClick={() => setTab('popular')}>
+              Popular
             </button>
-          );
-        })}
+            <button className={`tabbar-btn ${tab === 'country' ? 'on' : ''}`} onClick={() => setTab('country')}>
+              By country
+            </button>
+            <button className={`tabbar-btn ${tab === 'custom' ? 'on' : ''}`} onClick={() => setTab('custom')}>
+              Custom size
+            </button>
+          </div>
 
-        <CustomSize selected={selected} onSelect={onSelect} />
-      </div>
+          {tab === 'popular' && (
+            <div className="size-grid">
+              <SizeCard
+                icon="globe"
+                title="Passport"
+                desc={getCountryName(passportPreset.label)}
+                tag="Recommended"
+                tagClass="official"
+                preset={passportPreset}
+                selected={selected?.id === passportPreset.id}
+                onClick={() => onSelect(passportPreset)}
+              />
+              <SizeCard
+                icon="crop_square"
+                title="2 × 2 in"
+                desc="Common for IDs and documents"
+                tag="Common size"
+                tagClass="common"
+                preset={ID2X2_PRESET}
+                selected={selected?.id === ID2X2_PRESET.id}
+                onClick={() => onSelect(ID2X2_PRESET)}
+              />
+              <SizeCard
+                icon="globe"
+                title="Visa"
+                desc="For visa applications"
+                tag="Common size"
+                tagClass="common"
+                preset={VISA_PRESET}
+                selected={selected?.id === 'visa-alias'}
+                onClick={() => onSelect({ ...VISA_PRESET, id: 'visa-alias' })}
+              />
+              <SizeCard
+                icon="school"
+                title="School / Work ID"
+                desc="For student or employee IDs"
+                tag="Common size"
+                tagClass="common"
+                preset={SCHOOL_PRESET}
+                selected={selected?.id === SCHOOL_PRESET.id}
+                onClick={() => onSelect(SCHOOL_PRESET)}
+              />
+              <button className="size-card custom" onClick={() => setTab('custom')}>
+                <Icon name="fit_screen" />
+                <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: '10px 0 4px' }}>Custom size</h2>
+                <p className="size-card-desc">Set your own dimensions</p>
+                <span className="size-card-tags" style={{ marginTop: 8 }}>
+                  <span>Define width, height and resolution</span>
+                </span>
+              </button>
+            </div>
+          )}
 
-      {selected && (
-        <div className="notes">
-          {selected.notes}
-          {selected.source && <span className="src">Verify: {selected.source}</span>}
+          {tab === 'country' && (
+            <div>
+              <div className="field">
+                <span className="lbl">Country / region</span>
+                <Combobox
+                  options={countryOptions}
+                  value={passportId}
+                  onChange={(opt) => {
+                    setPassportId(opt.id);
+                    onSelect(opt.preset);
+                  }}
+                  placeholder="Type a country…"
+                />
+              </div>
+              {selected && PASSPORT_PRESETS.some((p) => p.id === selected.id) && (
+                <div className="notes">
+                  {selected.notes}
+                  {selected.source && <span className="src">Verify: {selected.source}</span>}
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === 'custom' && <CustomSize selected={selected} onSelect={onSelect} />}
+
+          <div className="help-banner">
+            <Icon name="tune" className="hb-icon" />
+            <span className="hb-copy">
+              <span className="hb-title">Not sure which size to use?</span>
+              <br />
+              <span className="hb-sub">You can change this later. We&rsquo;ll help you get it right.</span>
+            </span>
+          </div>
         </div>
-      )}
 
-      <div className="btn-row">
-        <button className="btn" onClick={onBack}>
-          <Icon name="arrow_back" /> Back
-        </button>
-        <span className="spacer" />
-        <button className="btn primary" disabled={!selected} onClick={onNext}>
-          Crop <Icon name="arrow_forward" />
-        </button>
+        <div className="card side-card">
+          <h2>Preview</h2>
+          <p className="sub">This is how your photo will be sized.</p>
+
+          <div className="size-preview">
+            {selected && <span className="size-preview-dim w">{Math.round(selected.wmm)} mm</span>}
+            {selected && <span className="size-preview-dim h">{Math.round(selected.hmm)} mm</span>}
+            {imageSrc ? (
+              <img
+                src={imageSrc}
+                alt="Your photo"
+                style={{
+                  aspectRatio: selected ? `${selected.wmm} / ${selected.hmm}` : '1 / 1',
+                  objectFit: 'cover',
+                  width: 'auto',
+                  height: 'auto',
+                  maxWidth: '100%',
+                  maxHeight: 220,
+                }}
+              />
+            ) : (
+              <Icon name="image" style={{ fontSize: 40, color: 'var(--ink-3)' }} />
+            )}
+          </div>
+
+          {selected ? (
+            <>
+              <div className="about-rows">
+                <div className="about-row">
+                  <span>Size</span>
+                  <span>
+                    {Math.round(selected.wmm)} × {Math.round(selected.hmm)} mm
+                  </span>
+                </div>
+                <div className="about-row">
+                  <span>Pixels</span>
+                  <span>
+                    {w} × {h} px
+                  </span>
+                </div>
+                <div className="about-row">
+                  <span>Resolution</span>
+                  <span>{selected.dpi} DPI</span>
+                </div>
+                <div className="about-row">
+                  <span>Aspect ratio</span>
+                  <span>{fmtIn(selected.wmm / gcd(selected.wmm, selected.hmm))} : {fmtIn(selected.hmm / gcd(selected.wmm, selected.hmm))}</span>
+                </div>
+              </div>
+              <div className="requirement-badge">
+                <Icon name="check_circle" fill />
+                <span>
+                  <span className="rb-title">Meets official requirements</span>
+                  <br />
+                  <span className="rb-sub">This size is accepted for official documents.</span>
+                </span>
+              </div>
+            </>
+          ) : (
+            <p className="hint">Pick a size on the left to see a preview.</p>
+          )}
+        </div>
       </div>
-    </section>
+    </>
+  );
+}
+
+function gcd(a, b) {
+  a = Math.round(a * 10);
+  b = Math.round(b * 10);
+  while (b) [a, b] = [b, a % b];
+  return a / 10 || 1;
+}
+
+function SizeCard({ icon, title, desc, tag, tagClass, preset, selected, onClick }) {
+  const { w, h } = presetPixels(preset);
+  return (
+    <button className={`size-card ${selected ? 'selected' : ''}`} onClick={onClick}>
+      {selected && <Icon name="check_circle" fill className="size-card-check" />}
+      <div className="size-card-head">
+        <Icon name={icon} />
+        <h2>{title}</h2>
+      </div>
+      <p className="size-card-desc">{desc}</p>
+      <p className="passport-card-hint" style={{ margin: 0 }}>
+        {Math.round(preset.wmm)} × {Math.round(preset.hmm)} mm · {w} × {h} px @ {preset.dpi} DPI
+      </p>
+      <div className="size-card-tags">
+        <span className={tagClass}>{tag}</span>
+      </div>
+    </button>
   );
 }
 
 function CustomSize({ selected, onSelect }) {
-  const [open, setOpen] = useState(false);
   const [w, setW] = useState('35');
   const [h, setH] = useState('45');
   const [unit, setUnit] = useState('mm');
@@ -179,25 +285,8 @@ function CustomSize({ selected, onSelect }) {
     });
   }
 
-  if (!open && !isActive) {
-    return (
-      <button className="size-card custom" onClick={() => setOpen(true)}>
-        <Icon name="straighten" />
-        <h2 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '10px 0 4px' }}>Custom size</h2>
-        <p className="size-card-desc" style={{ flex: 'none' }}>
-          Define specific width, height, and resolution.
-        </p>
-      </button>
-    );
-  }
-
   return (
-    <div className={`size-card custom-size-open ${isActive ? 'selected' : ''}`}>
-      {isActive && <Icon name="check_circle" fill className="size-card-check" />}
-      <div className="size-card-head">
-        <Icon name="straighten" />
-        <h2>Custom size</h2>
-      </div>
+    <div className={`custom-size ${isActive ? 'selected' : ''}`}>
       <div className="custom-fields">
         <label className="cf">
           <span className="lbl">Width</span>
@@ -222,9 +311,7 @@ function CustomSize({ selected, onSelect }) {
         </label>
       </div>
       <div className="custom-foot">
-        <span className="dims mono">
-          {derived ? `${derived.px.w}×${derived.px.h} px` : 'enter a valid size'}
-        </span>
+        <span className="dims mono">{derived ? `${derived.px.w}×${derived.px.h} px` : 'enter a valid size'}</span>
         <button className={`btn ${isActive ? 'primary' : ''}`} disabled={!derived} onClick={use}>
           {isActive ? 'Custom size selected' : 'Use this size'}
         </button>

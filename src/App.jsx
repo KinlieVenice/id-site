@@ -1,154 +1,159 @@
 import { lazy, Suspense, useRef, useState } from 'react';
-import Stepper from './components/Stepper.jsx';
-import UploadStep from './components/UploadStep.jsx';
+import Sidebar from './components/Sidebar.jsx';
+import TopBar from './components/TopBar.jsx';
+import PhotoStep from './components/PhotoStep.jsx';
 import SizeStep from './components/SizeStep.jsx';
-import CropStep from './components/CropStep.jsx';
-import BackgroundStep from './components/BackgroundStep.jsx';
-import ExportStep from './components/ExportStep.jsx';
+import PrintStep from './components/PrintStep.jsx';
 import Guide from './components/Guide.jsx';
-import Icon from './components/Icon.jsx';
+import { loadImage, cropToCanvas } from './lib/image.js';
+import { presetPixels } from './data/presets.js';
 
-const Editor = lazy(() => import('./components/Editor.jsx'));
+const EditStep = lazy(() => import('./components/EditStep.jsx'));
+
+// A centered "cover" crop in the original image's own pixel space — the
+// starting point EditStep's Crop tab lets the user refine further, since
+// there's no more standalone mandatory Crop step gating entry to Edit.
+function defaultCropPixels(imgW, imgH, aspect) {
+  const imgAspect = imgW / imgH;
+  let w, h;
+  if (imgAspect > aspect) {
+    h = imgH;
+    w = h * aspect;
+  } else {
+    w = imgW;
+    h = w / aspect;
+  }
+  return { x: (imgW - w) / 2, y: (imgH - h) / 2, width: w, height: h };
+}
+
+function railIndexFor(step, editTab) {
+  if (step <= 1) return step;
+  if (step === 2) return editTab === 'details' ? 3 : 2;
+  return 4;
+}
+function railMaxFor(maxStep) {
+  if (maxStep <= 1) return maxStep;
+  if (maxStep === 2) return 3;
+  return 4;
+}
 
 export default function App() {
   const [step, setStep] = useState(0);
-  const [maxReached, setMaxReached] = useState(0);
+  const [maxStep, setMaxStep] = useState(0);
+  const [editTab, setEditTab] = useState('background');
 
   const [imageSrc, setImageSrc] = useState(null);
   const [preset, setPreset] = useState(null);
-  const [croppedCanvas, setCroppedCanvas] = useState(null);
-  const [composedCanvas, setComposedCanvas] = useState(null);
+  const [baseCanvas, setBaseCanvas] = useState(null);
+  const [baseCanvasPresetId, setBaseCanvasPresetId] = useState(null);
   const [finalCanvas, setFinalCanvas] = useState(null);
 
-  const cropState = useRef(null);
-  const bgState = useRef(null);
   const editorState = useRef(null);
-  const cropSig = useRef(null);
 
-  function goTo(i) {
-    setStep(i);
-    setMaxReached((m) => Math.max(m, i));
+  function selectPreset(p) {
+    setPreset(p);
   }
 
-  function handleCropped(canvas, sig) {
-    if (sig && sig === cropSig.current && croppedCanvas) {
-      goTo(3);
-      return;
+  async function enterEdit(targetTab) {
+    if (!baseCanvas || baseCanvasPresetId !== preset.id) {
+      const img = await loadImage(imageSrc);
+      const { w: pw, h: ph } = presetPixels(preset);
+      const aspect = preset.wmm / preset.hmm;
+      const crop = defaultCropPixels(img.width, img.height, aspect);
+      const canvas = await cropToCanvas(imageSrc, crop, pw, ph);
+      setBaseCanvas(canvas);
+      setBaseCanvasPresetId(preset.id);
+      editorState.current = null;
     }
-    cropSig.current = sig;
-    setCroppedCanvas(canvas);
-    goTo(3);
+    setEditTab(targetTab);
+    setStep(2);
+    setMaxStep((m) => Math.max(m, 2));
+  }
+
+  function goRail(i) {
+    if (i === 0) setStep(0);
+    else if (i === 1) setStep(1);
+    else if (i === 2) enterEdit(editTab === 'details' ? 'background' : editTab);
+    else if (i === 3) enterEdit('details');
+    else if (i === 4) setStep(3);
+  }
+
+  function handleEditDone(canvas) {
+    setFinalCanvas(canvas);
+    setStep(3);
+    setMaxStep((m) => Math.max(m, 3));
   }
 
   function handleNewPhoto() {
     setStep(0);
-    setMaxReached(0);
+    setMaxStep(0);
+    setEditTab('background');
     setImageSrc(null);
     setPreset(null);
-    setCroppedCanvas(null);
-    setComposedCanvas(null);
+    setBaseCanvas(null);
+    setBaseCanvasPresetId(null);
     setFinalCanvas(null);
-    cropState.current = null;
-    bgState.current = null;
     editorState.current = null;
-    cropSig.current = null;
   }
 
+  const subs = [
+    imageSrc ? 'Uploaded' : 'Upload your photo',
+    preset ? `${Math.round(preset.wmm)} × ${Math.round(preset.hmm)} mm` : 'Choose the right size',
+    'Adjust background & light',
+    'Outfit, name & signature',
+    'Download & print',
+  ];
+
+  const primary =
+    step === 1 ? { label: 'Continue', disabled: !preset, onClick: () => enterEdit('background') } : null;
+
   return (
-    <div className="game-shell">
-      <aside className="game-rail">
-        <span className="rail-logo" aria-hidden="true">
-          ✨
-        </span>
-        <Stepper current={step} maxReached={maxReached} onGo={goTo} />
-      </aside>
+    <div className="app-shell">
+      <Sidebar active={railIndexFor(step, editTab)} maxReached={railMaxFor(maxStep)} subs={subs} onGo={goRail} />
 
-      <div className="game-main">
-      <header className="masthead">
-        <div>
-          <h1>ID &amp; Passport Photo Maker</h1>
-          <p>Crop, clean up, and tile print-ready ID photos — start to finish.</p>
-        </div>
-        <div className="masthead-actions">
-          <span className="privacy-badge">
-            <Icon name="lock" /> On-device · nothing uploaded
-          </span>
-          {step > 0 && (
-            <button className="btn new-photo-btn" onClick={handleNewPhoto}>
-              <Icon name="add_a_photo" /> New photo
-            </button>
+      <div className="main-col">
+        <TopBar ready={step >= 2} onNewPhoto={handleNewPhoto} primary={primary} />
+
+        <main className="content">
+          {step === 0 && (
+            <PhotoStep
+              onImage={(src) => {
+                setImageSrc(src);
+                setStep(1);
+                setMaxStep((m) => Math.max(m, 1));
+              }}
+            />
           )}
-        </div>
-      </header>
 
-      {step === 0 && (
-        <UploadStep
-          onImage={(src) => {
-            setImageSrc(src);
-            goTo(1);
-          }}
-        />
-      )}
+          {step === 1 && (
+            <SizeStep imageSrc={imageSrc} selected={preset} onSelect={selectPreset} onBack={() => setStep(0)} />
+          )}
 
-      {step === 1 && (
-        <SizeStep
-          selected={preset}
-          onSelect={setPreset}
-          onBack={() => goTo(0)}
-          onNext={() => goTo(2)}
-        />
-      )}
+          {step === 2 && baseCanvas && preset && (
+            <Suspense fallback={<div className="card mono">Loading editor…</div>}>
+              <EditStep
+                baseCanvas={baseCanvas}
+                preset={preset}
+                persisted={editorState}
+                tab={editTab}
+                onTabChange={setEditTab}
+                onBack={() => setStep(1)}
+                onDone={handleEditDone}
+              />
+            </Suspense>
+          )}
 
-      {step === 2 && imageSrc && preset && (
-        <CropStep
-          imageSrc={imageSrc}
-          preset={preset}
-          persisted={cropState}
-          onBack={() => goTo(1)}
-          onCropped={handleCropped}
-        />
-      )}
+          {step === 3 && finalCanvas && preset && (
+            <PrintStep finalCanvas={finalCanvas} preset={preset} onBack={() => setStep(2)} ready />
+          )}
 
-      {step === 3 && croppedCanvas && preset && (
-        <BackgroundStep
-          croppedCanvas={croppedCanvas}
-          preset={preset}
-          persisted={bgState}
-          onBack={() => goTo(2)}
-          onDone={(canvas) => {
-            setComposedCanvas(canvas);
-            setFinalCanvas(canvas);
-            goTo(4);
-          }}
-        />
-      )}
+          <Guide />
+        </main>
 
-      {step === 4 && composedCanvas && (
-        <Suspense fallback={<div className="panel mono">Loading editor…</div>}>
-          <Editor
-            baseCanvas={composedCanvas}
-            preset={preset}
-            bgColor={bgState.current?.removeBg ? bgState.current?.bgColor : null}
-            persisted={editorState}
-            onBack={() => goTo(3)}
-            onDone={(canvas) => {
-              setFinalCanvas(canvas);
-              goTo(5);
-            }}
-          />
-        </Suspense>
-      )}
-
-      {step === 5 && finalCanvas && preset && (
-        <ExportStep finalCanvas={finalCanvas} preset={preset} onBack={() => goTo(4)} />
-      )}
-
-      <Guide />
-
-      <footer className="site-footer">
-        <span>Runs entirely in your browser · no accounts · no storage</span>
-        <span className="mono">mm · px · dpi</span>
-      </footer>
+        <footer className="site-footer">
+          <span>Runs entirely in your browser · no accounts · no storage</span>
+          <span className="mono">mm · px · dpi</span>
+        </footer>
       </div>
     </div>
   );
