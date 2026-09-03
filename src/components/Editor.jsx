@@ -150,6 +150,22 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
   const viewW = Math.round(baseW * scale);
   const viewH = Math.round(baseH * scale);
 
+  // Display-only zoom, for precise attire/name/signature placement — same
+  // range as the Refine-edges brush. The Stage itself always renders at
+  // viewW/viewH (so every stored transform — attireT, stripT, textT, sigT —
+  // and stageRef.current.toCanvas() stay in that same unscaled coordinate
+  // space); zoom is a pure CSS transform on a wrapper sized to match, the
+  // same trick used for the MaskBrush canvas.
+  const [zoom, setZoom] = useState(1);
+  const dispW = Math.round(viewW * zoom);
+  const dispH = Math.round(viewH * zoom);
+  function zoomIn() {
+    setZoom((z) => Math.min(3, Math.round((z + 0.5) * 100) / 100));
+  }
+  function zoomOut() {
+    setZoom((z) => Math.max(1, Math.round((z - 0.5) * 100) / 100));
+  }
+
   const [selected, setSelected] = useState(saved.selected ?? null);
   const [attireT, setAttireT] = useState(saved.attireT ?? null);
   const [sigT, setSigT] = useState(saved.sigT ?? null);
@@ -423,19 +439,24 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
               onCancel={() => setPhotoBrushing(false)}
             />
           ) : (
-            <div className="preview-frame" style={{ minHeight: 0, padding: 16 }}>
-              <Stage
-                ref={stageRef}
-                width={viewW}
-                height={viewH}
-                style={{ background: '#fff', display: 'block' }}
-                onMouseDown={(e) => {
-                  if (e.target === e.target.getStage()) setSelected(null);
-                }}
-                onTouchStart={(e) => {
-                  if (e.target === e.target.getStage()) setSelected(null);
-                }}
-              >
+            <div
+              className="preview-frame"
+              style={{ minHeight: 0, padding: 16, maxHeight: 640, overflow: 'auto', placeItems: 'safe center' }}
+            >
+              <div style={{ width: dispW, height: dispH }}>
+                <div style={{ width: viewW, height: viewH, transform: `scale(${zoom})`, transformOrigin: 'top left' }}>
+                  <Stage
+                    ref={stageRef}
+                    width={viewW}
+                    height={viewH}
+                    style={{ background: '#fff', display: 'block' }}
+                    onMouseDown={(e) => {
+                      if (e.target === e.target.getStage()) setSelected(null);
+                    }}
+                    onTouchStart={(e) => {
+                      if (e.target === e.target.getStage()) setSelected(null);
+                    }}
+                  >
                 <Layer>
                   {/* Fills the whole stage, so it — not the bare Stage —
                       is what actually receives a click on the photo away
@@ -529,7 +550,9 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
                     }
                   />
                 </Layer>
-              </Stage>
+                  </Stage>
+                </div>
+              </div>
             </div>
           )}
           {!editingPhoto && selected && (
@@ -538,7 +561,17 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
             </p>
           )}
           {!editingPhoto && (
-            <div className="btn-row" style={{ justifyContent: 'flex-end' }}>
+            <div className="btn-row">
+              <button className="btn" disabled={zoom <= 1} onClick={zoomOut} title="Zoom out">
+                <Icon name="zoom_out" />
+              </button>
+              <span className="mono" style={{ minWidth: 40, textAlign: 'center' }}>
+                {Math.round(zoom * 100)}%
+              </span>
+              <button className="btn" disabled={zoom >= 3} onClick={zoomIn} title="Zoom in">
+                <Icon name="zoom_in" />
+              </button>
+              <span className="spacer" />
               <button className="btn" onClick={startPhotoCrop}>
                 <Icon name="crop" /> Crop photo
               </button>
