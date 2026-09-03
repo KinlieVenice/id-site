@@ -5,6 +5,7 @@ import SizeStep from './components/SizeStep.jsx';
 import CropStep from './components/CropStep.jsx';
 import BackgroundStep from './components/BackgroundStep.jsx';
 import Icon from './components/Icon.jsx';
+import { THEMES, useTheme } from './lib/theme.js';
 
 const Editor = lazy(() => import('./components/Editor.jsx'));
 // Also pulls in Konva (for the draggable print-sheet editor) — lazy for the
@@ -12,6 +13,7 @@ const Editor = lazy(() => import('./components/Editor.jsx'));
 const ExportStep = lazy(() => import('./components/ExportStep.jsx'));
 
 export default function App() {
+  const [theme, setTheme] = useTheme();
   const [step, setStep] = useState(0);
   const [maxReached, setMaxReached] = useState(0);
 
@@ -71,6 +73,24 @@ export default function App() {
             <Icon name="lock" /> On-device processing
           </span>
           <p>Your photo never leaves your device.</p>
+        </div>
+        <div className="sidebar-theme">
+          <span className="sidebar-theme-label">
+            <Icon name="palette" /> Theme
+          </span>
+          <div className="swatches">
+            {THEMES.map((t) => (
+              <button
+                key={t.id}
+                className={`swatch ${theme === t.id ? 'selected' : ''}`}
+                style={{ background: t.swatch }}
+                title={t.label}
+                aria-label={`${t.label} theme`}
+                aria-pressed={theme === t.id}
+                onClick={() => setTheme(t.id)}
+              />
+            ))}
+          </div>
         </div>
       </aside>
 

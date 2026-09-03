@@ -23,11 +23,17 @@
   --line-2: #eeb3d6;
   --accent: #c41f63;
   --accent-ink: #ffffff;
+  --accent-hover: #d42a6e;
   --accent-soft: #ffe1ef;
   --accent-2: #7c4dff;
   --accent-2-soft: #ece3ff;
   --gold: #ffc93c;
   --white: #ffffff;
+  --success: #16a34a;
+  --success-strong: #22c55e;
+  --danger: #dc2626;
+  --danger-strong: #ef4444;
+  --error: #c0175a;
   --radius: 14px;
   --radius-lg: 22px;
   --radius-full: 999px;
@@ -57,6 +63,86 @@
   --shadow-soft-md: 0 8px 24px rgba(30, 15, 40, 0.08);
   --shadow-soft-lift: 0 12px 28px rgba(30, 15, 40, 0.14);
   --shadow-soft-focus: 0 0 0 3px rgba(208, 24, 79, 0.25);
+}
+
+/* ---- alternate themes ------------------------------------------------------
+   Same token names as :root (the default "Pink" theme) above — every rule in
+   this file is written against those names, so a theme only has to redefine
+   the values, never touch a selector. Applied via [data-theme] on <html>
+   (src/lib/theme.js); "pink" needs no block of its own since :root already
+   IS the pink theme. --gold and the crop-stage/checkerboard "real photo"
+   colors are deliberately left alone in the light themes (a decorative sticker
+   accent and an editor letterbox don't need to track the brand hue). */
+
+:root[data-theme='ocean'] {
+  --paper: #eef6fb;
+  --paper-2: #dcedf7;
+  --ink: #16324a;
+  --ink-2: #3f5f78;
+  --ink-3: #46647c;
+  --line: #cfe6f2;
+  --line-2: #a9d2e8;
+  --accent: #0a6d97;
+  --accent-ink: #ffffff;
+  --accent-hover: #0c7ea9;
+  --accent-soft: #dcf0fa;
+  --accent-2: #2f6fed;
+  --accent-2-soft: #e1ebff;
+  --pink: #0a6d97;
+  --pink-soft: #dcf0fa;
+  --pink-hover: #0a5c80;
+  --hairline: #e1eef5;
+  --hairline-2: #d3e6f0;
+}
+
+:root[data-theme='forest'] {
+  --paper: #eef7ee;
+  --paper-2: #dcf0dd;
+  --ink: #163a1f;
+  --ink-2: #3d6247;
+  --ink-3: #44684d;
+  --line: #cfe9d2;
+  --line-2: #a8d8af;
+  --accent: #187a43;
+  --accent-ink: #ffffff;
+  --accent-hover: #1c8b4c;
+  --accent-soft: #dcf3e1;
+  --accent-2: #217567;
+  --accent-2-soft: #dff5f1;
+  --pink: #187a43;
+  --pink-soft: #dcf3e1;
+  --pink-hover: #14602e;
+  --hairline: #e2f0e3;
+  --hairline-2: #d1e6d3;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #17121d;
+  --paper-2: #1f1927;
+  --ink: #f2eef7;
+  --ink-2: #cabede;
+  --ink-3: #a599c2;
+  --line: #352c40;
+  --line-2: #453a52;
+  --accent: #ff5fa0;
+  --accent-ink: #1c1024;
+  --accent-hover: #ff77ad;
+  --accent-soft: #3a2030;
+  --accent-2: #b79bff;
+  --accent-2-soft: #2c2440;
+  --white: #241d2d;
+  --pink: #ff5fa0;
+  --pink-soft: #3a2030;
+  --pink-hover: #ff77ad;
+  --hairline: #352c40;
+  --hairline-2: #2c2434;
+  --success: #4ade80;
+  --success-strong: #22c55e;
+  --danger: #ff6b81;
+  --danger-strong: #ef4444;
+  --error: #ff6fa8;
+  --checkerboard: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill='%23241d2d'/%3E%3Crect width='10' height='10' fill='%232f2638'/%3E%3Crect x='10' y='10' width='10' height='10' fill='%232f2638'/%3E%3C/svg%3E");
 }
 
 * {
@@ -174,6 +260,27 @@ button {
   line-height: 1.5;
 }
 
+.sidebar-theme {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px dashed var(--line-2);
+}
+.sidebar-theme-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  margin-bottom: 10px;
+}
+.sidebar-theme .swatches {
+  gap: 8px;
+}
+
 .game-main {
   flex: 1;
   min-width: 0;
@@ -218,7 +325,8 @@ button {
   .rail-line {
     display: none;
   }
-  .sidebar-privacy {
+  .sidebar-privacy,
+  .sidebar-theme {
     display: none;
   }
 }
@@ -496,7 +604,7 @@ button {
   color: var(--accent-ink);
 }
 .btn.primary:hover {
-  background: #d42a6e;
+  background: var(--accent-hover);
 }
 .btn:disabled {
   opacity: 0.45;
@@ -729,10 +837,10 @@ button {
   margin: 16px 0 8px;
 }
 .example-label.good {
-  color: #16a34a;
+  color: var(--success);
 }
 .example-label.bad {
-  color: #dc2626;
+  color: var(--danger);
 }
 .example-grid {
   display: grid;
@@ -768,10 +876,10 @@ button {
   font-size: 11px;
 }
 .example-mark.good {
-  background: #22c55e;
+  background: var(--success-strong);
 }
 .example-mark.bad {
-  background: #ef4444;
+  background: var(--danger-strong);
 }
 .example-caption {
   font-size: 0.78rem;
@@ -1248,6 +1356,11 @@ input[type='range'] {
   align-items: center;
 }
 .swatch {
+  /* Buttons don't inherit the page's font-size by default (only font-family
+     is reset globally) — without this they fall back to the browser's ~13px
+     control font, invisible here since the swatch has no text of its own,
+     but still what its accessible name is announced/sized at. */
+  font-size: 1rem;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -1332,7 +1445,7 @@ input[type='range'] {
 }
 
 .error {
-  color: #c0175a;
+  color: var(--error);
   font-weight: 700;
   font-size: 0.86rem;
   margin-top: 10px;

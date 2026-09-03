@@ -9,6 +9,18 @@
     />
     <meta name="theme-color" content="#fff2f8" />
     <title>ID &amp; Passport Photo Maker — private, in your browser</title>
+    <script>
+      // Applied before anything paints, straight from localStorage, so the
+      // page never flashes the default Pink theme before React mounts and
+      // re-applies the saved choice (src/lib/theme.js). "pink" needs no
+      // attribute — it's the plain :root default.
+      (function () {
+        try {
+          var t = localStorage.getItem('id-photo-maker:theme');
+          if (t && t !== 'pink') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Icons are inline SVG (see Icon.jsx), not a web-font — no CDN icon

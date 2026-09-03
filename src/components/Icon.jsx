@@ -146,6 +146,16 @@ const ICONS = {
     ['path', { d: 'M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z', ...S }],
     ['path', { d: 'M8.5 12l2.3 2.3L15.5 9.5', ...S }],
   ],
+  palette: [
+    ['path', {
+      d: 'M12 3a9 8 0 0 0 0 16c1.4 0 2-.8 2-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H16a4 4 0 0 0 4-4c0-4-3.6-6-8-6z',
+      ...S,
+    }],
+    ['circle', { cx: 8, cy: 10.5, r: 1.1, ...F }],
+    ['circle', { cx: 11.5, cy: 7.5, r: 1.1, ...F }],
+    ['circle', { cx: 15.5, cy: 8.5, r: 1.1, ...F }],
+    ['circle', { cx: 8.5, cy: 14.5, r: 1.1, ...F }],
+  ],
 };
 
 // `fill` is accepted for API compatibility with existing call sites
