@@ -10,14 +10,104 @@
     <meta name="theme-color" content="#fff2f8" />
     <title>ID &amp; Passport Photo Maker — private, in your browser</title>
     <script>
-      // Applied before anything paints, straight from localStorage, so the
-      // page never flashes the default Pink theme before React mounts and
-      // re-applies the saved choice (src/lib/theme.js). "pink" needs no
-      // attribute — it's the plain :root default.
+      // Applies the saved hue + light/dark choice before anything paints, so
+      // the page never flashes the default Pink theme before React mounts.
+      // Deliberately a plain duplicate of the palette math in
+      // src/lib/theme.js (buildPalette) rather than importing it — this has
+      // to run synchronously pre-module-load, with zero deps. Keep the two
+      // in sync if the formulas ever change.
       (function () {
         try {
-          var t = localStorage.getItem('id-photo-maker:theme');
-          if (t && t !== 'pink') document.documentElement.setAttribute('data-theme', t);
+          var raw = JSON.parse(localStorage.getItem('id-photo-maker:theme'));
+          if (!raw || typeof raw.hue !== 'number' || (raw.mode !== 'light' && raw.mode !== 'dark')) return;
+          var hue = raw.hue, dark = raw.mode === 'dark';
+
+          function hslToRgb(h, s, l) {
+            h = ((h % 360) + 360) % 360; s /= 100; l /= 100;
+            var c = (1 - Math.abs(2 * l - 1)) * s;
+            var x = c * (1 - Math.abs((h / 60) % 2 - 1));
+            var m = l - c / 2, r, g, b;
+            if (h < 60) { r = c; g = x; b = 0; }
+            else if (h < 120) { r = x; g = c; b = 0; }
+            else if (h < 180) { r = 0; g = c; b = x; }
+            else if (h < 240) { r = 0; g = x; b = c; }
+            else if (h < 300) { r = x; g = 0; b = c; }
+            else { r = c; g = 0; b = x; }
+            return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+          }
+          function toHex(rgb) {
+            return '#' + rgb.map(function (v) { return v.toString(16).padStart(2, '0'); }).join('');
+          }
+          function hsl(h, s, l) { return toHex(hslToRgb(h, s, l)); }
+          function lin(c) { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+          function relLum(rgb) { return 0.2126 * lin(rgb[0]) + 0.7152 * lin(rgb[1]) + 0.0722 * lin(rgb[2]); }
+          function contrast(a, b) {
+            var la = relLum(a) + 0.05, lb = relLum(b) + 0.05;
+            return la > lb ? la / lb : lb / la;
+          }
+          function findLightness(h, s, textRgb, target, start, toward, min, max, step) {
+            step = step || 1;
+            var l = start;
+            for (var i = 0; i < 400; i++) {
+              if (contrast(textRgb, hslToRgb(h, s, l)) >= target) return l;
+              l += toward === 'darker' ? -step : step;
+              if (l < min || l > max) break;
+            }
+            return toward === 'darker' ? min : max;
+          }
+
+          var WHITE = [255, 255, 255], DARK_TEXT = [28, 16, 36];
+          var accentSat = 65;
+          var accentL = dark
+            ? findLightness(hue, accentSat, DARK_TEXT, 4.5, 45, 'lighter', 5, 95)
+            : findLightness(hue, accentSat, WHITE, 4.5, 55, 'darker', 5, 95);
+          var accentHoverL = dark ? Math.max(5, accentL + 5) : Math.min(95, accentL + 6);
+          var pinkHoverL = dark ? accentHoverL : Math.max(8, accentL - 10);
+          var accent2Hue = hue - 80;
+          var accent2L = dark
+            ? findLightness(accent2Hue, 60, DARK_TEXT, 4.5, 65, 'lighter', 5, 95)
+            : findLightness(accent2Hue, 60, WHITE, 4.5, 55, 'darker', 5, 95);
+          var paperRgb = dark ? hslToRgb(hue, 22, 10) : hslToRgb(hue, 45, 97);
+          var ink2L = dark
+            ? findLightness(hue, 18, paperRgb, 4.5, 78, 'darker', 55, 95)
+            : findLightness(hue, 20, paperRgb, 4.5, 40, 'darker', 20, 55);
+          var accentRgb = hslToRgb(hue, accentSat, accentL);
+          var accent2Rgb = hslToRgb(accent2Hue, 60, accent2L);
+          var softSat = dark ? 30 : 12;
+          var accentSoftL = dark
+            ? findLightness(hue, softSat, accentRgb, 4.5, 20, 'darker', 4, 30, 0.5)
+            : findLightness(hue, softSat, accentRgb, 4.5, 94, 'lighter', 90, 100, 0.5);
+          var accent2SoftL = dark
+            ? findLightness(accent2Hue, softSat, accent2Rgb, 4.5, 20, 'darker', 4, 30, 0.5)
+            : findLightness(accent2Hue, softSat, accent2Rgb, 4.5, 94, 'lighter', 90, 100, 0.5);
+
+          var palette = {
+            '--paper': toHex(paperRgb),
+            '--paper-2': dark ? hsl(hue, 20, 14) : hsl(hue, 40, 92),
+            '--ink': dark ? hsl(hue, 25, 93) : hsl(hue, 35, 20),
+            '--ink-2': dark ? hsl(hue, 18, ink2L) : hsl(hue, 20, ink2L),
+            '--ink-3': dark ? hsl(hue, 16, Math.min(95, ink2L + 4)) : hsl(hue, 18, Math.max(5, ink2L + 2)),
+            '--line': dark ? hsl(hue, 20, 26) : hsl(hue, 45, 88),
+            '--line-2': dark ? hsl(hue, 20, 34) : hsl(hue, 45, 78),
+            '--accent': hsl(hue, accentSat, accentL),
+            '--accent-ink': toHex(dark ? DARK_TEXT : WHITE),
+            '--accent-hover': hsl(hue, accentSat, accentHoverL),
+            '--accent-soft': hsl(hue, softSat, accentSoftL),
+            '--accent-2': toHex(accent2Rgb),
+            '--accent-2-soft': hsl(accent2Hue, softSat, accent2SoftL),
+            '--white': dark ? hsl(hue, 20, 15) : '#ffffff',
+            '--pink': hsl(hue, accentSat, accentL),
+            '--pink-soft': hsl(hue, softSat, accentSoftL),
+            '--pink-hover': hsl(hue, accentSat, pinkHoverL),
+            '--hairline': dark ? hsl(hue, 18, 24) : hsl(hue, 20, 91),
+            '--hairline-2': dark ? hsl(hue, 16, 20) : hsl(hue, 18, 86),
+            '--success': dark ? '#4ade80' : '#16a34a',
+            '--danger': dark ? '#ff6b81' : '#dc2626',
+            '--error': dark ? '#ff6fa8' : '#c0175a',
+          };
+          var root = document.documentElement.style;
+          for (var prop in palette) root.setProperty(prop, palette[prop]);
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
         } catch (e) {}
       })();
     </script>

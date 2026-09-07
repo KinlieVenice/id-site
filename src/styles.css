@@ -65,85 +65,14 @@
   --shadow-soft-focus: 0 0 0 3px rgba(208, 24, 79, 0.25);
 }
 
-/* ---- alternate themes ------------------------------------------------------
-   Same token names as :root (the default "Pink" theme) above — every rule in
-   this file is written against those names, so a theme only has to redefine
-   the values, never touch a selector. Applied via [data-theme] on <html>
-   (src/lib/theme.js); "pink" needs no block of its own since :root already
-   IS the pink theme. --gold and the crop-stage/checkerboard "real photo"
-   colors are deliberately left alone in the light themes (a decorative sticker
-   accent and an editor letterbox don't need to track the brand hue). */
-
-:root[data-theme='ocean'] {
-  --paper: #eef6fb;
-  --paper-2: #dcedf7;
-  --ink: #16324a;
-  --ink-2: #3f5f78;
-  --ink-3: #46647c;
-  --line: #cfe6f2;
-  --line-2: #a9d2e8;
-  --accent: #0a6d97;
-  --accent-ink: #ffffff;
-  --accent-hover: #0c7ea9;
-  --accent-soft: #dcf0fa;
-  --accent-2: #2f6fed;
-  --accent-2-soft: #e1ebff;
-  --pink: #0a6d97;
-  --pink-soft: #dcf0fa;
-  --pink-hover: #0a5c80;
-  --hairline: #e1eef5;
-  --hairline-2: #d3e6f0;
-}
-
-:root[data-theme='forest'] {
-  --paper: #eef7ee;
-  --paper-2: #dcf0dd;
-  --ink: #163a1f;
-  --ink-2: #3d6247;
-  --ink-3: #44684d;
-  --line: #cfe9d2;
-  --line-2: #a8d8af;
-  --accent: #187a43;
-  --accent-ink: #ffffff;
-  --accent-hover: #1c8b4c;
-  --accent-soft: #dcf3e1;
-  --accent-2: #217567;
-  --accent-2-soft: #dff5f1;
-  --pink: #187a43;
-  --pink-soft: #dcf3e1;
-  --pink-hover: #14602e;
-  --hairline: #e2f0e3;
-  --hairline-2: #d1e6d3;
-}
-
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --paper: #17121d;
-  --paper-2: #1f1927;
-  --ink: #f2eef7;
-  --ink-2: #cabede;
-  --ink-3: #a599c2;
-  --line: #352c40;
-  --line-2: #453a52;
-  --accent: #ff5fa0;
-  --accent-ink: #1c1024;
-  --accent-hover: #ff77ad;
-  --accent-soft: #3a2030;
-  --accent-2: #b79bff;
-  --accent-2-soft: #2c2440;
-  --white: #241d2d;
-  --pink: #ff5fa0;
-  --pink-soft: #3a2030;
-  --pink-hover: #ff77ad;
-  --hairline: #352c40;
-  --hairline-2: #2c2434;
-  --success: #4ade80;
-  --success-strong: #22c55e;
-  --danger: #ff6b81;
-  --danger-strong: #ef4444;
-  --error: #ff6fa8;
-  --checkerboard: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill='%23241d2d'/%3E%3Crect width='10' height='10' fill='%232f2638'/%3E%3Crect x='10' y='10' width='10' height='10' fill='%232f2638'/%3E%3C/svg%3E");
-}
+/* ---- theming ----------------------------------------------------------------
+   Every color token above is re-derived at runtime by src/lib/theme.js from
+   two independent inputs — a hue (any color the user picks) and a light/dark
+   mode — and applied as inline custom properties on <html>. The values here
+   in :root are just the pre-JS fallback (and match the default hue/light
+   state almost exactly). --gold and the crop-stage "real photo" colors are
+   deliberately left alone by the generator (a decorative sticker accent and
+   an editor letterbox don't need to track the chosen hue). */
 
 * {
   box-sizing: border-box;
@@ -277,8 +206,14 @@ button {
   color: var(--ink-2);
   margin-bottom: 10px;
 }
-.sidebar-theme .swatches {
-  gap: 8px;
+.theme-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.theme-controls .pill-toggle {
+  flex: 1;
+  min-width: 0;
 }
 
 .game-main {
@@ -1396,10 +1331,14 @@ input[type='range'] {
   z-index: 1;
 }
 .swatch.custom input[type='color'] {
+  /* -3px on every side, not 0: an absolutely-positioned child's containing
+     block is the parent's PADDING box, inside its 3px border — inset:0 would
+     leave the actual input (what a tap-target audit measures) at 38x38
+     instead of the full 44x44 the swatch appears to be. */
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: -3px;
+  width: auto;
+  height: auto;
   opacity: 0;
   cursor: pointer;
   border: none;
@@ -1408,6 +1347,27 @@ input[type='range'] {
 .swatch.custom:has(input:disabled) {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+/* Same clickable-color-input trick as .swatch.custom, but the swatch's own
+   background already IS the current pick, so no "+" placeholder glyph. */
+.swatch.picker {
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.swatch.picker input[type='color'] {
+  /* See .swatch.custom's input above for why -3px, not 0. */
+  position: absolute;
+  inset: -3px;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  padding: 0;
 }
 
 .progress {

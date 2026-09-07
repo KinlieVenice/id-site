@@ -5,7 +5,7 @@ import SizeStep from './components/SizeStep.jsx';
 import CropStep from './components/CropStep.jsx';
 import BackgroundStep from './components/BackgroundStep.jsx';
 import Icon from './components/Icon.jsx';
-import { THEMES, useTheme } from './lib/theme.js';
+import { hexToHue, hslToRgb, rgbToHex, useTheme } from './lib/theme.js';
 
 const Editor = lazy(() => import('./components/Editor.jsx'));
 // Also pulls in Konva (for the draggable print-sheet editor) — lazy for the
@@ -13,7 +13,8 @@ const Editor = lazy(() => import('./components/Editor.jsx'));
 const ExportStep = lazy(() => import('./components/ExportStep.jsx'));
 
 export default function App() {
-  const [theme, setTheme] = useTheme();
+  const { hue, mode, setHue, setMode } = useTheme();
+  const hueSwatchHex = rgbToHex(hslToRgb(hue, 65, 50));
   const [step, setStep] = useState(0);
   const [maxReached, setMaxReached] = useState(0);
 
@@ -78,18 +79,27 @@ export default function App() {
           <span className="sidebar-theme-label">
             <Icon name="palette" /> Theme
           </span>
-          <div className="swatches">
-            {THEMES.map((t) => (
-              <button
-                key={t.id}
-                className={`swatch ${theme === t.id ? 'selected' : ''}`}
-                style={{ background: t.swatch }}
-                title={t.label}
-                aria-label={`${t.label} theme`}
-                aria-pressed={theme === t.id}
-                onClick={() => setTheme(t.id)}
+          <div className="theme-controls">
+            <label className="swatch picker" style={{ background: hueSwatchHex }} title="Pick any accent colour">
+              <input
+                type="color"
+                value={hueSwatchHex}
+                aria-label="Accent colour"
+                onChange={(e) => setHue(hexToHue(e.target.value))}
               />
-            ))}
+            </label>
+            <label className="pill-toggle">
+              <span className="pt-copy">
+                <span className="pt-title">Dark mode</span>
+              </span>
+              <input
+                type="checkbox"
+                checked={mode === 'dark'}
+                onChange={(e) => setMode(e.target.checked ? 'dark' : 'light')}
+                style={{ display: 'none' }}
+              />
+              <span className={`pill-switch ${mode === 'dark' ? 'on' : ''}`} role="presentation" aria-hidden="true" />
+            </label>
           </div>
         </div>
       </aside>
