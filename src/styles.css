@@ -14,19 +14,23 @@
 --------------------------------------------------------------------------- */
 
 :root {
-  --paper: #fff2f8;
-  --paper-2: #ffe3f0;
-  --ink: #34204a;
-  --ink-2: #6b5480;
-  --ink-3: #6e5a82;
-  --line: #f6d6e8;
-  --line-2: #eeb3d6;
-  --accent: #c41f63;
+  /* Default hue is #2D78D2 (blue) at light mode — these values are
+     buildPalette(213, 'light') from src/lib/theme.js, transcribed here as
+     the pre-JS-paint fallback for a first-time visitor with nothing in
+     localStorage yet. Keep in sync if DEFAULT_HUE ever changes. */
+  --paper: #f4f7fb;
+  --paper-2: #e2eaf3;
+  --ink: #213145;
+  --ink-2: #52647a;
+  --ink-3: #58697e;
+  --line: #d3dfee;
+  --line-2: #aec4e0;
+  --accent: #2c75ce;
   --accent-ink: #ffffff;
-  --accent-hover: #d42a6e;
-  --accent-soft: #ffe1ef;
-  --accent-2: #7c4dff;
-  --accent-2-soft: #ece3ff;
+  --accent-hover: #4285d7;
+  --accent-soft: #fcfcfd;
+  --accent-2: #228738;
+  --accent-2-soft: #fefefe;
   --gold: #ffc93c;
   --white: #ffffff;
   --success: #16a34a;
@@ -48,21 +52,21 @@
   --display: var(--sans);
 
   /* ---- new "clean SaaS" design tokens ------------------------------------
-     Scoped to pages that have been migrated to the new white/pink look
+     Scoped to pages that have been migrated to the new white/accent look
      (currently just the landing/Photo page + sidebar + top bar). Old pages
      keep using the tokens above until they're migrated too — see the
      per-page CLAUDE.md-less history in git log for the plan. */
-  --pink: #d0184f;
-  --pink-soft: #fdecf2;
-  --pink-hover: #b21344;
-  --hairline: #ece7ef;
-  --hairline-2: #e0d9e6;
+  --pink: #2c75ce;
+  --pink-soft: #fcfcfd;
+  --pink-hover: #235da4;
+  --hairline: #e3e8ed;
+  --hairline-2: #d5dbe2;
   --r-sm: 12px;
   --r-lg: 16px;
   --shadow-soft-sm: 0 1px 2px rgba(30, 15, 40, 0.05), 0 1px 1px rgba(30, 15, 40, 0.04);
   --shadow-soft-md: 0 8px 24px rgba(30, 15, 40, 0.08);
   --shadow-soft-lift: 0 12px 28px rgba(30, 15, 40, 0.14);
-  --shadow-soft-focus: 0 0 0 3px rgba(208, 24, 79, 0.25);
+  --shadow-soft-focus: 0 0 0 3px rgba(44, 117, 206, 0.25);
 }
 
 /* ---- theming ----------------------------------------------------------------

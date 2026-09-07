@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'id-photo-maker:theme';
 
-export const DEFAULT_HUE = 336; // hue of the original pink accent, #c41f63
+export const DEFAULT_HUE = 213; // hue of #2D78D2, the requested default blue
 export const DEFAULT_MODE = 'light';
 
 // ---- colour maths -----------------------------------------------------------
