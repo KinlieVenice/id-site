@@ -63,7 +63,7 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
       <section className="panel">
         <CropMarks />
 
-        <div className="size-grid">
+        <div data-tour="size" className="size-grid">
         <div
           className={`size-card passport-card ${isPassport ? 'selected' : ''}`}
           onClick={() => {
@@ -124,7 +124,7 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
             <Icon name="arrow_back" /> Back
           </button>
           <span className="spacer" />
-          <button className="btn primary" disabled={!selected} onClick={onNext}>
+          <button className="btn primary" data-tour="size-next" disabled={!selected} onClick={onNext}>
             Crop <Icon name="arrow_forward" />
           </button>
         </div>

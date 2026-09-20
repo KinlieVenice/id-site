@@ -55,7 +55,7 @@ export default function CropStep({ imageSrc, preset, persisted, onCropped, onBac
       <section className="panel">
       <CropMarks />
 
-      <div className="crop-stage">
+      <div data-tour="crop" className="crop-stage">
         <Cropper
           image={imageSrc}
           crop={crop}
@@ -92,8 +92,8 @@ export default function CropStep({ imageSrc, preset, persisted, onCropped, onBac
           <Icon name="arrow_back" /> Back
         </button>
         <span className="spacer" />
-        <button className="btn primary" disabled={!areaPixels || busy} onClick={applyCrop}>
-          {busy ? 'Working…' : <>Background <Icon name="arrow_forward" /></>}
+        <button className="btn primary" data-tour="crop-next" disabled={!areaPixels || busy} onClick={applyCrop}>
+          {busy ? 'Working…' : <>Apply crop <Icon name="arrow_forward" /></>}
         </button>
       </div>
       </section>

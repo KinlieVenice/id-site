@@ -5,6 +5,7 @@ import SizeStep from './components/SizeStep.jsx';
 import CropStep from './components/CropStep.jsx';
 import BackgroundStep from './components/BackgroundStep.jsx';
 import Icon from './components/Icon.jsx';
+import PhotoTour from './components/PhotoTour.jsx';
 import { hexToHue, hslToRgb, rgbToHex, useTheme } from './lib/theme.js';
 
 const Editor = lazy(() => import('./components/Editor.jsx'));
@@ -17,6 +18,8 @@ export default function App() {
   const hueSwatchHex = rgbToHex(hslToRgb(hue, 65, 50));
   const [step, setStep] = useState(0);
   const [maxReached, setMaxReached] = useState(0);
+  const [tourActive, setTourActive] = useState(false);
+  const [tourStarted, setTourStarted] = useState(false);
 
   const [imageSrc, setImageSrc] = useState(null);
   const [preset, setPreset] = useState(null);
@@ -45,6 +48,7 @@ export default function App() {
   }
 
   function handleNewPhoto() {
+    setTourStarted(true);
     setStep(0);
     setMaxReached(0);
     setImageSrc(null);
@@ -66,7 +70,7 @@ export default function App() {
         </div>
         <Stepper current={step} maxReached={maxReached} onGo={goTo} />
         <div className="sidebar-spacer" />
-        <button className="btn primary" onClick={handleNewPhoto} style={{ marginBottom: 12, width: '100%' }}>
+        <button className="btn primary" data-tour="new-photo" onClick={handleNewPhoto} style={{ marginBottom: 12, width: '100%' }}>
           <Icon name="add_a_photo" /> New photo
         </button>
         <div className="sidebar-privacy">
@@ -105,6 +109,9 @@ export default function App() {
       </aside>
 
       <div className="game-main">
+      <PhotoTour active={tourActive} started={tourStarted} step={step} hasPreset={!!preset}
+        onToggle={() => { setTourActive((active) => !active); setTourStarted(false); }}
+        onClose={() => setTourActive(false)} />
       {step === 0 && (
         <UploadStep
           onImage={(src) => {

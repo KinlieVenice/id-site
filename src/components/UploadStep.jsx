@@ -46,7 +46,7 @@ export default function UploadStep({ onImage }) {
           </div>
 
           <div
-            className={`dropzone ${over ? 'over' : ''}`}
+            data-tour="upload" className={`dropzone ${over ? 'over' : ''}`}
             onDragOver={(e) => {
               e.preventDefault();
               setOver(true);

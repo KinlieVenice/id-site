@@ -122,7 +122,7 @@ export default function BackgroundStep({ croppedCanvas, preset, persisted, onDon
           />
         </div>
       ) : (
-        <div className="row workspace">
+        <div data-tour="background" className="row workspace">
           <div className="col">
             <div className="preview-frame">
               {previewUrl ? (
@@ -282,7 +282,7 @@ export default function BackgroundStep({ croppedCanvas, preset, persisted, onDon
           <span className="spacer" />
           <button
             className="btn primary"
-            disabled={working || !finalRef.current}
+            data-tour="background-next" disabled={working || !finalRef.current}
             onClick={() => onDone(finalRef.current)}
           >
             Next <Icon name="arrow_forward" />

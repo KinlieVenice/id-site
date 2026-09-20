@@ -585,7 +585,7 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
         {/* Guided controls column — hidden while cropping/refining so the
             photo gets the whole panel width, same as the standalone Crop step. */}
         {!editingPhoto && (
-        <div className="col editor-controls-col">
+        <div data-tour={`details-${subStep}`} className="col editor-controls-col">
           <>
               {/* Step indicator */}
               <div className="guided-header">
@@ -741,7 +741,7 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
                   )}
                   <span className="spacer" />
                   {canGoNext && (
-                    <button className="btn" onClick={() => setSubStep((s) => s + 1)}>
+                    <button className="btn" data-tour="details-next" onClick={() => setSubStep((s) => s + 1)}>
                       {subStep === 0
                         ? (attireId ? 'Next' : 'Skip')
                         : (nameText ? 'Next' : 'Skip')}{' '}
@@ -761,7 +761,7 @@ export default function Editor({ baseCanvas, preset, bgColor, persisted, onDone,
             <Icon name="arrow_back" /> Back
           </button>
           <span className="spacer" />
-          <button className="btn primary" onClick={apply}>
+          <button data-tour="editor-next" className="btn primary" onClick={apply}>
             Apply &amp; Export <Icon name="arrow_forward" />
           </button>
         </div>

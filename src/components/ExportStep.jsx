@@ -180,7 +180,7 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
         </div>
       </div>
 
-      <div className="export-grid">
+      <div data-tour="export" className="export-grid">
         <div className="subpanel">
           <h3>Single photo</h3>
           <div className="preview-frame" style={{ minHeight: 200 }}>
