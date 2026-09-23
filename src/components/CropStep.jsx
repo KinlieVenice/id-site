@@ -12,6 +12,7 @@ export default function CropStep({ imageSrc, preset, persisted, onCropped, onBac
   const saved = persisted?.current || {};
   const [crop, setCrop] = useState(saved.crop ?? { x: 0, y: 0 });
   const [zoom, setZoom] = useState(saved.zoom ?? 1);
+  const [rotation, setRotation] = useState(saved.rotation ?? 0);
   const [areaPixels, setAreaPixels] = useState(saved.areaPixels ?? null);
   const [busy, setBusy] = useState(false);
 
@@ -22,16 +23,21 @@ export default function CropStep({ imageSrc, preset, persisted, onCropped, onBac
 
   // Remember framing so a return visit restores it.
   useEffect(() => {
-    if (persisted) persisted.current = { crop, zoom, areaPixels };
-  }, [persisted, crop, zoom, areaPixels]);
+    if (persisted) persisted.current = { crop, zoom, rotation, areaPixels };
+  }, [persisted, crop, zoom, rotation, areaPixels]);
+
+  function rotate(degrees) {
+    setRotation((value) => (value + degrees + 360) % 360);
+    setAreaPixels(null);
+  }
 
   async function applyCrop() {
     if (!areaPixels) return;
     setBusy(true);
     try {
-      const canvas = await cropToCanvas(imageSrc, areaPixels, w, h);
+      const canvas = await cropToCanvas(imageSrc, areaPixels, w, h, rotation);
       // Signature so the parent can skip regenerating when nothing changed.
-      const sig = JSON.stringify(areaPixels);
+      const sig = JSON.stringify({ areaPixels, rotation });
       onCropped(canvas, sig);
     } finally {
       setBusy(false);
@@ -60,9 +66,11 @@ export default function CropStep({ imageSrc, preset, persisted, onCropped, onBac
           image={imageSrc}
           crop={crop}
           zoom={zoom}
+          rotation={rotation}
           aspect={aspect}
           onCropChange={setCrop}
           onZoomChange={setZoom}
+          onRotationChange={setRotation}
           onCropComplete={onComplete}
           restrictPosition
           zoomWithScroll
@@ -85,6 +93,16 @@ export default function CropStep({ imageSrc, preset, persisted, onCropped, onBac
         <span className="mono" style={{ minWidth: 48 }}>
           {zoom.toFixed(2)}×
         </span>
+      </div>
+
+      <div className="crop-tools">
+        <span className="crop-tools-label"><Icon name="rotate_right" /> Rotate</span>
+        <button className="btn" type="button" onClick={() => rotate(-90)} aria-label="Rotate left 90 degrees">
+          <Icon name="rotate_left" /> Left
+        </button>
+        <button className="btn" type="button" onClick={() => rotate(90)} aria-label="Rotate right 90 degrees">
+          <Icon name="rotate_right" /> Right
+        </button>
       </div>
 
       <div className="btn-row">

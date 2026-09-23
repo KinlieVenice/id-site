@@ -1219,6 +1219,26 @@ button {
   color: var(--ink-2);
   min-width: 56px;
 }
+.crop-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.crop-tools-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 2px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.86rem;
+  color: var(--ink-2);
+}
+.crop-tools .btn {
+  padding: 8px 14px;
+}
 input[type='range'] {
   flex: 1;
   accent-color: var(--accent);

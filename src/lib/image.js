@@ -40,15 +40,25 @@ export function fileToDataURL(file) {
 
 // Render the cropped region (in natural image pixels, from react-easy-crop's
 // croppedAreaPixels) into a canvas of the preset's exact output dimensions (FR3).
-export async function cropToCanvas(imageSrc, cropPixels, outW, outH) {
+export async function cropToCanvas(imageSrc, cropPixels, outW, outH, rotation = 0) {
   const img = await loadImage(imageSrc);
+  const radians = (rotation * Math.PI) / 180;
+  const rotated = rotation % 360 === 0 ? img : document.createElement('canvas');
+  if (rotated !== img) {
+    rotated.width = Math.round(Math.abs(Math.cos(radians) * img.width) + Math.abs(Math.sin(radians) * img.height));
+    rotated.height = Math.round(Math.abs(Math.sin(radians) * img.width) + Math.abs(Math.cos(radians) * img.height));
+    const rotateCtx = rotated.getContext('2d');
+    rotateCtx.translate(rotated.width / 2, rotated.height / 2);
+    rotateCtx.rotate(radians);
+    rotateCtx.drawImage(img, -img.width / 2, -img.height / 2);
+  }
   const canvas = document.createElement('canvas');
   canvas.width = outW;
   canvas.height = outH;
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(
-    img,
+    rotated,
     cropPixels.x,
     cropPixels.y,
     cropPixels.width,
