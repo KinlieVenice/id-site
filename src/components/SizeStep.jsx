@@ -7,14 +7,28 @@ import { PRESETS, presetPixels } from '../data/presets.js';
 // Generic inch-defined ID formats get their own small cards, in inches — every
 // other preset (all real national/ICAO passport specs, whatever unit they're
 // legally defined in) lives behind the single "Passport" country combobox.
-const ID_FORMAT_IDS = new Set(['id-1x1', 'id-1.5x1.5', 'id-2x2', 'asa-loan']);
+const ID_FORMAT_IDS = new Set(['id-1x1', 'id-1.5x1.5', 'id-2x2', 'asa-loan', '5r', '4r', '3r', 'a4-photo']);
 const ID_FORMATS = PRESETS.filter((p) => ID_FORMAT_IDS.has(p.id));
-const ID_ICONS = { 'id-1x1': 'crop_square', 'id-1.5x1.5': 'crop_square', 'id-2x2': 'aspect_ratio', 'asa-loan': 'aspect_ratio' };
+const ID_ICONS = {
+  'id-1x1': 'crop_square',
+  'id-1.5x1.5': 'crop_square',
+  'id-2x2': 'aspect_ratio',
+  'asa-loan': 'aspect_ratio',
+  '5r': 'aspect_ratio',
+  '4r': 'aspect_ratio',
+  '3r': 'aspect_ratio',
+  'a4-photo': 'aspect_ratio',
+};
+const ID_TITLES = { '5r': '5R', '4r': '4R', '3r': '3R', 'a4-photo': 'A4' };
 const ID_DESCRIPTIONS = {
   'id-1x1': 'Common for local IDs and specific visa applications.',
   'id-1.5x1.5': 'Common for local IDs and specific applications.',
   'id-2x2': 'Common for local IDs and many visa applications worldwide.',
   'asa-loan': 'Landscape photo for ASA microfinance loan applications.',
+  '5r': 'Adjusted 4.8×6.8 in photo size (0.2 in smaller in width and height).',
+  '4r': 'Adjusted 3.8×5.8 in photo size (0.2 in smaller in width and height).',
+  '3r': 'Adjusted 3.3×4.8 in photo size (0.2 in smaller in width and height).',
+  'a4-photo': 'Adjusted 204.92×291.92 mm photo size (0.2 in smaller in width and height).',
 };
 // Formats an inch dimension the way these cards' labels read: whole numbers
 // bare ("2"), fractional ones to one decimal ("1.5") — never "1.50" or "2.0".
@@ -108,10 +122,15 @@ export default function SizeStep({ selected, onSelect, onNext, onBack }) {
               <div className="size-card-head">
                 <Icon name={ID_ICONS[p.id]} />
                 <h2>
-                  {fmtIn(wIn)}×{fmtIn(hIn)} in
+                  {ID_TITLES[p.id] || `${fmtIn(wIn)}×${fmtIn(hIn)} in`}
                 </h2>
               </div>
               <p className="size-card-desc">{ID_DESCRIPTIONS[p.id]}</p>
+              {ID_TITLES[p.id] && (
+                <p className="passport-card-hint">
+                  {fmtIn(wIn)}×{fmtIn(hIn)} in · {w}×{h} px · {p.dpi} dpi
+                </p>
+              )}
             </button>
           );
         })}

@@ -252,6 +252,7 @@ button {
   .rail-steps {
     flex-direction: row;
     gap: 6px;
+    flex-shrink: 0;
   }
   .rail-step {
     flex-direction: column;
@@ -1958,3 +1959,101 @@ input[type='text']:focus {
 .tour-card small { display: block; margin-top: 8px; color: var(--ink-2); }
 .tour-wait { color: var(--ink-2); }
 @media (prefers-reduced-motion: reduce) { .tour-cursor { animation: none; } }
+
+@media (max-width: 680px) {
+  .game-main {
+    padding: 20px 12px 0;
+  }
+
+  .panel {
+    padding: 20px 16px;
+  }
+
+  .row > .col {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .size-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .size-card {
+    padding: 18px;
+  }
+
+  .dropzone {
+    max-width: 100%;
+    padding: 32px 16px;
+  }
+
+  .crop-stage {
+    height: clamp(300px, 70vw, 420px);
+  }
+
+  .btn-row {
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .btn-row .spacer {
+    display: none;
+  }
+
+  .page-head {
+    padding-right: 0;
+  }
+
+  .tour-info {
+    top: 10px;
+    right: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .sidebar {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .sidebar-brand {
+    font-size: 1rem;
+  }
+
+  .rail-step {
+    min-width: 72px;
+    padding: 8px 4px;
+  }
+
+  .panel {
+    padding: 16px 12px;
+  }
+
+  .size-card {
+    padding: 16px;
+  }
+
+  .custom-fields {
+    gap: 8px;
+  }
+
+  .cf {
+    min-width: 0;
+  }
+
+  .cf input,
+  .cf select {
+    max-width: 100%;
+  }
+
+  .btn {
+    min-height: 44px;
+    padding-inline: 14px;
+  }
+
+  .tour-card {
+    right: 10px;
+    bottom: 10px;
+    width: calc(100vw - 20px);
+  }
+}
