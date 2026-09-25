@@ -1,22 +1,11 @@
 import { useRef, useState } from 'react';
 import Icon from './Icon.jsx';
-import CropMarks from './CropMarks.jsx';
 import { fileToDataURL } from '../lib/image.js';
 
 const TIPS = [
   { icon: 'person', title: 'Face the camera', sub: 'Look straight ahead' },
   { icon: 'light_mode', title: 'Good lighting', sub: 'Avoid harsh shadows' },
   { icon: 'apparel', title: 'Avoid hats & glasses', sub: 'Unless required' },
-];
-
-const FEATURES = [
-  { icon: 'apparel', text: 'Corporate attire overlay' },
-  { icon: 'badge', text: 'Name & signature' },
-  { icon: 'auto_fix_high', text: 'Background removal & colors' },
-  { icon: 'brush', text: 'Manual edge refinement' },
-  { icon: 'tune', text: 'Brightness, contrast & smoothness' },
-  { icon: 'flag', text: 'Official passport sizes worldwide' },
-  { icon: 'crop_square', text: '1×1", 2×2" & custom sizes' },
 ];
 
 // FR1 — upload via file input or drag-and-drop. Nothing leaves the device.
@@ -37,12 +26,11 @@ export default function UploadStep({ onImage }) {
 
   return (
     <>
-      <div className="two-col">
+      <div className="two-col upload-layout">
         <div>
           <div className="page-head">
-            <span className="step-badge">STEP 1 OF 5</span>
-            <h1>Let&rsquo;s get your photo</h1>
-            <p className="sub">Upload a clear, front-facing photo for the best results.</p>
+            <h1>Create an ID photo</h1>
+            <p className="sub">Start with a photo, then choose a size and make your adjustments.</p>
           </div>
 
           <div
@@ -70,12 +58,12 @@ export default function UploadStep({ onImage }) {
             <div className="dropzone-icon-wrap">
               <Icon name="upload" className="dropzone-icon" />
             </div>
-            <p className="big">Drag and drop your photo here</p>
+            <p className="big">Drop your photo here</p>
             <p className="sub-line">or choose a file from your device</p>
             <span className="btn primary">
               <Icon name="add_photo_alternate" /> Choose a photo
             </span>
-            <p className="dropzone-caption">JPG, PNG · Max 20MB · Processed on your device</p>
+            <p className="dropzone-caption">JPG or PNG / Up to 20 MB</p>
             <input
               ref={inputRef}
               id="photo-file-input"
@@ -88,73 +76,26 @@ export default function UploadStep({ onImage }) {
 
           {error && <p className="error">{error}</p>}
 
-          <p style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--ink)', marginTop: 24, marginBottom: 4 }}>
-            Tips for best results
-          </p>
+        </div>
+
+        <aside className="upload-guide">
+          <h2>Before you start</h2>
+          <p>A clear original makes a better ID photo.</p>
           <div className="tips-row">
             {TIPS.map((t) => (
               <div className="tip-card" key={t.title}>
                 <Icon name={t.icon} />
-                <div className="tip-card-title">{t.title}</div>
-                <div className="tip-card-sub">{t.sub}</div>
+                <div><div className="tip-card-title">{t.title}</div><div className="tip-card-sub">{t.sub}</div></div>
               </div>
             ))}
           </div>
-
-          <div className="bottom-banner">
-            <span className="bb-icon">
-              <Icon name="sparkles" />
-            </span>
-            <span className="bb-copy">
-              <span className="bb-title">We&rsquo;ll take care of the rest</span>
-              <br />
-              <span className="bb-sub">After upload, you can adjust the size, background, lighting, and more.</span>
-            </span>
+          <div className="format-guide">
+            <h2>Available formats</h2>
+            <p>1 × 1 in · 2 × 2 in · Passport</p>
+            <p>Photo prints · Custom dimensions</p>
           </div>
-        </div>
-
-        <div className="card side-card">
-          <CropMarks />
-          <h2>One photo. Multiple possibilities.</h2>
-          <p className="sub">We&rsquo;ll help you crop, clean up, and format it perfectly.</p>
-          <ul className="feature-list">
-            {FEATURES.map((f) => (
-              <li key={f.text}>
-                <Icon name={f.icon} />
-                <span>{f.text}</span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="example-label good">
-            Good example <Icon name="check_circle" />
-          </div>
-          <div className="example-grid">
-            {[0, 1, 2].map((i) => (
-              <div className="example-thumb" key={i}>
-                <Icon name="person" style={{ fontSize: 34, color: '#22c55e' }} />
-                <span className="example-mark good">
-                  <Icon name="check" />
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="example-label bad">
-            Not recommended <Icon name="close" />
-          </div>
-          <div className="example-grid">
-            {[0, 1, 2].map((i) => (
-              <div className="example-thumb" key={i}>
-                <Icon name="person" style={{ fontSize: 34, color: '#ef4444' }} />
-                <span className="example-mark bad">
-                  <Icon name="close" />
-                </span>
-              </div>
-            ))}
-          </div>
-          <p className="example-caption">Avoid glasses, shadows, and side profiles.</p>
-        </div>
+          <div className="privacy-note"><Icon name="lock" /><p><strong>Private by default</strong>Your photo is processed on this device. No account or server upload needed.</p></div>
+        </aside>
       </div>
     </>
   );

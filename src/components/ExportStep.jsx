@@ -144,9 +144,10 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
   }
 
   return (
-    <section className="panel">
-      <CropMarks />
-      <h2>Download</h2>
+    <>
+      <div className="page-head">
+      <span className="step-badge">STEP 5 OF 5</span>
+      <h1>Download & print</h1>
       <p className="sub">
         Your photo is{' '}
         <span className="mono">
@@ -155,6 +156,9 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
         . Save a single copy, or tile copies onto a print sheet.
       </p>
 
+      </div>
+      <section className="panel">
+      <CropMarks />
       <div className="row" style={{ alignItems: 'flex-end' }}>
         <div className="field" style={{ maxWidth: 220, minWidth: 180 }}>
           <span className="lbl">File format</span>
@@ -173,7 +177,7 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
               type="checkbox"
               checked={border}
               onChange={(e) => setBorder(e.target.checked)}
-              style={{ display: 'none' }}
+              className="visually-hidden"
             />
             <span className={`pill-switch ${border ? 'on' : ''}`} role="presentation" aria-hidden="true" />
           </label>
@@ -288,6 +292,7 @@ export default function ExportStep({ finalCanvas, preset, onBack }) {
         </button>
       </div>
     </section>
+    </>
   );
 }
 

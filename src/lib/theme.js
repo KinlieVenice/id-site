@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'id-photo-maker:theme';
 
-export const DEFAULT_HUE = 213; // hue of #2D78D2, the requested default blue
+export const DEFAULT_HUE = 211; // workbench blue
 export const DEFAULT_MODE = 'light';
 
 // ---- colour maths -----------------------------------------------------------
@@ -110,11 +110,7 @@ export function buildPalette(hue, mode) {
     ? findLightness(accent2Hue, 60, DARK_TEXT, 4.5, 65, 'lighter', 5, 95)
     : findLightness(accent2Hue, 60, WHITE, 4.5, 55, 'darker', 5, 95);
 
-  const paperRgb = dark ? hslToRgb(hue, 22, 10) : hslToRgb(hue, 45, 97);
-  const ink2L = dark
-    ? findLightness(hue, 18, paperRgb, 4.5, 78, 'darker', 55, 95)
-    : findLightness(hue, 20, paperRgb, 4.5, 40, 'darker', 20, 55);
-
+  const paperRgb = dark ? [25, 28, 32] : [241, 243, 245];
   // "Soft" tint backgrounds (badges, active-nav highlights) sit BEHIND text
   // colored with the matching accent — a fixed lightness/saturation pairs
   // badly with some hues (fails 4.5:1 by a hair at certain points on the
@@ -133,19 +129,19 @@ export function buildPalette(hue, mode) {
 
   return {
     '--paper': rgbToHex(paperRgb),
-    '--paper-2': dark ? hsl(hue, 20, 14) : hsl(hue, 40, 92),
-    '--ink': dark ? hsl(hue, 25, 93) : hsl(hue, 35, 20),
-    '--ink-2': dark ? hsl(hue, 18, ink2L) : hsl(hue, 20, ink2L),
-    '--ink-3': dark ? hsl(hue, 16, Math.min(95, ink2L + 4)) : hsl(hue, 18, Math.max(5, ink2L + 2)),
-    '--line': dark ? hsl(hue, 20, 26) : hsl(hue, 45, 88),
-    '--line-2': dark ? hsl(hue, 20, 34) : hsl(hue, 45, 78),
+    '--paper-2': dark ? '#23272d' : '#e6e9ed',
+    '--ink': dark ? '#edf0f4' : '#20252c',
+    '--ink-2': dark ? '#b8c0ca' : '#59636f',
+    '--ink-3': dark ? '#adb7c4' : '#626d79',
+    '--line': dark ? '#39414b' : '#d8dee5',
+    '--line-2': dark ? '#546171' : '#b4bfca',
     '--accent': hsl(hue, accentSat, accentL),
     '--accent-ink': rgbToHex(accentText),
     '--accent-hover': hsl(hue, accentSat, accentHoverL),
     '--accent-soft': hsl(hue, softSat, accentSoftL),
     '--accent-2': rgbToHex(accent2Rgb),
     '--accent-2-soft': hsl(accent2Hue, softSat, accent2SoftL),
-    '--white': dark ? hsl(hue, 20, 15) : '#ffffff',
+    '--white': dark ? '#20242a' : '#ffffff',
     '--pink': hsl(hue, accentSat, accentL),
     '--pink-soft': hsl(hue, softSat, accentSoftL),
     '--pink-hover': hsl(hue, accentSat, pinkHoverL),
