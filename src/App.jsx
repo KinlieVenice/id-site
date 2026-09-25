@@ -64,13 +64,12 @@ export default function App() {
 
   return (
     <div className="game-shell">
-      <aside className="sidebar">
+      <header className="sidebar">
         <div className="sidebar-brand">
-          <Icon name="sparkles" /> ID Photo Maker
+          <span className="brand-mark" aria-hidden="true">iD.</span><span>ID Photo Maker<small>THE EVERYDAY PHOTO STUDIO</small></span>
         </div>
-        <Stepper current={step} maxReached={maxReached} onGo={goTo} />
         <div className="sidebar-spacer" />
-        <button className="btn primary" data-tour="new-photo" onClick={handleNewPhoto} style={{ marginBottom: 12, width: '100%' }}>
+        <button className="btn new-photo" data-tour="new-photo" onClick={handleNewPhoto} >
           <Icon name="add_a_photo" /> New photo
         </button>
         <div className="sidebar-privacy">
@@ -98,17 +97,19 @@ export default function App() {
               </span>
               <input
                 type="checkbox"
+                aria-label="Dark mode"
                 checked={mode === 'dark'}
                 onChange={(e) => setMode(e.target.checked ? 'dark' : 'light')}
-                style={{ display: 'none' }}
+                className="visually-hidden"
               />
               <span className={`pill-switch ${mode === 'dark' ? 'on' : ''}`} role="presentation" aria-hidden="true" />
             </label>
           </div>
         </div>
-      </aside>
+      </header>
+      <Stepper current={step} maxReached={maxReached} onGo={goTo} />
 
-      <div className="game-main">
+      <main className="game-main">
       <PhotoTour active={tourActive} started={tourStarted} step={step} hasPreset={!!preset}
         onToggle={() => { setTourActive((active) => !active); setTourStarted(false); }}
         onClose={() => setTourActive(false)} />
@@ -175,7 +176,8 @@ export default function App() {
           <ExportStep finalCanvas={finalCanvas} preset={preset} onBack={() => goTo(4)} />
         </Suspense>
       )}
-      </div>
+      </main>
+      <footer className="studio-footer"><span>A little studio. Entirely yours.</span><span>ID &amp; passport photos / Made on your device</span></footer>
     </div>
   );
 }

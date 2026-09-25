@@ -145,7 +145,7 @@ export default function BackgroundStep({ croppedCanvas, preset, persisted, onDon
                   checked={removeBg}
                   disabled={working}
                   onChange={(e) => setRemoveBg(e.target.checked)}
-                  style={{ display: 'none' }}
+                  className="visually-hidden"
                 />
                 <span
                   className={`pill-switch ${removeBg ? 'on' : ''}`}
